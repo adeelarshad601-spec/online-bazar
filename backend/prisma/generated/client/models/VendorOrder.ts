@@ -503,10 +503,6 @@ export type VendorOrderUncheckedUpdateManyWithoutOrderNestedInput = {
   deleteMany?: Prisma.VendorOrderScalarWhereInput | Prisma.VendorOrderScalarWhereInput[]
 }
 
-export type EnumOrderStatusFieldUpdateOperationsInput = {
-  set?: $Enums.OrderStatus
-}
-
 export type VendorOrderCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.VendorOrderCreateWithoutItemsInput, Prisma.VendorOrderUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.VendorOrderCreateOrConnectWithoutItemsInput

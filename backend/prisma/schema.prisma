@@ -415,6 +415,7 @@ model Order {
   totalAmount     Decimal       @db.Decimal(12, 2)
 
   paymentStatus   PaymentStatus @default(PENDING)
+  status          OrderStatus   @default(PENDING)
 
   shippingAddress Json
 

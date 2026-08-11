@@ -11,6 +11,9 @@ import categoryRoutes from "./routes/category.routes.js";
 import shopRoutes from "./routes/shop.routes.js";
 import sellerRoutes from "./routes/seller.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
+import checkoutRoutes from "./routes/checkout.routes.js";
+import orderRoutes from "./routes/order.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
 
 const app = express();
 app.use(cookieParser());
@@ -43,5 +46,8 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/shops", shopRoutes);
 app.use("/api/sellers", sellerRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/checkout", checkoutRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/payments", paymentRoutes);
 
 export default app;
