@@ -7,6 +7,7 @@ import {
   VendorOrdersQuery,
   VendorOrderStatusUpdateInput,
 } from "../validators/order.validator.js";
+import { createNotification } from "./notification.service.js";
 
 const mapOrder = (order: any) => ({
   id: order.id,
@@ -189,6 +190,34 @@ export const cancelCustomerOrder = async (userId: string, orderId: string) => {
       },
     });
 
+    // create history records for vendor orders and order
+    try {
+      await Promise.all(
+        cancelledOrder.vendorOrders.map((vo: any) =>
+          tx.orderStatusHistory.create({
+            data: {
+              orderId: cancelledOrder.id,
+              vendorOrderId: vo.id,
+              previousStatus: "PENDING",
+              newStatus: "CANCELLED",
+              changedById: userId,
+            },
+          })
+        )
+      );
+
+      await tx.orderStatusHistory.create({
+        data: {
+          orderId: cancelledOrder.id,
+          previousStatus: "PENDING",
+          newStatus: "CANCELLED",
+          changedById: userId,
+        },
+      });
+    } catch (err) {
+      console.error("Failed to create order status history on cancel", err);
+    }
+
     return mapOrder(cancelledOrder);
   });
 };
@@ -285,6 +314,33 @@ export const updateVendorOrderStatus = async (
       },
     },
   });
+
+  // create order status history for vendor order
+  try {
+    await prisma.orderStatusHistory.create({
+      data: {
+        orderId: updated.orderId,
+        vendorOrderId: updated.id,
+        previousStatus: vendorOrder.status as any,
+        newStatus: updated.status as any,
+        changedById: sellerId,
+      },
+    });
+  } catch (err) {
+    console.error("Failed to create vendor order status history", err);
+  }
+
+  // notify customer about vendor order status change
+  try {
+    await createNotification({
+      userId: updated.order.userId,
+      type: "ORDER",
+      title: `Order ${updated.order.orderNumber} update`,
+      message: `Items from shop ${updated.shop.name} are now ${updated.status}`,
+    });
+  } catch (err) {
+    console.error("Failed to create notification for vendor order status change", err);
+  }
 
   return {
     id: updated.id,
@@ -408,6 +464,31 @@ export const updateAdminOrderStatus = async (
       payment: true,
     },
   });
+
+  // create order status history
+  try {
+    await prisma.orderStatusHistory.create({
+      data: {
+        orderId: updated.id,
+        previousStatus: order.status as any,
+        newStatus: updated.status as any,
+      },
+    });
+  } catch (err) {
+    console.error("Failed to create order status history", err);
+  }
+
+  // notify customer about order status change
+  try {
+    await createNotification({
+      userId: updated.user.id,
+      type: "ORDER",
+      title: `Order ${updated.orderNumber} status updated`,
+      message: `Order status changed to ${updated.status}`,
+    });
+  } catch (err) {
+    console.error("Failed to create notification for order status change", err);
+  }
 
   return {
     ...mapOrder(updated),

@@ -1,6 +1,7 @@
 import { Decimal } from "@prisma/client/runtime/client";
 import prisma from "../config/database.js";
 import { CheckoutInput } from "../validators/checkout.validator.js";
+import { createNotification } from "./notification.service.js";
 
 const mapOrderItem = (item: any) => ({
   id: item.id,
@@ -330,3 +331,4 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     };
   });
 };
+

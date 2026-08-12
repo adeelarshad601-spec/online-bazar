@@ -11,11 +11,13 @@ import {
 
 import { authenticate } from "../middleware/auth.middleware.js";
 import { authorize } from "../middleware/role.middleware.js";
+import searchRoutes from "./search.routes.js";
 
 const router = Router();
 
 // Public
 router.get("/", getAll);
+router.use("/search", searchRoutes);
 router.get("/:id", getOne);
 
 // Seller + Admin

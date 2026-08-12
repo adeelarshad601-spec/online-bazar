@@ -9,6 +9,7 @@ import {
   getVendorOrders,
   updateAdminOrderStatus,
   updateVendorOrderStatus,
+  getOrderTracking,
 } from "../controllers/order.controller.js";
 
 const router = Router();
@@ -36,6 +37,10 @@ router.patch(
   updateAdminOrderStatus
 );
 router.get("/:id", authenticate, authorize("CUSTOMER"), getOrder);
+router.get("/:id/tracking", authenticate, (req, res, next) => {
+  // allow both customer and admin; internal checking in controller
+  next();
+}, getOrderTracking);
 router.patch("/:id/cancel", authenticate, authorize("CUSTOMER"), cancelOrder);
 
 export default router;

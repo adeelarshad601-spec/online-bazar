@@ -235,6 +235,7 @@ export type VendorOrderWhereInput = {
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   shop?: Prisma.XOR<Prisma.ShopScalarRelationFilter, Prisma.ShopWhereInput>
   items?: Prisma.OrderItemListRelationFilter
+  statusHistory?: Prisma.OrderStatusHistoryListRelationFilter
 }
 
 export type VendorOrderOrderByWithRelationInput = {
@@ -248,6 +249,7 @@ export type VendorOrderOrderByWithRelationInput = {
   order?: Prisma.OrderOrderByWithRelationInput
   shop?: Prisma.ShopOrderByWithRelationInput
   items?: Prisma.OrderItemOrderByRelationAggregateInput
+  statusHistory?: Prisma.OrderStatusHistoryOrderByRelationAggregateInput
 }
 
 export type VendorOrderWhereUniqueInput = Prisma.AtLeast<{
@@ -264,6 +266,7 @@ export type VendorOrderWhereUniqueInput = Prisma.AtLeast<{
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   shop?: Prisma.XOR<Prisma.ShopScalarRelationFilter, Prisma.ShopWhereInput>
   items?: Prisma.OrderItemListRelationFilter
+  statusHistory?: Prisma.OrderStatusHistoryListRelationFilter
 }, "id">
 
 export type VendorOrderOrderByWithAggregationInput = {
@@ -303,6 +306,7 @@ export type VendorOrderCreateInput = {
   order: Prisma.OrderCreateNestedOneWithoutVendorOrdersInput
   shop: Prisma.ShopCreateNestedOneWithoutVendorOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutVendorOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutVendorOrderInput
 }
 
 export type VendorOrderUncheckedCreateInput = {
@@ -314,6 +318,7 @@ export type VendorOrderUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVendorOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutVendorOrderInput
 }
 
 export type VendorOrderUpdateInput = {
@@ -325,6 +330,7 @@ export type VendorOrderUpdateInput = {
   order?: Prisma.OrderUpdateOneRequiredWithoutVendorOrdersNestedInput
   shop?: Prisma.ShopUpdateOneRequiredWithoutVendorOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutVendorOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutVendorOrderNestedInput
 }
 
 export type VendorOrderUncheckedUpdateInput = {
@@ -336,6 +342,7 @@ export type VendorOrderUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutVendorOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutVendorOrderNestedInput
 }
 
 export type VendorOrderCreateManyInput = {
@@ -417,6 +424,11 @@ export type VendorOrderSumOrderByAggregateInput = {
 export type VendorOrderScalarRelationFilter = {
   is?: Prisma.VendorOrderWhereInput
   isNot?: Prisma.VendorOrderWhereInput
+}
+
+export type VendorOrderNullableScalarRelationFilter = {
+  is?: Prisma.VendorOrderWhereInput | null
+  isNot?: Prisma.VendorOrderWhereInput | null
 }
 
 export type VendorOrderCreateNestedManyWithoutShopInput = {
@@ -517,6 +529,22 @@ export type VendorOrderUpdateOneRequiredWithoutItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.VendorOrderUpdateToOneWithWhereWithoutItemsInput, Prisma.VendorOrderUpdateWithoutItemsInput>, Prisma.VendorOrderUncheckedUpdateWithoutItemsInput>
 }
 
+export type VendorOrderCreateNestedOneWithoutStatusHistoryInput = {
+  create?: Prisma.XOR<Prisma.VendorOrderCreateWithoutStatusHistoryInput, Prisma.VendorOrderUncheckedCreateWithoutStatusHistoryInput>
+  connectOrCreate?: Prisma.VendorOrderCreateOrConnectWithoutStatusHistoryInput
+  connect?: Prisma.VendorOrderWhereUniqueInput
+}
+
+export type VendorOrderUpdateOneWithoutStatusHistoryNestedInput = {
+  create?: Prisma.XOR<Prisma.VendorOrderCreateWithoutStatusHistoryInput, Prisma.VendorOrderUncheckedCreateWithoutStatusHistoryInput>
+  connectOrCreate?: Prisma.VendorOrderCreateOrConnectWithoutStatusHistoryInput
+  upsert?: Prisma.VendorOrderUpsertWithoutStatusHistoryInput
+  disconnect?: Prisma.VendorOrderWhereInput | boolean
+  delete?: Prisma.VendorOrderWhereInput | boolean
+  connect?: Prisma.VendorOrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.VendorOrderUpdateToOneWithWhereWithoutStatusHistoryInput, Prisma.VendorOrderUpdateWithoutStatusHistoryInput>, Prisma.VendorOrderUncheckedUpdateWithoutStatusHistoryInput>
+}
+
 export type VendorOrderCreateWithoutShopInput = {
   id?: string
   status?: $Enums.OrderStatus
@@ -525,6 +553,7 @@ export type VendorOrderCreateWithoutShopInput = {
   updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutVendorOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutVendorOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutVendorOrderInput
 }
 
 export type VendorOrderUncheckedCreateWithoutShopInput = {
@@ -535,6 +564,7 @@ export type VendorOrderUncheckedCreateWithoutShopInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVendorOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutVendorOrderInput
 }
 
 export type VendorOrderCreateOrConnectWithoutShopInput = {
@@ -584,6 +614,7 @@ export type VendorOrderCreateWithoutOrderInput = {
   updatedAt?: Date | string
   shop: Prisma.ShopCreateNestedOneWithoutVendorOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutVendorOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutVendorOrderInput
 }
 
 export type VendorOrderUncheckedCreateWithoutOrderInput = {
@@ -594,6 +625,7 @@ export type VendorOrderUncheckedCreateWithoutOrderInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVendorOrderInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutVendorOrderInput
 }
 
 export type VendorOrderCreateOrConnectWithoutOrderInput = {
@@ -630,6 +662,7 @@ export type VendorOrderCreateWithoutItemsInput = {
   updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutVendorOrdersInput
   shop: Prisma.ShopCreateNestedOneWithoutVendorOrdersInput
+  statusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutVendorOrderInput
 }
 
 export type VendorOrderUncheckedCreateWithoutItemsInput = {
@@ -640,6 +673,7 @@ export type VendorOrderUncheckedCreateWithoutItemsInput = {
   subTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutVendorOrderInput
 }
 
 export type VendorOrderCreateOrConnectWithoutItemsInput = {
@@ -666,6 +700,7 @@ export type VendorOrderUpdateWithoutItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutVendorOrdersNestedInput
   shop?: Prisma.ShopUpdateOneRequiredWithoutVendorOrdersNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutVendorOrderNestedInput
 }
 
 export type VendorOrderUncheckedUpdateWithoutItemsInput = {
@@ -676,6 +711,67 @@ export type VendorOrderUncheckedUpdateWithoutItemsInput = {
   subTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutVendorOrderNestedInput
+}
+
+export type VendorOrderCreateWithoutStatusHistoryInput = {
+  id?: string
+  status?: $Enums.OrderStatus
+  subTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  order: Prisma.OrderCreateNestedOneWithoutVendorOrdersInput
+  shop: Prisma.ShopCreateNestedOneWithoutVendorOrdersInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutVendorOrderInput
+}
+
+export type VendorOrderUncheckedCreateWithoutStatusHistoryInput = {
+  id?: string
+  orderId: string
+  shopId: string
+  status?: $Enums.OrderStatus
+  subTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutVendorOrderInput
+}
+
+export type VendorOrderCreateOrConnectWithoutStatusHistoryInput = {
+  where: Prisma.VendorOrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.VendorOrderCreateWithoutStatusHistoryInput, Prisma.VendorOrderUncheckedCreateWithoutStatusHistoryInput>
+}
+
+export type VendorOrderUpsertWithoutStatusHistoryInput = {
+  update: Prisma.XOR<Prisma.VendorOrderUpdateWithoutStatusHistoryInput, Prisma.VendorOrderUncheckedUpdateWithoutStatusHistoryInput>
+  create: Prisma.XOR<Prisma.VendorOrderCreateWithoutStatusHistoryInput, Prisma.VendorOrderUncheckedCreateWithoutStatusHistoryInput>
+  where?: Prisma.VendorOrderWhereInput
+}
+
+export type VendorOrderUpdateToOneWithWhereWithoutStatusHistoryInput = {
+  where?: Prisma.VendorOrderWhereInput
+  data: Prisma.XOR<Prisma.VendorOrderUpdateWithoutStatusHistoryInput, Prisma.VendorOrderUncheckedUpdateWithoutStatusHistoryInput>
+}
+
+export type VendorOrderUpdateWithoutStatusHistoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  subTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUpdateOneRequiredWithoutVendorOrdersNestedInput
+  shop?: Prisma.ShopUpdateOneRequiredWithoutVendorOrdersNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutVendorOrderNestedInput
+}
+
+export type VendorOrderUncheckedUpdateWithoutStatusHistoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  shopId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  subTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutVendorOrderNestedInput
 }
 
 export type VendorOrderCreateManyShopInput = {
@@ -695,6 +791,7 @@ export type VendorOrderUpdateWithoutShopInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutVendorOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutVendorOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutVendorOrderNestedInput
 }
 
 export type VendorOrderUncheckedUpdateWithoutShopInput = {
@@ -705,6 +802,7 @@ export type VendorOrderUncheckedUpdateWithoutShopInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutVendorOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutVendorOrderNestedInput
 }
 
 export type VendorOrderUncheckedUpdateManyWithoutShopInput = {
@@ -733,6 +831,7 @@ export type VendorOrderUpdateWithoutOrderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shop?: Prisma.ShopUpdateOneRequiredWithoutVendorOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutVendorOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutVendorOrderNestedInput
 }
 
 export type VendorOrderUncheckedUpdateWithoutOrderInput = {
@@ -743,6 +842,7 @@ export type VendorOrderUncheckedUpdateWithoutOrderInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutVendorOrderNestedInput
+  statusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutVendorOrderNestedInput
 }
 
 export type VendorOrderUncheckedUpdateManyWithoutOrderInput = {
@@ -761,10 +861,12 @@ export type VendorOrderUncheckedUpdateManyWithoutOrderInput = {
 
 export type VendorOrderCountOutputType = {
   items: number
+  statusHistory: number
 }
 
 export type VendorOrderCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | VendorOrderCountOutputTypeCountItemsArgs
+  statusHistory?: boolean | VendorOrderCountOutputTypeCountStatusHistoryArgs
 }
 
 /**
@@ -784,6 +886,13 @@ export type VendorOrderCountOutputTypeCountItemsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.OrderItemWhereInput
 }
 
+/**
+ * VendorOrderCountOutputType without action
+ */
+export type VendorOrderCountOutputTypeCountStatusHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderStatusHistoryWhereInput
+}
+
 
 export type VendorOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -796,6 +905,7 @@ export type VendorOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   shop?: boolean | Prisma.ShopDefaultArgs<ExtArgs>
   items?: boolean | Prisma.VendorOrder$itemsArgs<ExtArgs>
+  statusHistory?: boolean | Prisma.VendorOrder$statusHistoryArgs<ExtArgs>
   _count?: boolean | Prisma.VendorOrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["vendorOrder"]>
 
@@ -838,6 +948,7 @@ export type VendorOrderInclude<ExtArgs extends runtime.Types.Extensions.Internal
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   shop?: boolean | Prisma.ShopDefaultArgs<ExtArgs>
   items?: boolean | Prisma.VendorOrder$itemsArgs<ExtArgs>
+  statusHistory?: boolean | Prisma.VendorOrder$statusHistoryArgs<ExtArgs>
   _count?: boolean | Prisma.VendorOrderCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type VendorOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -855,6 +966,7 @@ export type $VendorOrderPayload<ExtArgs extends runtime.Types.Extensions.Interna
     order: Prisma.$OrderPayload<ExtArgs>
     shop: Prisma.$ShopPayload<ExtArgs>
     items: Prisma.$OrderItemPayload<ExtArgs>[]
+    statusHistory: Prisma.$OrderStatusHistoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1261,6 +1373,7 @@ export interface Prisma__VendorOrderClient<T, Null = never, ExtArgs extends runt
   order<T extends Prisma.OrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderDefaultArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   shop<T extends Prisma.ShopDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ShopDefaultArgs<ExtArgs>>): Prisma.Prisma__ShopClient<runtime.Types.Result.GetResult<Prisma.$ShopPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.VendorOrder$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VendorOrder$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  statusHistory<T extends Prisma.VendorOrder$statusHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VendorOrder$statusHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1719,6 +1832,30 @@ export type VendorOrder$itemsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.OrderItemScalarFieldEnum | Prisma.OrderItemScalarFieldEnum[]
+}
+
+/**
+ * VendorOrder.statusHistory
+ */
+export type VendorOrder$statusHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OrderStatusHistory
+   */
+  select?: Prisma.OrderStatusHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OrderStatusHistory
+   */
+  omit?: Prisma.OrderStatusHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderStatusHistoryInclude<ExtArgs> | null
+  where?: Prisma.OrderStatusHistoryWhereInput
+  orderBy?: Prisma.OrderStatusHistoryOrderByWithRelationInput | Prisma.OrderStatusHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.OrderStatusHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderStatusHistoryScalarFieldEnum | Prisma.OrderStatusHistoryScalarFieldEnum[]
 }
 
 /**

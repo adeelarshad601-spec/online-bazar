@@ -137,7 +137,7 @@ export const validateCoupon = async (userId: string, input: ValidateCouponInput)
     throw new Error("Coupon usage limit exceeded");
   }
 
-  if (coupon.minOrderAmount !== null && coupon.minOrderAmount !== undefined && input.orderAmount < coupon.minOrderAmount) {
+  if (coupon.minOrderAmount !== null && coupon.minOrderAmount !== undefined && input.orderAmount < Number(coupon.minOrderAmount)) {
     throw new Error("Order amount does not meet minimum requirement");
   }
 

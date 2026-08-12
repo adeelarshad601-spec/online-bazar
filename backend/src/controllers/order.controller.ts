@@ -9,6 +9,39 @@ import {
   vendorOrderIdParamSchema,
   vendorOrdersQuerySchema,
 } from "../validators/order.validator.js";
+import { orderIdParamSchema as trackingOrderParam } from "../validators/order.validator.js";
+import prisma from "../config/database.js";
+
+export const getOrderTracking = async (req: AuthRequest, res: Response) => {
+  try {
+    const validationResult = orderIdParamSchema.safeParse(req.params);
+    if (!validationResult.success) {
+      return res.status(400).json({ success: false, message: "Invalid order ID", errors: validationResult.error.issues });
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { id: validationResult.data.id },
+      include: {
+        vendorOrders: { include: { items: { include: { product: true, variant: true } }, shop: true } },
+        payment: true,
+      },
+    });
+
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    // authorization: customers only their orders; admin any
+    if (req.user!.role === "CUSTOMER" && order.userId !== req.user!.userId) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const history = await prisma.orderStatusHistory.findMany({ where: { orderId: order.id }, orderBy: { createdAt: "asc" } });
+
+    return res.status(200).json({ success: true, message: "Order tracking fetched", data: { order, history } });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: "Something went wrong" });
+  }
+};
 import {
   cancelCustomerOrder,
   getAdminOrders as getAdminOrdersService,

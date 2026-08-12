@@ -72,6 +72,7 @@ export const ModelName = {
   Coupon: 'Coupon',
   CouponUsage: 'CouponUsage',
   Notification: 'Notification',
+  OrderStatusHistory: 'OrderStatusHistory',
   SellerPayout: 'SellerPayout'
 } as const
 
@@ -382,6 +383,19 @@ export const NotificationScalarFieldEnum = {
 } as const
 
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const OrderStatusHistoryScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  vendorOrderId: 'vendorOrderId',
+  previousStatus: 'previousStatus',
+  newStatus: 'newStatus',
+  changedById: 'changedById',
+  createdAt: 'createdAt'
+} as const
+
+export type OrderStatusHistoryScalarFieldEnum = (typeof OrderStatusHistoryScalarFieldEnum)[keyof typeof OrderStatusHistoryScalarFieldEnum]
 
 
 export const SellerPayoutScalarFieldEnum = {

@@ -147,6 +147,11 @@ export type CouponUsage = Prisma.CouponUsageModel
  */
 export type Notification = Prisma.NotificationModel
 /**
+ * Model OrderStatusHistory
+ * 
+ */
+export type OrderStatusHistory = Prisma.OrderStatusHistoryModel
+/**
  * Model SellerPayout
  * 
  */
