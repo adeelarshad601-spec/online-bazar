@@ -2,6 +2,32 @@ import { Decimal } from "@prisma/client/runtime/client";
 import prisma from "../config/database.js";
 import { PayoutRequestInput, PayoutQuery, PayoutStatusUpdateInput } from "../validators/payout.validator.js";
 
+// Get the seller's active subscription commission rate or use default
+const getSellerCommissionRate = async (sellerId: string): Promise<Decimal> => {
+  const activeSubscription = await prisma.sellerSubscription.findFirst({
+    where: {
+      sellerId,
+      isActive: true,
+      expiresAt: {
+        gt: new Date(),
+      },
+    },
+    include: {
+      plan: true,
+    },
+    orderBy: {
+      startedAt: "desc",
+    },
+  });
+
+  if (activeSubscription && activeSubscription.plan) {
+    return activeSubscription.plan.commissionRate;
+  }
+
+  // Default commission rate if no active subscription
+  return new Decimal(10); // 10% default
+};
+
 const calculateSellerBalance = async (shopId: string) => {
   const vendorOrderTotals = await prisma.vendorOrder.aggregate({
     where: {
@@ -108,24 +134,66 @@ export const requestSellerPayout = async (sellerId: string, input: PayoutRequest
   const shop = await prisma.shop.findUnique({ where: { sellerId } });
   if (!shop) throw new Error("Seller shop not found");
 
-  const balance = await calculateSellerBalance(shop.id);
-  if (new Decimal(input.amount).gt(balance)) {
-    throw new Error("Requested payout exceeds available balance");
-  }
+  // Get the seller's commission rate from active subscription
+  const commissionRate = await getSellerCommissionRate(sellerId);
 
-  const commissionRate = new Decimal(0.10);
-  const commission = new Decimal(input.amount).mul(commissionRate);
-  const payoutAmount = new Decimal(input.amount).sub(commission);
+  // Use a transaction to ensure atomicity of balance check and payout creation
+  // This prevents race conditions where two concurrent requests could exceed available balance
+  const payout = await prisma.$transaction(async (tx) => {
+    // Get current balance within the transaction
+    const vendorOrderTotals = await tx.vendorOrder.aggregate({
+      where: {
+        shopId: shop.id,
+        status: {
+          in: ["PROCESSING", "SHIPPED", "DELIVERED"],
+        },
+        order: {
+          paymentStatus: "COMPLETED",
+        },
+      },
+      _sum: {
+        subTotal: true,
+      },
+    });
 
-  return prisma.sellerPayout.create({
-    data: {
-      shopId: shop.id,
-      amount: new Decimal(input.amount),
-      commission,
-      payoutAmount,
-      status: "PENDING",
-    },
+    const completedPayouts = await tx.sellerPayout.aggregate({
+      where: {
+        shopId: shop.id,
+        status: {
+          in: ["PENDING", "PROCESSING", "COMPLETED"],
+        },
+      },
+      _sum: {
+        payoutAmount: true,
+      },
+    });
+
+    const totalPaid = completedPayouts._sum.payoutAmount ?? new Decimal(0);
+    const totalRevenue = vendorOrderTotals._sum.subTotal ?? new Decimal(0);
+    const currentBalance = totalRevenue.sub(totalPaid);
+
+    // Verify balance within transaction (prevents race condition)
+    if (new Decimal(input.amount).gt(currentBalance)) {
+      throw new Error("Requested payout exceeds available balance");
+    }
+
+    // Calculate commission and payout amount using the seller's commission rate
+    const commission = new Decimal(input.amount).mul(commissionRate).div(new Decimal(100));
+    const payoutAmount = new Decimal(input.amount).sub(commission);
+
+    // Create payout within the transaction
+    return tx.sellerPayout.create({
+      data: {
+        shopId: shop.id,
+        amount: new Decimal(input.amount),
+        commission,
+        payoutAmount,
+        status: "PENDING",
+      },
+    });
   });
+
+  return payout;
 };
 
 export const getAdminPayouts = async (query: PayoutQuery) => {
