@@ -20,6 +20,7 @@ import couponRoutes from "./routes/coupon.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import payoutRoutes from "./routes/payout.routes.js";
 import searchRoutes from "./routes/search.routes.js";
+import sellerPlanRoutes from "./routes/seller-plan.routes.js";
 
 const app = express();
 app.use(cookieParser());
@@ -61,5 +62,6 @@ app.use("/api/coupons", couponRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/payouts", payoutRoutes);
 app.use("/api/products/search", searchRoutes);
+app.use("/api/seller-plans", sellerPlanRoutes);
 
 export default app;
