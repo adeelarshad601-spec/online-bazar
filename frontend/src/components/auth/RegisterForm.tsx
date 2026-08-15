@@ -94,7 +94,12 @@ export default function RegisterForm() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4" noValidate>
+        <form
+  onSubmit={handleSubmit(onSubmit, onInvalid)}
+  className="space-y-4"
+  noValidate
+  autoComplete="off"
+>
           {/* Name Field */}
           <div className="space-y-1.5">
             <label htmlFor="reg-name" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
@@ -134,6 +139,7 @@ export default function RegisterForm() {
               <input
                 id="reg-email"
                 type="email"
+                autoComplete="off"
                 placeholder="you@example.com"
                 aria-invalid={!!errors.email}
                 {...register("email")}
@@ -161,6 +167,7 @@ export default function RegisterForm() {
               <input
                 id="reg-password"
                 type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
                 placeholder="••••••••"
                 aria-invalid={!!errors.password}
                 {...register("password")}
@@ -210,6 +217,7 @@ export default function RegisterForm() {
                 id="reg-confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder="••••••••"
+                autoComplete="new-password"
                 aria-invalid={!!errors.confirmPassword}
                 {...register("confirmPassword")}
                 className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pl-10 pr-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 transition-all ${
