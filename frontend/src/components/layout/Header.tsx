@@ -22,6 +22,7 @@ import {
   Package,
   Layers,
   Sparkles,
+  Bell,
 } from "lucide-react";
 
 export default function Header() {
@@ -224,9 +225,27 @@ export default function Header() {
                         My Orders
                       </Link>
 
+                      <Link
+                        href="/account/notifications"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                      >
+                        <Bell className="h-4 w-4 text-amber-600" />
+                        Notifications
+                      </Link>
+
+                      <Link
+                        href="/account/settings"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                      >
+                        <UserIcon className="h-4 w-4 text-blue-600" />
+                        Account Settings
+                      </Link>
+
                       {(user.role === "SELLER" || user.role === "ADMIN") && (
                         <Link
-                          href="/seller"
+                          href="/seller/dashboard"
                           onClick={() => setUserDropdownOpen(false)}
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                         >

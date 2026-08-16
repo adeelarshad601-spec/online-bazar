@@ -46,6 +46,7 @@ export interface Product {
   updatedAt?: string;
   shop?: ProductShop;
   category?: ProductCategory;
+  categoryId?: string;
   images?: ProductImage[];
   variants?: ProductVariant[];
   rating?: number;
