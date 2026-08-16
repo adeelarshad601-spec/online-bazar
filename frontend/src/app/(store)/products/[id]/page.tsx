@@ -1,36 +1,36 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import ProductGallery from "@/components/product/ProductGallery";
-import VariantSelector from "@/components/product/VariantSelector";
-import QuantitySelector from "@/components/product/QuantitySelector";
-import ProductDetailSkeleton from "@/components/product/ProductDetailSkeleton";
-import ProductReviewsSection from "@/components/review/ProductReviewsSection";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ChevronRight,
+  Store,
+  Star,
+  Loader2,
+  ShoppingBag,
+  Heart,
+  Truck,
+  ShieldCheck,
+  RotateCcw,
+} from "lucide-react";
 import { useProductDetails } from "@/features/products/queries";
+import { useCurrentUser } from "@/features/auth/queries";
 import { useAddToCart } from "@/features/cart/queries";
 import {
   useCheckWishlist,
   useAddToWishlist,
   useRemoveFromWishlist,
 } from "@/features/wishlist/queries";
-import { useCurrentUser } from "@/features/auth/queries";
 import { ProductVariant } from "@/types/product";
-import {
-  ChevronRight,
-  Star,
-  ShoppingBag,
-  Heart,
-  Store,
-  ShieldCheck,
-  Truck,
-  RotateCcw,
-  AlertCircle,
-  ArrowLeft,
-  Loader2,
-} from "lucide-react";
+import ProductDetailSkeleton from "@/components/product/ProductDetailSkeleton";
+import ProductGallery from "@/components/product/ProductGallery";
+import VariantSelector from "@/components/product/VariantSelector";
+import QuantitySelector from "@/components/product/QuantitySelector";
+import ProductReviewsSection from "@/components/review/ProductReviewsSection";
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -41,7 +41,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const { id } = use(params);
   const { data: product, isLoading, isError } = useProductDetails(id);
   const { data: user } = useCurrentUser();
-  const { mutate: addToCart, isPending: isAddingCart } = useAddToCart();
+  const { mutate: addToCart, isPending: isAddingCart, isSuccess: isAddToCartSuccess } = useAddToCart();
   const { data: wishlistCheck } = useCheckWishlist(id);
   const { mutate: addToWishlist, isPending: isAddingWishlist } = useAddToWishlist();
   const { mutate: removeFromWishlist, isPending: isRemovingWishlist } = useRemoveFromWishlist();
@@ -51,6 +51,17 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [isBuyNowTriggered, setIsBuyNowTriggered] = useState(false);
+
+  // Navigate to cart after successful Buy Now
+  useEffect(() => {
+    if (isBuyNowTriggered && isAddToCartSuccess) {
+      setIsBuyNowTriggered(false);
+      setTimeout(() => {
+        router.push("/cart");
+      }, 300);
+    }
+  }, [isBuyNowTriggered, isAddToCartSuccess, router]);
 
   if (isLoading) {
     return <ProductDetailSkeleton />;
@@ -114,18 +125,12 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
       return;
     }
 
-    addToCart(
-      {
-        productId: product.id,
-        variantId: selectedVariant?.id,
-        quantity,
-      },
-      {
-        onSuccess: () => {
-          router.push("/cart");
-        },
-      }
-    );
+    setIsBuyNowTriggered(true);
+    addToCart({
+      productId: product.id,
+      variantId: selectedVariant?.id,
+      quantity,
+    });
   };
 
   const handleWishlistToggle = () => {

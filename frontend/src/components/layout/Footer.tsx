@@ -113,7 +113,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/notifications" className="hover:text-emerald-600 hover:underline">
+                <Link href="/account/notifications" className="hover:text-emerald-600 hover:underline">
                   Notifications
                 </Link>
               </li>

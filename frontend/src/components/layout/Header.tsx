@@ -78,10 +78,10 @@ export default function Header() {
             </Link>
             <span className="text-emerald-500">|</span>
             <Link
-              href="/notifications"
+              href="/account/notifications"
               className="text-emerald-100 hover:text-white hover:underline"
             >
-              Help Center
+              Notifications
             </Link>
           </div>
         </div>

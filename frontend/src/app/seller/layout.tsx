@@ -12,10 +12,8 @@ import {
   ShoppingBag,
   CreditCard,
   User,
-  LogOut,
   AlertCircle,
   Home,
-  ShieldCheck,
   ChevronRight,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -26,11 +24,19 @@ interface SellerLayoutContentProps {
 
 function SellerLayoutContent({ children }: SellerLayoutContentProps) {
   const { data: user } = useCurrentUser();
-  const { data: sellerStatus, isLoading } = useSellerStatus();
+  const { data: sellerStatus } = useSellerStatus();
   const pathname = usePathname();
 
-  // Access check
-  if (user && user.role !== "SELLER") {
+  // Only block access to seller portal pages — not to seller/apply or seller/status
+  const isSellerPortalPath =
+    pathname.startsWith("/seller/dashboard") ||
+    pathname.startsWith("/seller/shop") ||
+    pathname.startsWith("/seller/products") ||
+    pathname.startsWith("/seller/orders") ||
+    pathname.startsWith("/seller/payouts");
+
+  // Access check — only enforce SELLER role on actual portal pages
+  if (user && user.role !== "SELLER" && isSellerPortalPath) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6 lg:px-8">
         <div className="rounded-3xl border border-amber-200 bg-amber-50/60 p-12 text-center space-y-4 dark:border-amber-900/40 dark:bg-amber-950/20">
@@ -67,6 +73,19 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
     { name: "Orders", href: "/seller/orders", icon: ShoppingBag },
     { name: "Payouts", href: "/seller/payouts", icon: CreditCard },
   ];
+
+  // For non-portal paths like /seller/apply or /seller/status, render without the sidebar shell
+  const isApplyOrStatus =
+    pathname.startsWith("/seller/apply") ||
+    pathname.startsWith("/seller/status");
+
+  if (isApplyOrStatus || !isSellerPortalPath) {
+    return (
+      <main className="flex-1 overflow-x-hidden">
+        {children}
+      </main>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col md:flex-row">

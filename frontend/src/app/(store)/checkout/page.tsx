@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -108,10 +108,20 @@ function CheckoutFormContent() {
   const router = useRouter();
   const { data: user } = useCurrentUser();
   const { data: cart, isLoading: isCartLoading, isError: isCartError } = useCart();
-  const { mutate: executeCheckout, isPending: isSubmitting } = useCheckoutMutation();
+  const { mutate: executeCheckout, isPending: isSubmitting, data: checkoutData } = useCheckoutMutation();
 
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+
+  // Navigate to success page after successful checkout
+  useEffect(() => {
+    if (checkoutData?.success && checkoutData.data?.id) {
+      const timer = setTimeout(() => {
+        router.push(`/checkout/success?orderId=${checkoutData.data.id}`);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [checkoutData, router]);
 
   const {
     register,
@@ -218,23 +228,15 @@ function CheckoutFormContent() {
     setCouponInput("");
   };
 
-  const onSubmit = (data: ShippingAddressInput) => {
+  const onSubmit = async (data: ShippingAddressInput) => {
     if (isSubmitting) return;
 
-    executeCheckout(
-      {
-        shippingAddress: data,
-        paymentMethod: "COD",
-        couponCode: appliedCoupon || null,
-      },
-      {
-        onSuccess: (res) => {
-          if (res.data?.id) {
-            router.push(`/checkout/success?orderId=${res.data.id}`);
-          }
-        },
-      }
-    );
+    // Execute mutation and handle response
+    executeCheckout({
+      shippingAddress: data,
+      paymentMethod: "COD",
+      couponCode: appliedCoupon || null,
+    });
   };
 
   return (

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useCurrentUser } from "@/features/auth/queries";
 import { useSellerStatus, useApplySellerMutation } from "@/features/seller/queries";
@@ -10,8 +11,18 @@ import { Store, ShieldAlert, CheckCircle2, Clock, Loader2, ArrowRight, Sparkles 
 function SellerApplyContent() {
   const { data: user } = useCurrentUser();
   const { data: sellerStatus, isLoading: isStatusLoading } = useSellerStatus();
-  const { mutate: applySeller, isPending: isApplying } = useApplySellerMutation();
+  const { mutate: applySeller, isPending: isApplying, isSuccess: isApplySuccess } = useApplySellerMutation();
   const router = useRouter();
+
+  // Navigate to status page after successful application
+  useEffect(() => {
+    if (isApplySuccess) {
+      const timer = setTimeout(() => {
+        router.push("/seller/status");
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isApplySuccess, router]);
 
   if (isStatusLoading) {
     return (
@@ -70,11 +81,7 @@ function SellerApplyContent() {
   }
 
   const handleApply = () => {
-    applySeller(undefined, {
-      onSuccess: () => {
-        router.push("/seller/status");
-      },
-    });
+    applySeller(undefined);
   };
 
   return (
