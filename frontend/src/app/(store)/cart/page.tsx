@@ -305,14 +305,14 @@ function CartPageContent() {
                 </span>
               </div>
 
-              <button
-                type="button"
+              <Link
+                href="/checkout"
                 className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700"
                 id="proceed-checkout-btn"
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight className="h-4 w-4" />
-              </button>
+              </Link>
 
               <div className="space-y-2 rounded-2xl bg-zinc-50 p-4 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800/60 dark:text-zinc-400">
                 <div className="flex items-center gap-2">

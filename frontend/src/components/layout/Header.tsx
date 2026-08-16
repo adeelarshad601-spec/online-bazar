@@ -414,10 +414,20 @@ export default function Header() {
               <Link
                 href="/products"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-zinc-800 dark:text-zinc-200"
+                className="block text-zinc-800 hover:text-emerald-600 dark:text-zinc-200 dark:hover:text-emerald-400"
               >
                 All Products
               </Link>
+              {user && (
+                <Link
+                  href="/orders"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-zinc-800 hover:text-emerald-600 dark:text-zinc-200 dark:hover:text-emerald-400"
+                >
+                  <Package className="h-4 w-4 text-emerald-600" />
+                  <span>My Orders</span>
+                </Link>
+              )}
               <Link
                 href="/seller/apply"
                 onClick={() => setMobileMenuOpen(false)}
