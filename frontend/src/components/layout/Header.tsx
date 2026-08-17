@@ -216,53 +216,178 @@ export default function Header() {
                     </div>
 
                     <div className="py-1">
-                      <Link
-                        href="/orders"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                      >
-                        <Package className="h-4 w-4 text-emerald-600" />
-                        My Orders
-                      </Link>
+                      {user.role === "CUSTOMER" && (
+                        <>
+                          <Link
+                            href="/orders"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Package className="h-4 w-4 text-emerald-600" />
+                            My Orders
+                          </Link>
 
-                      <Link
-                        href="/account/notifications"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                      >
-                        <Bell className="h-4 w-4 text-amber-600" />
-                        Notifications
-                      </Link>
+                          <Link
+                            href="/wishlist"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Heart className="h-4 w-4 text-pink-600" />
+                            Wishlist
+                          </Link>
 
-                      <Link
-                        href="/account/settings"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                      >
-                        <UserIcon className="h-4 w-4 text-blue-600" />
-                        Account Settings
-                      </Link>
+                          <Link
+                            href="/account/notifications"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Bell className="h-4 w-4 text-amber-600" />
+                            Notifications
+                          </Link>
 
-                      {(user.role === "SELLER" || user.role === "ADMIN") && (
-                        <Link
-                          href="/seller/dashboard"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                        >
-                          <Store className="h-4 w-4 text-teal-600" />
-                          Seller Portal
-                        </Link>
+                          <Link
+                            href="/account/settings"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <UserIcon className="h-4 w-4 text-blue-600" />
+                            Account Settings
+                          </Link>
+                        </>
+                      )}
+
+                      {user.role === "SELLER" && (
+                        <>
+                          <Link
+                            href="/seller/dashboard"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Store className="h-4 w-4 text-teal-600" />
+                            Seller Dashboard
+                          </Link>
+
+                          <Link
+                            href="/seller/shop"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Store className="h-4 w-4 text-emerald-600" />
+                            My Shop
+                          </Link>
+
+                          <Link
+                            href="/seller/products"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Package className="h-4 w-4 text-violet-600" />
+                            Products
+                          </Link>
+
+                          <Link
+                            href="/seller/orders"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <ShoppingCart className="h-4 w-4 text-cyan-600" />
+                            Orders
+                          </Link>
+
+                          <Link
+                            href="/seller/payouts"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <ShieldAlert className="h-4 w-4 text-indigo-600" />
+                            Earnings
+                          </Link>
+
+                          <Link
+                            href="/account/notifications"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Bell className="h-4 w-4 text-amber-600" />
+                            Notifications
+                          </Link>
+
+                          <Link
+                            href="/account/settings"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <UserIcon className="h-4 w-4 text-blue-600" />
+                            Settings
+                          </Link>
+                        </>
                       )}
 
                       {user.role === "ADMIN" && (
-                        <Link
-                          href="/admin"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                        >
-                          <ShieldAlert className="h-4 w-4 text-indigo-600" />
-                          Admin Dashboard
-                        </Link>
+                        <>
+                          <Link
+                            href="/admin/dashboard"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <ShieldAlert className="h-4 w-4 text-indigo-600" />
+                            Admin Dashboard
+                          </Link>
+
+                          <Link
+                            href="/admin/sellers"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Store className="h-4 w-4 text-teal-600" />
+                            Sellers
+                          </Link>
+
+                          <Link
+                            href="/admin/products"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Package className="h-4 w-4 text-violet-600" />
+                            Products
+                          </Link>
+
+                          <Link
+                            href="/admin/orders"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <ShoppingCart className="h-4 w-4 text-cyan-600" />
+                            Orders
+                          </Link>
+
+                          <Link
+                            href="/account/notifications"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Bell className="h-4 w-4 text-amber-600" />
+                            Notifications
+                          </Link>
+
+                          <Link
+                            href="/account/settings"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <UserIcon className="h-4 w-4 text-blue-600" />
+                            Settings
+                          </Link>
+
+                          <Link
+                            href="/"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <Store className="h-4 w-4 text-emerald-600" />
+                            View Store
+                          </Link>
+                        </>
                       )}
                     </div>
 

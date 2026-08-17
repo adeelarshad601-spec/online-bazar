@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginSchemaType } from "@/features/auth/schemas";
 import { useLogin } from "@/features/auth/queries";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/ui/logo";
 import {
@@ -18,7 +18,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-export default function LoginForm() {
+interface LoginFormProps {
+  adminMode?: boolean;
+}
+
+export default function LoginForm({ adminMode = false }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [fieldsUnlocked, setFieldsUnlocked] = useState(false);
 
@@ -26,8 +30,11 @@ export default function LoginForm() {
   const passwordRef = useRef<HTMLInputElement | null>(null);
 
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
+  const isAdminLoginRoute = pathname === "/admin/login" || adminMode;
+  const defaultRedirect = isAdminLoginRoute ? "/admin/dashboard" : redirect || "/";
 
   const { mutate: login, isPending } = useLogin();
 
@@ -105,10 +112,17 @@ export default function LoginForm() {
 
   const onSubmit = (data: LoginSchemaType) => {
     login(data, {
-      onSuccess: () => {
+      onSuccess: (user) => {
         clearForm();
 
-        router.replace(redirect);
+        const nextRoute =
+          isAdminLoginRoute || user.role === "ADMIN"
+            ? "/admin/dashboard"
+            : user.role === "SELLER"
+              ? "/seller/dashboard"
+              : defaultRedirect;
+
+        router.replace(nextRoute);
       },
     });
   };
