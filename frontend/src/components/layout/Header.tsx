@@ -210,9 +210,6 @@ export default function Header() {
                     <div className="border-b border-zinc-100 px-3 py-2 dark:border-zinc-800">
                       <p className="text-xs font-bold text-zinc-900 dark:text-white">{user.name}</p>
                       <p className="truncate text-[11px] text-zinc-500">{user.email}</p>
-                      <span className="mt-1 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                        {user.role}
-                      </span>
                     </div>
 
                     <div className="py-1">
@@ -325,42 +322,6 @@ export default function Header() {
 
                       {user.role === "ADMIN" && (
                         <>
-                          <Link
-                            href="/admin/dashboard"
-                            onClick={() => setUserDropdownOpen(false)}
-                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                          >
-                            <ShieldAlert className="h-4 w-4 text-indigo-600" />
-                            Admin Dashboard
-                          </Link>
-
-                          <Link
-                            href="/admin/sellers"
-                            onClick={() => setUserDropdownOpen(false)}
-                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                          >
-                            <Store className="h-4 w-4 text-teal-600" />
-                            Sellers
-                          </Link>
-
-                          <Link
-                            href="/admin/products"
-                            onClick={() => setUserDropdownOpen(false)}
-                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                          >
-                            <Package className="h-4 w-4 text-violet-600" />
-                            Products
-                          </Link>
-
-                          <Link
-                            href="/admin/orders"
-                            onClick={() => setUserDropdownOpen(false)}
-                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                          >
-                            <ShoppingCart className="h-4 w-4 text-cyan-600" />
-                            Orders
-                          </Link>
-
                           <Link
                             href="/account/notifications"
                             onClick={() => setUserDropdownOpen(false)}
