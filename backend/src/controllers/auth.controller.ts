@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { registerSchema, loginSchema } from "../validators/auth.validator.js";
-import { registerUser, loginUser, getCurrentUser } from "../services/auth.service.js";
+import { registerUser, loginUser, getCurrentUser, adminLogin } from "../services/auth.service.js";
 import { AuthRequest } from "../middleware/auth.middleware.js";
 export const register = async (req: Request, res: Response) => {
   try {
@@ -74,6 +74,54 @@ export const login = async (req: Request, res: Response) => {
     if (
       error instanceof Error &&
       error.message === "Invalid email or password"
+    ) {
+      return res.status(401).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while logging in",
+    });
+  }
+};
+
+// Admin Login controller
+export const adminLoginController = async (req: Request, res: Response) => {
+  try {
+    const validationResult = loginSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: validationResult.error.issues,
+      });
+    }
+
+    const result = await adminLogin(validationResult.data);
+
+    res.cookie("accessToken", result.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Admin login successful",
+      data: result.user,
+    });
+  } catch (error) {
+    console.error("Admin login error:", error);
+
+    if (
+      error instanceof Error &&
+      (error.message === "Invalid email or password" ||
+       error.message === "This account does not have admin access")
     ) {
       return res.status(401).json({
         success: false,

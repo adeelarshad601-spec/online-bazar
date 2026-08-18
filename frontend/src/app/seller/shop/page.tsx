@@ -4,9 +4,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMyShop, useCreateShopMutation, useUpdateShopMutation } from "@/features/seller/shop-queries";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Store, Globe, Image as ImageIcon, FileText, Loader2, ExternalLink, Save } from "lucide-react";
+import { Store, Globe, Image as ImageIcon, FileText, Loader2, ExternalLink, Save, Upload, X } from "lucide-react";
 
 const shopSchema = z.object({
   name: z
@@ -25,18 +25,12 @@ const shopSchema = z.object({
       "Slug must contain lowercase letters, numbers and hyphens only (e.g. my-awesome-shop)"
     ),
 
-  logo: z
-    .string()
-    .trim()
-    .url("Logo must be a valid URL")
-    .or(z.literal(""))
+  logoFile: z
+    .instanceof(File)
     .optional(),
 
-  banner: z
-    .string()
-    .trim()
-    .url("Banner must be a valid URL")
-    .or(z.literal(""))
+  bannerFile: z
+    .instanceof(File)
     .optional(),
 
   description: z
@@ -49,12 +43,46 @@ const shopSchema = z.object({
 
 type ShopFormData = z.infer<typeof shopSchema>;
 
+const fileToDataUrl = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onerror = () => reject(new Error("Unable to read image file"));
+    reader.onload = () => {
+      const image = new Image();
+      image.onerror = () => reject(new Error("Invalid image file"));
+      image.onload = () => {
+        const maxDimension = 1600;
+        const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+
+        const context = canvas.getContext("2d");
+        if (!context) {
+          reject(new Error("Unable to process image file"));
+          return;
+        }
+
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      image.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+
 export default function SellerShopPage() {
   const { data: shop, isLoading } = useMyShop();
   const { mutate: createShop, isPending: isCreating } = useCreateShopMutation();
   const { mutate: updateShop, isPending: isUpdating } = useUpdateShopMutation();
 
   const isSubmitting = isCreating || isUpdating;
+
+  const [logoPreview, setLogoPreview] = useState<string>("");
+  const [bannerPreview, setBannerPreview] = useState<string>("");
 
   const {
     register,
@@ -67,8 +95,6 @@ export default function SellerShopPage() {
     defaultValues: {
       name: "",
       slug: "",
-      logo: "",
-      banner: "",
       description: "",
     },
   });
@@ -77,14 +103,13 @@ export default function SellerShopPage() {
     if (shop) {
       setValue("name", shop.name || "");
       setValue("slug", shop.slug || "");
-      setValue("logo", shop.logo || "");
-      setValue("banner", shop.banner || "");
       setValue("description", shop.description || "");
+      if (shop.logo) setLogoPreview(shop.logo);
+      if (shop.banner) setBannerPreview(shop.banner);
     }
   }, [shop, setValue]);
 
   const nameValue = watch("name");
-  // Auto generate slug if creating new shop
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setValue("name", val);
@@ -97,12 +122,49 @@ export default function SellerShopPage() {
     }
   };
 
-  const onSubmit = (data: ShopFormData) => {
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setValue("logoFile", file);
+      fileToDataUrl(file).then(setLogoPreview).catch(() => setLogoPreview(""));
+    }
+  };
+
+  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setValue("bannerFile", file);
+      fileToDataUrl(file).then(setBannerPreview).catch(() => setBannerPreview(""));
+    }
+  };
+
+  const clearLogoPreview = () => {
+    setLogoPreview("");
+    setValue("logoFile", undefined);
+  };
+
+  const clearBannerPreview = () => {
+    setBannerPreview("");
+    setValue("bannerFile", undefined);
+  };
+
+  const onSubmit = async (data: ShopFormData) => {
+    let logoBase64: string | undefined;
+    let bannerBase64: string | undefined;
+
+    if (data.logoFile) {
+      logoBase64 = await fileToDataUrl(data.logoFile);
+    }
+
+    if (data.bannerFile) {
+      bannerBase64 = await fileToDataUrl(data.bannerFile);
+    }
+
     const payload = {
       name: data.name,
       slug: data.slug,
-      logo: data.logo || undefined,
-      banner: data.banner || undefined,
+      logo: logoBase64 || logoPreview || undefined,
+      banner: bannerBase64 || bannerPreview || undefined,
       description: data.description || undefined,
     };
 
@@ -215,40 +277,94 @@ export default function SellerShopPage() {
           <div className="space-y-4 border-t border-zinc-100 pt-6 dark:border-zinc-800">
             <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
               <ImageIcon className="h-4 w-4 text-emerald-600" />
-              <span>Shop Branding & Media (Image URLs)</span>
+              <span>Shop Branding & Media (File Upload)</span>
             </h3>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {/* Logo Upload */}
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-                  Logo URL
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-3">
+                  Shop Logo
                 </label>
-                <input
-                  type="url"
-                  disabled={isSubmitting}
-                  {...register("logo")}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-                />
-                {errors.logo && (
-                  <p className="mt-1 text-[11px] text-red-500">{errors.logo.message}</p>
-                )}
+                <div className="space-y-3">
+                  {logoPreview && (
+                    <div className="relative rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
+                      <img
+                        src={logoPreview}
+                        alt="Logo preview"
+                        className="w-full h-32 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={clearLogoPreview}
+                        className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                  <label className="flex items-center justify-center w-full rounded-xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-colors bg-zinc-50 dark:bg-zinc-800/50 p-6 cursor-pointer">
+                    <div className="flex flex-col items-center gap-2">
+                      <Upload className="h-5 w-5 text-zinc-400" />
+                      <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                        Click to upload or drag image
+                      </span>
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-500">
+                        PNG, JPG, GIF up to 10MB
+                      </span>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={isSubmitting}
+                      onChange={handleLogoChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               </div>
 
+              {/* Banner Upload */}
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-                  Banner URL
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-3">
+                  Shop Banner
                 </label>
-                <input
-                  type="url"
-                  disabled={isSubmitting}
-                  {...register("banner")}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-                />
-                {errors.banner && (
-                  <p className="mt-1 text-[11px] text-red-500">{errors.banner.message}</p>
-                )}
+                <div className="space-y-3">
+                  {bannerPreview && (
+                    <div className="relative rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
+                      <img
+                        src={bannerPreview}
+                        alt="Banner preview"
+                        className="w-full h-32 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={clearBannerPreview}
+                        className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                  <label className="flex items-center justify-center w-full rounded-xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-colors bg-zinc-50 dark:bg-zinc-800/50 p-6 cursor-pointer">
+                    <div className="flex flex-col items-center gap-2">
+                      <Upload className="h-5 w-5 text-zinc-400" />
+                      <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                        Click to upload or drag image
+                      </span>
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-500">
+                        PNG, JPG, GIF up to 10MB
+                      </span>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={isSubmitting}
+                      onChange={handleBannerChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               </div>
             </div>
           </div>

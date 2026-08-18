@@ -21,7 +21,8 @@ export const registerUser = async (data: RegisterInput) => {
             name: data.name,
             email: data.email,
             password: hashedPassword,
-            role: "CUSTOMER",
+            role: data.role,
+            sellerStatus: data.role === "SELLER" ? "APPROVED" : undefined,
         },
         select: {
             id: true,
@@ -96,4 +97,45 @@ export const loginUser = async (data: LoginInput) => {
   }
 
   return user;
+};
+
+// Admin Login
+export const adminLogin = async (data: LoginInput) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: data.email,
+    },
+  });
+
+  if (!user) {
+    throw new Error("Invalid email or password");
+  }
+
+  if (user.role !== "ADMIN") {
+    throw new Error("This account does not have admin access");
+  }
+
+  const isPasswordValid = await verifyPassword(user.password, data.password);
+
+  if (!isPasswordValid) {
+    throw new Error("Invalid email or password");
+  }
+
+  const token = generateToken({
+    userId: user.id,
+    role: user.role,
+  });
+
+  return {
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isVerified: user.isVerified,
+      avatar: user.avatar,
+      createdAt: user.createdAt,
+    },
+  };
 };

@@ -7,7 +7,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
         <QueryProvider>{children}</QueryProvider>
         <Toaster position="bottom-right" richColors />

@@ -140,8 +140,8 @@ model Shop {
 
   name          String       @unique
   slug          String       @unique
-  logo          String?
-  banner        String?
+  logo          String?      @db.Text
+  banner        String?      @db.Text
   description   String?
 
   sellerId      String       @unique

@@ -14,6 +14,7 @@ import { toast } from "sonner";
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<"CUSTOMER" | "SELLER" | null>(null);
   const router = useRouter();
 
   const { mutate: registerUser, isPending } = useRegister();
@@ -53,11 +54,17 @@ export default function RegisterForm() {
   ];
 
   const onSubmit = (data: RegisterSchemaType) => {
-    // Send strictly { name, email, password } to the backend API
+    if (!selectedRole) {
+      toast.error("Please select an account type");
+      return;
+    }
+
+    // Send strictly { name, email, password, role } to the backend API
     const payload = {
       name: data.name,
       email: data.email,
       password: data.password,
+      role: selectedRole,
     };
 
     registerUser(payload, {
@@ -94,7 +101,61 @@ export default function RegisterForm() {
           </div>
         </div>
 
-        <form
+        {!selectedRole ? (
+          // Role Selection Screen
+          <div className="space-y-4">
+            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Choose your account type:
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedRole("CUSTOMER")}
+                className="relative group rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 p-4 text-center hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all duration-200"
+              >
+                <div className="text-2xl mb-2">🛍️</div>
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  Customer
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                  Browse & buy products
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedRole("SELLER")}
+                className="relative group rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 p-4 text-center hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all duration-200"
+              >
+                <div className="text-2xl mb-2">🏪</div>
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  Seller
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                  Sell your products
+                </p>
+              </button>
+            </div>
+          </div>
+        ) : (
+          // Form after role selection
+          <>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                {selectedRole === "CUSTOMER" ? "🛍️ Customer Account" : "🏪 Seller Account"}
+              </p>
+              <button
+                type="button"
+                onClick={() => setSelectedRole(null)}
+                className="text-xs font-medium text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 underline-offset-2 hover:underline"
+              >
+                Change
+              </button>
+            </div>
+          </>
+        )}
+
+        {selectedRole && <form
   onSubmit={handleSubmit(onSubmit, onInvalid)}
   className="space-y-4"
   noValidate
@@ -244,7 +305,7 @@ export default function RegisterForm() {
           <button
             type="submit"
             disabled={isPending}
-            className="group relative w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 transition-all duration-200"
+            className="group relative w-full flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-emerald-600 to-teal-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 transition-all duration-200"
           >
             {isPending ? (
               <>
@@ -259,6 +320,7 @@ export default function RegisterForm() {
             )}
           </button>
         </form>
+        }
 
         {/* Footer Switcher */}
         <div className="pt-2 text-center text-sm text-zinc-500 dark:text-zinc-400 border-t border-zinc-100 dark:border-zinc-800">

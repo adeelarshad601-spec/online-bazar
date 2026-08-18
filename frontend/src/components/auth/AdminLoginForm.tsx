@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginSchemaType } from "@/features/auth/schemas";
-import { useLogin } from "@/features/auth/queries";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/ui/logo";
 import {
@@ -15,23 +14,20 @@ import {
   Lock,
   Mail,
   ArrowRight,
+  ShieldAlert,
 } from "lucide-react";
 import { toast } from "sonner";
+import apiClient from "@/lib/api/client";
 
-interface LoginFormProps {}
-
-export default function LoginForm({}: LoginFormProps) {
+export default function AdminLoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [fieldsUnlocked, setFieldsUnlocked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const emailRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
 
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/";
-
-  const { mutate: login, isPending } = useLogin();
 
   const {
     register,
@@ -54,7 +50,6 @@ export default function LoginForm({}: LoginFormProps) {
 
     setShowPassword(false);
 
-    // Also clear the actual DOM values.
     if (emailRef.current) {
       emailRef.current.value = "";
     }
@@ -64,13 +59,6 @@ export default function LoginForm({}: LoginFormProps) {
     }
   };
 
-  /*
-   * Prevent browser/password-manager autofill on initial page load.
-   *
-   * The fields start as readOnly so Chrome cannot immediately inject
-   * previously saved credentials. They become editable when the user
-   * intentionally interacts with them.
-   */
   useEffect(() => {
     clearForm();
 
@@ -105,27 +93,34 @@ export default function LoginForm({}: LoginFormProps) {
     }, 0);
   };
 
-  const onSubmit = (data: LoginSchemaType) => {
-    login(data, {
-      onSuccess: (user) => {
+  const onSubmit = async (data: LoginSchemaType) => {
+    setIsLoading(true);
+    try {
+      const payload = {
+        ...data,
+        email: data.email.trim().toLowerCase(),
+      };
+      const response = await apiClient.post("/auth/admin-login", payload);
+      
+      if (response.data.success && response.data.data) {
+        const user = response.data.data;
+        if (user.role !== "ADMIN") {
+          toast.error("This account does not have admin access");
+          setIsLoading(false);
+          return;
+        }
         clearForm();
-
-        // Prevent admin users from logging in via regular login
-        if (user.role === "ADMIN") {
-          toast.error("Admin login requires access to the admin panel. Use /admin/login instead.");
-          return;
-        }
-
-        // For sellers, redirect to status page to check approval
-        if (user.role === "SELLER") {
-          router.replace("/seller/status");
-          return;
-        }
-
-        // For customers, redirect to home or specified redirect
-        router.replace(redirect || "/");
-      },
-    });
+        toast.success(`Welcome back, ${user.name}!`);
+        router.replace("/admin/dashboard");
+      } else {
+        toast.error(response.data.message || "Login failed");
+        setIsLoading(false);
+      }
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || "Failed to log in";
+      toast.error(errorMessage);
+      setIsLoading(false);
+    }
   };
 
   const onInvalid = () => {
@@ -138,25 +133,30 @@ export default function LoginForm({}: LoginFormProps) {
   return (
     <div className="relative w-full max-w-md animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-300">
       {/* Background Decorative Blur */}
-      <div className="pointer-events-none absolute -top-6 -left-6 h-32 w-32 rounded-full bg-emerald-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute -top-6 -left-6 h-32 w-32 rounded-full bg-red-500/20 blur-3xl" />
 
-      <div className="pointer-events-none absolute -right-6 -bottom-6 h-32 w-32 rounded-full bg-teal-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-6 -bottom-6 h-32 w-32 rounded-full bg-orange-500/20 blur-3xl" />
 
       {/* Main Form Card */}
       <div className="relative w-full space-y-6 rounded-3xl border border-zinc-200/80 bg-white/95 p-8 shadow-2xl shadow-zinc-950/5 backdrop-blur-2xl dark:border-zinc-800/80 dark:bg-zinc-900/95">
         {/* Header */}
         <div className="space-y-4 text-center">
           <div className="flex justify-center">
-            <Logo size="lg" showSubtitle />
+            <div className="relative">
+              <div className="absolute inset-0 bg-red-500/20 blur-xl" />
+              <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-900/30">
+                <ShieldAlert className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+            </div>
           </div>
 
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
-              Welcome Back
+              Admin Login
             </h1>
 
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Log in to manage your marketplace account
+              Access restricted to administrators only
             </p>
           </div>
         </div>
@@ -171,7 +171,7 @@ export default function LoginForm({}: LoginFormProps) {
           {/* Email */}
           <div className="space-y-1.5">
             <label
-              htmlFor="login-email"
+              htmlFor="admin-email"
               className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300"
             >
               Email Address
@@ -188,9 +188,9 @@ export default function LoginForm({}: LoginFormProps) {
                   emailField.ref(element);
                   emailRef.current = element;
                 }}
-                id="login-email"
+                id="admin-email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="admin@example.com"
                 autoComplete="off"
                 readOnly={!fieldsUnlocked}
                 onFocus={handleEmailFocus}
@@ -198,39 +198,24 @@ export default function LoginForm({}: LoginFormProps) {
                 className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pr-4 pl-10 text-sm text-zinc-900 placeholder:text-zinc-400 transition-all focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 ${
                   errors.email
                     ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-800"
-                    : "border-zinc-200 focus:border-emerald-600 focus:ring-emerald-600/20 dark:border-zinc-700"
-                } ${
-                  !fieldsUnlocked
-                    ? "cursor-text"
-                    : ""
+                    : "border-zinc-200 focus:border-red-600 focus:ring-red-600/20 dark:border-zinc-700"
                 }`}
               />
             </div>
 
             {errors.email && (
-              <p className="text-xs font-medium text-rose-500">
-                {errors.email.message}
-              </p>
+              <p className="text-xs font-medium text-rose-500">{errors.email.message}</p>
             )}
           </div>
 
           {/* Password */}
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label
-                htmlFor="login-password"
-                className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300"
-              >
-                Password
-              </label>
-
-              <Link
-                href="/forgot-password"
-                className="text-xs font-semibold text-emerald-600 transition-colors hover:text-emerald-500 hover:underline dark:text-emerald-400"
-              >
-                Forgot password?
-              </Link>
-            </div>
+            <label
+              htmlFor="admin-password"
+              className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300"
+            >
+              Password
+            </label>
 
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-400">
@@ -243,27 +228,25 @@ export default function LoginForm({}: LoginFormProps) {
                   passwordField.ref(element);
                   passwordRef.current = element;
                 }}
-                id="login-password"
+                id="admin-password"
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                autoComplete="off"
+                autoComplete="current-password"
                 readOnly={!fieldsUnlocked}
                 onFocus={handlePasswordFocus}
                 aria-invalid={!!errors.password}
-                className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pr-10 pl-10 text-sm text-zinc-900 placeholder:text-zinc-400 transition-all focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 ${
+                className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pr-12 pl-10 text-sm text-zinc-900 placeholder:text-zinc-400 transition-all focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 ${
                   errors.password
                     ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-800"
-                    : "border-zinc-200 focus:border-emerald-600 focus:ring-emerald-600/20 dark:border-zinc-700"
+                    : "border-zinc-200 focus:border-red-600 focus:ring-red-600/20 dark:border-zinc-700"
                 }`}
               />
 
               <button
                 type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-200"
-                aria-label={
-                  showPassword ? "Hide password" : "Show password"
-                }
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -280,34 +263,34 @@ export default function LoginForm({}: LoginFormProps) {
             )}
           </div>
 
-          {/* Submit */}
+          {/* Submit Button */}
           <button
             type="submit"
-            disabled={isPending}
-            className="group relative flex w-full items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-emerald-600 to-teal-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/25 transition-all duration-200 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60"
+            disabled={isLoading}
+            className="group relative w-full flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-red-600 to-orange-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-600/25 hover:from-red-500 hover:to-orange-500 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 transition-all duration-200"
           >
-            {isPending ? (
+            {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Signing in...</span>
+                <span>Verifying Access...</span>
               </>
             ) : (
               <>
-                <span>Sign In</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                <span>Access Admin Panel</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
               </>
             )}
           </button>
         </form>
 
-        {/* Footer */}
-        <div className="border-t border-zinc-100 pt-2 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-          Don&apos;t have an account?{" "}
+        {/* Footer Switcher */}
+        <div className="pt-2 text-center text-sm text-zinc-500 dark:text-zinc-400 border-t border-zinc-100 dark:border-zinc-800">
+          Not an admin?{" "}
           <Link
-            href="/register"
-            className="font-semibold text-emerald-600 underline-offset-4 transition-colors hover:text-emerald-500 hover:underline dark:text-emerald-400"
+            href="/login"
+            className="font-semibold text-red-600 hover:text-red-500 dark:text-red-400 underline-offset-4 hover:underline transition-colors"
           >
-            Create account
+            User Login
           </Link>
         </div>
       </div>

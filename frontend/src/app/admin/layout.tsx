@@ -42,34 +42,27 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
   const { mutate: logout } = useLogout();
   const pathname = usePathname();
   const { data: unreadData } = useUnreadCount();
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-
-    const savedTheme = localStorage.getItem("admin-theme");
-    if (savedTheme) {
-      return savedTheme === "dark";
-    }
-
-    return document.documentElement.classList.contains("dark");
-  });
+  const [darkMode, setDarkMode] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
     sellers: true,
   });
   const notificationCount = unreadData?.unreadCount ?? 0;
 
+  // Initialize dark mode after hydration
   useEffect(() => {
+    setIsMounted(true);
     const savedTheme = localStorage.getItem("admin-theme");
     if (savedTheme) {
       const isDark = savedTheme === "dark";
       setDarkMode(isDark);
       document.documentElement.classList.toggle("dark", isDark);
       document.documentElement.style.colorScheme = isDark ? "dark" : "light";
-      return;
+    } else {
+      const isDark = document.documentElement.classList.contains("dark");
+      setDarkMode(isDark);
     }
-
-    const isDark = document.documentElement.classList.contains("dark");
-    setDarkMode(isDark);
   }, []);
 
   useEffect(() => {

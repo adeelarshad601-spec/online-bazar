@@ -17,8 +17,42 @@ export const createShopSchema = z.object({
       "Slug must contain lowercase letters, numbers and hyphens only"
     ),
 
-  logo: z.string().trim().url("Logo must be a valid URL").optional(),
-  banner: z.string().trim().url("Banner must be a valid URL").optional(),
+  logo: z
+    .string()
+    .trim()
+    .refine(
+      (val) => {
+        // Accept valid URLs or base64 data URIs
+        if (val.startsWith("data:")) return true; // data:image/...;base64,...
+        try {
+          new URL(val);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      "Logo must be a valid URL or image file"
+    )
+    .optional(),
+
+  banner: z
+    .string()
+    .trim()
+    .refine(
+      (val) => {
+        // Accept valid URLs or base64 data URIs
+        if (val.startsWith("data:")) return true; // data:image/...;base64,...
+        try {
+          new URL(val);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      "Banner must be a valid URL or image file"
+    )
+    .optional(),
+
   description: z.string().trim().max(500, "Description is too long").optional(),
 });
 
