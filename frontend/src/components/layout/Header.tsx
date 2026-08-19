@@ -88,10 +88,10 @@ export default function Header() {
       </div>
 
       {/* Main Header */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-16 w-full max-w-[1600px] items-center justify-between gap-4 py-2">
           {/* Logo & Mobile menu button */}
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-3">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
