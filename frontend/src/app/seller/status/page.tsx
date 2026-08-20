@@ -1,13 +1,18 @@
 "use client";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { useSellerStatus, useApplySellerMutation } from "@/features/seller/queries";
+import { useSellerStatus, useApplySellerMutation, useRequestSellerReactivationMutation } from "@/features/seller/queries";
 import Link from "next/link";
 import { Clock, CheckCircle2, XCircle, AlertTriangle, ArrowRight, Loader2, RefreshCw, Store } from "lucide-react";
 
 function SellerStatusContent() {
   const { data: sellerStatus, isLoading, isError, refetch } = useSellerStatus();
   const { mutate: applySeller, isPending: isApplying } = useApplySellerMutation();
+  const {
+    mutate: requestReactivation,
+    isPending: isRequestingReactivation,
+    isSuccess: isReactivationRequested,
+  } = useRequestSellerReactivationMutation();
 
   if (isLoading) {
     return (
@@ -140,8 +145,23 @@ function SellerStatusContent() {
             Seller Account Suspended
           </h3>
           <p className="text-xs text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
-            Your seller account has been suspended by administration. Please contact support for resolution.
+            Your seller account has been suspended by administration. Send a reactivation request to the admin team for review. Only an admin can remove this restriction.
           </p>
+          <button
+            type="button"
+            disabled={isRequestingReactivation || isReactivationRequested}
+            onClick={() => requestReactivation()}
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isRequestingReactivation ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            <span>
+              {isRequestingReactivation
+                ? "Sending Request..."
+                : isReactivationRequested
+                  ? "Request Sent"
+                  : "Request Reactivation"}
+            </span>
+          </button>
         </div>
       )}
     </div>

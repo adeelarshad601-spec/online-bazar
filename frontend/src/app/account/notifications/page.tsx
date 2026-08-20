@@ -8,6 +8,7 @@ import {
   useDeleteNotificationMutation,
 } from "@/features/notifications/queries";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   CheckCircle2,
@@ -23,6 +24,7 @@ import {
 
 function NotificationsContent() {
   const [page, setPage] = useState(1);
+  const router = useRouter();
   const { data, isLoading } = useNotifications(page, 10);
   const { mutate: markRead } = useMarkReadMutation();
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllReadMutation();
@@ -38,6 +40,16 @@ function NotificationsContent() {
 
   const notifications = data?.notifications || [];
   const pagination = data?.pagination;
+
+  const handleNotificationClick = (notification: (typeof notifications)[number]) => {
+    if (!notification.isRead) {
+      markRead(notification.id);
+    }
+
+    if (notification.title === "Seller reactivation requested") {
+      router.push("/admin/sellers?status=SUSPENDED");
+    }
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -97,7 +109,7 @@ function NotificationsContent() {
           notifications.map((item) => (
             <div
               key={item.id}
-              onClick={() => !item.isRead && markRead(item.id)}
+              onClick={() => handleNotificationClick(item)}
               className={`p-4 sm:p-5 flex items-start justify-between gap-4 transition-all cursor-pointer ${
                 !item.isRead
                   ? "bg-emerald-50/40 dark:bg-emerald-950/20"

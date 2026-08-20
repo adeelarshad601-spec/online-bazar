@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const applySellerSchema = z.object({});
+export const applySellerSchema = z.object({}).optional();
 
 export const sellerStatusFilterSchema = z.object({
   status: z

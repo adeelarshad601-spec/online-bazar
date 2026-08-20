@@ -18,11 +18,16 @@ export interface SellerStatusData {
 }
 
 export async function applySellerApi(): Promise<SellerStatusData> {
-  const response = await apiClient.post<ApiResponse<SellerStatusData>>("/sellers/apply");
+  const response = await apiClient.post<ApiResponse<SellerStatusData>>("/sellers/apply", {});
   return response.data.data!;
 }
 
 export async function getSellerStatusApi(): Promise<SellerStatusData> {
   const response = await apiClient.get<ApiResponse<SellerStatusData>>("/sellers/me");
+  return response.data.data!;
+}
+
+export async function requestSellerReactivationApi(): Promise<{ requested: boolean }> {
+  const response = await apiClient.post<ApiResponse<{ requested: boolean }>>("/sellers/me/reactivation-request");
   return response.data.data!;
 }

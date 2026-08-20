@@ -32,7 +32,6 @@ export const getAdminStats = async () => {
     // Pending sellers (awaiting approval)
     prisma.user.count({
       where: {
-        role: "SELLER",
         sellerStatus: "PENDING",
       },
     }),

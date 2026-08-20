@@ -33,7 +33,7 @@ export function useUnreadCount() {
     queryFn: getUnreadCountApi,
     enabled: Boolean(user),
     staleTime: 1000 * 30,
-    refetchInterval: 1000 * 60,
+    refetchInterval: 1000 * 10,
   });
 }
 

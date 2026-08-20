@@ -8,6 +8,7 @@ import {
   reject,
   suspend,
   reactivate,
+  requestReactivation,
 } from "../controllers/seller.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
 import { authorize } from "../middleware/role.middleware.js";
@@ -21,6 +22,7 @@ router.post(
   apply
 );
 router.get("/me", authenticate, getMe);
+router.post("/me/reactivation-request", authenticate, requestReactivation);
 router.get("/", authenticate, authorize("ADMIN"), getAll);
 router.get("/:id", authenticate, authorize("ADMIN"), getOne);
 router.patch(

@@ -6,13 +6,16 @@ import { useCurrentUser } from "@/features/auth/queries";
 import { useSellerStatus, useApplySellerMutation } from "@/features/seller/queries";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Store, ShieldAlert, CheckCircle2, Clock, Loader2, ArrowRight, Sparkles } from "lucide-react";
+import { Store, CheckCircle2, Clock, XCircle, Loader2, ArrowRight, Sparkles, RefreshCw } from "lucide-react";
 
 function SellerApplyContent() {
   const { data: user } = useCurrentUser();
   const { data: sellerStatus, isLoading: isStatusLoading } = useSellerStatus();
   const { mutate: applySeller, isPending: isApplying, isSuccess: isApplySuccess } = useApplySellerMutation();
   const router = useRouter();
+  const handleApply = () => {
+    applySeller(undefined);
+  };
 
   // Navigate to status page after successful application
   useEffect(() => {
@@ -80,9 +83,34 @@ function SellerApplyContent() {
     );
   }
 
-  const handleApply = () => {
-    applySeller(undefined);
-  };
+  if (sellerStatus?.sellerStatus === "REJECTED") {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 lg:px-8">
+        <div className="space-y-4 rounded-3xl border border-red-200 bg-red-50/60 p-10 dark:border-red-900/40 dark:bg-red-950/20">
+          <XCircle className="mx-auto h-12 w-12 text-red-600 dark:text-red-400" />
+          <h2 className="text-xl font-bold text-red-900 dark:text-red-300">
+            Application Rejected
+          </h2>
+          <p className="mx-auto max-w-md text-xs text-red-700 dark:text-red-400">
+            Your seller application was not approved by the admin team. You can submit a new application for review.
+          </p>
+          <button
+            type="button"
+            disabled={isApplying}
+            onClick={handleApply}
+            className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-red-700 disabled:opacity-50"
+          >
+            {isApplying ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            <span>Re-Apply for Seller</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 space-y-8">

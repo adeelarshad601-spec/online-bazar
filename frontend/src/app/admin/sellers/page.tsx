@@ -8,6 +8,7 @@ import {
   useReactivateSellerMutation,
 } from "@/features/admin/sellers-queries";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Store,
   CheckCircle2,
@@ -21,7 +22,10 @@ import {
 } from "lucide-react";
 
 export default function AdminSellersPage() {
-  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const searchParams = useSearchParams();
+  const [selectedStatus, setSelectedStatus] = useState<string>(
+    () => searchParams.get("status") || ""
+  );
   const { data: sellers = [], isLoading } = useAdminSellers(selectedStatus || undefined);
 
   const { mutate: approveSeller, isPending: isApproving } = useApproveSellerMutation();
@@ -204,7 +208,7 @@ export default function AdminSellersPage() {
                               className="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-50"
                             >
                               {isThisMutating ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
-                              <span>Reactivate</span>
+                              <span>Reactivate Account</span>
                             </button>
                           )}
                         </div>

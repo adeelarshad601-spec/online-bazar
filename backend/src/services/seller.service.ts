@@ -1,4 +1,5 @@
 import prisma from "../config/database.js";
+import { createNotification } from "./notification.service.js";
 
 export const applyForSeller = async (userId: string) => {
   const user = await prisma.user.findUnique({
@@ -84,6 +85,53 @@ export const getMySellerStatus = async (userId: string) => {
   }
 
   return user;
+};
+
+export const requestSellerReactivation = async (userId: string) => {
+  const seller = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, name: true, email: true, role: true, sellerStatus: true },
+  });
+
+  if (!seller || seller.role !== "SELLER") {
+    throw new Error("Seller not found");
+  }
+
+  if (seller.sellerStatus !== "SUSPENDED") {
+    throw new Error("Only suspended sellers can request reactivation");
+  }
+
+  const admins = await prisma.user.findMany({
+    where: { role: "ADMIN" },
+    select: { id: true },
+  });
+
+  const existingRequest = await prisma.notification.findFirst({
+    where: {
+      userId: { in: admins.map((admin) => admin.id) },
+      type: "SELLER",
+      title: "Seller reactivation requested",
+      message: { contains: seller.email },
+      isRead: false,
+    },
+  });
+
+  if (existingRequest) {
+    return { requested: false };
+  }
+
+  await Promise.all(
+    admins.map((admin) =>
+      createNotification({
+        userId: admin.id,
+        type: "SELLER",
+        title: "Seller reactivation requested",
+        message: `${seller.name} (${seller.email}) has requested reactivation of their suspended seller account.`,
+      })
+    )
+  );
+
+  return { requested: true };
 };
 
 export const getSellerApplications = async (

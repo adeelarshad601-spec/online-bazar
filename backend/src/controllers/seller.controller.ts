@@ -14,6 +14,7 @@ import {
   rejectSeller,
   suspendSeller,
   reactivateSeller,
+  requestSellerReactivation,
 } from "../services/seller.service.js";
 
 export const apply = async (
@@ -105,6 +106,33 @@ export const getMe = async (
       success: false,
       message: "Something went wrong",
     });
+  }
+};
+
+export const requestReactivation = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
+    }
+
+    await requestSellerReactivation(req.user.userId);
+
+    return res.status(201).json({
+      success: true,
+      message: "Reactivation request sent to the admin team",
+      data: { requested: true },
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "Seller not found") {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+
+    if (error instanceof Error && error.message === "Only suspended sellers can request reactivation") {
+      return res.status(409).json({ success: false, message: error.message });
+    }
+
+    console.error("Request seller reactivation error:", error);
+    return res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };
 
