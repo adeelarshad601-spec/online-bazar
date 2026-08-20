@@ -28,6 +28,11 @@ export async function getMyShopApi(): Promise<ShopDetails | null> {
   }
 }
 
+export async function getPublicShopsApi(params?: { search?: string; categoryId?: string }): Promise<ShopDetails[]> {
+  const response = await apiClient.get<ApiResponse<ShopDetails[]>>("/shops", { params });
+  return response.data.data || [];
+}
+
 export async function createShopApi(payload: CreateShopPayload): Promise<ShopDetails> {
   const response = await apiClient.post<ApiResponse<ShopDetails>>("/shops", payload);
   return response.data.data!;

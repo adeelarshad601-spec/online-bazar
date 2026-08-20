@@ -10,7 +10,7 @@ export const createProduct = async (
   userId: string,
   role: string
 ) => {
-  if (role === "SELLER") {
+  if (role !== "ADMIN") {
     await verifyActiveSeller(userId);
 
     const shop = await prisma.shop.findUnique({
@@ -57,6 +57,16 @@ export const createProduct = async (
       stock: data.stock,
       shopId: data.shopId,
       categoryId: data.categoryId,
+
+      images: data.images?.length
+        ? {
+            create: data.images.map((url, index) => ({
+              url,
+              isPrimary: index === 0,
+              sortOrder: index,
+            })),
+          }
+        : undefined,
 
       // Seller products need admin approval
       status: role === "ADMIN" ? "APPROVED" : "PENDING",

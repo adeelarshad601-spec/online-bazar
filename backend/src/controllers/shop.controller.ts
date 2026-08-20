@@ -3,6 +3,7 @@ import { AuthRequest } from "../middleware/auth.middleware.js";
 import {
   createShopSchema,
   updateShopSchema,
+  shopSearchSchema,
 } from "../validators/shop.validator.js";
 import {
   createShop,
@@ -78,11 +79,20 @@ export const create = async (
 };
 
 export const getAll = async (
-  _req: AuthRequest,
+  req: AuthRequest,
   res: Response
 ) => {
   try {
-    const shops = await getShops();
+    const validationResult = shopSearchSchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid shop search parameters",
+        errors: validationResult.error.issues,
+      });
+    }
+
+    const shops = await getShops(validationResult.data);
 
     return res.status(200).json({
       success: true,

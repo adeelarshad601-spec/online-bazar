@@ -12,6 +12,7 @@ export interface CreateProductPayload {
   stock: number;
   shopId: string;
   categoryId: string;
+  images?: string[];
 }
 
 export interface UpdateProductPayload {

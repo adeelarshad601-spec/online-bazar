@@ -24,21 +24,18 @@ router.get("/:id", getOne);
 router.post(
   "/",
   authenticate,
-  authorize("SELLER", "ADMIN"),
   create
 );
 
 router.patch(
   "/:id",
   authenticate,
-  authorize("SELLER", "ADMIN"),
   update
 );
 
 router.delete(
   "/:id",
   authenticate,
-  authorize("SELLER", "ADMIN"),
   remove
 );
 

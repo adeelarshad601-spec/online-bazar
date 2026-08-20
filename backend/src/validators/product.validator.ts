@@ -45,6 +45,11 @@ export const createProductSchema = z.object({
   shopId: z.string().uuid("Invalid shop ID"),
 
   categoryId: z.string().uuid("Invalid category ID"),
+
+  images: z
+    .array(z.string().startsWith("data:image/", "Product images must be valid image files"))
+    .max(8, "You can upload up to 8 product images")
+    .optional(),
 });
 
 export const updateProductSchema = createProductSchema.partial();

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,7 +9,7 @@ import { useCreateProductMutation } from "@/features/seller/product-queries";
 import { useCategories } from "@/features/products/queries";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Package, ArrowLeft, Loader2, Save, AlertCircle } from "lucide-react";
+import { Package, ArrowLeft, Loader2, Save, AlertCircle, ImagePlus, X } from "lucide-react";
 
 const productSchema = z.object({
   title: z
@@ -48,6 +49,8 @@ const productSchema = z.object({
   stock: z.number().int().min(0, "Stock cannot be negative"),
 
   categoryId: z.string().uuid("Please select a valid category"),
+
+  imageFiles: z.array(z.instanceof(File)).max(8).optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -57,6 +60,7 @@ export default function NewProductPage() {
   const { data: shop, isLoading: isShopLoading } = useMyShop();
   const { data: categories = [], isLoading: isCategoriesLoading } = useCategories();
   const { mutate: createProduct, isPending: isSubmitting } = useCreateProductMutation();
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const {
     register,
@@ -91,6 +95,8 @@ export default function NewProductPage() {
   const onSubmit = (data: ProductFormData) => {
     if (!shop?.id) return;
 
+    const imageData = imagePreviews.length ? imagePreviews : undefined;
+
     createProduct(
       {
         title: data.title,
@@ -102,6 +108,7 @@ export default function NewProductPage() {
         stock: data.stock,
         shopId: shop.id,
         categoryId: data.categoryId,
+        images: imageData,
       },
       {
         onSuccess: () => {
@@ -109,6 +116,27 @@ export default function NewProductPage() {
         },
       }
     );
+  };
+
+  const handleImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []).slice(0, 8);
+    if (!files.length) return;
+
+    Promise.all(
+      files.map(
+        (file) =>
+          new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result));
+            reader.onerror = () => reject(new Error("Unable to read image"));
+            reader.readAsDataURL(file);
+          })
+      )
+    ).then(setImagePreviews);
+  };
+
+  const removeImage = (index: number) => {
+    setImagePreviews((current) => current.filter((_, imageIndex) => imageIndex !== index));
   };
 
   const isLoading = isShopLoading || isCategoriesLoading;
@@ -162,6 +190,34 @@ export default function NewProductPage() {
       {/* Form Card */}
       <div className="rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="space-y-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-900 dark:text-white">
+              Product Images
+            </h3>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {imagePreviews.map((preview, index) => (
+                <div key={preview} className="relative aspect-square overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
+                  <img src={preview} alt={`Product preview ${index + 1}`} className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute right-1 top-1 rounded-full bg-red-600 p-1 text-white"
+                    aria-label={`Remove image ${index + 1}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              {imagePreviews.length < 8 && (
+                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-zinc-300 text-center text-xs text-zinc-500 hover:border-emerald-500 hover:text-emerald-600 dark:border-zinc-700">
+                  <ImagePlus className="mb-2 h-6 w-6" />
+                  <span>Add image</span>
+                  <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="sr-only" onChange={handleImagesChange} />
+                </label>
+              )}
+            </div>
+            <p className="text-[11px] text-zinc-500">Upload up to 8 images. The first image will be the primary product image.</p>
+          </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">

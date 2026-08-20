@@ -8,6 +8,7 @@ import ProductFilterSidebar from "@/components/product/ProductFilterSidebar";
 import ActiveFilterChips from "@/components/product/ActiveFilterChips";
 import ProductPagination from "@/components/product/ProductPagination";
 import { useProductSearch } from "@/features/products/queries";
+import { usePublicShops } from "@/features/seller/shop-queries";
 import { Search, Filter, AlertCircle, RefreshCw, ShoppingBag, X } from "lucide-react";
 
 function ProductsContent() {
@@ -38,6 +39,7 @@ function ProductsContent() {
   });
 
   const products = data?.products || [];
+  const { data: matchingShops = [] } = usePublicShops(q ? { search: q } : undefined);
   const pagination = data?.pagination || { page: 1, limit: 12, total: 0, totalPages: 0 };
 
   // Helper to update URL search params
@@ -105,6 +107,29 @@ function ProductsContent() {
       <div className="flex flex-col gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
+
+          {q && matchingShops.length > 0 && (
+            <section className="space-y-3">
+              <h2 className="text-base font-bold text-zinc-900 dark:text-white">Matching Shops</h2>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {matchingShops.map((shop) => (
+                  <a
+                    key={shop.id}
+                    href={`/shops/${shop.id}`}
+                    className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 shadow-xs transition hover:border-emerald-500 dark:border-zinc-800 dark:bg-zinc-900"
+                  >
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-emerald-50 dark:bg-emerald-950/30">
+                      {shop.logo ? <img src={shop.logo} alt="" className="h-full w-full object-cover" /> : <ShoppingBag className="m-3 h-6 w-6 text-emerald-600" />}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-zinc-900 dark:text-white">{shop.name}</p>
+                      <p className="truncate text-xs text-zinc-500">{shop.description || "View seller storefront"}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
             <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
               Marketplace Catalog
             </h1>

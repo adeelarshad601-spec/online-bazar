@@ -1,11 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { createShopApi, getMyShopApi, updateShopApi, CreateShopPayload, UpdateShopPayload } from "./shop-api";
+import { createShopApi, getMyShopApi, getPublicShopsApi, updateShopApi, CreateShopPayload, UpdateShopPayload } from "./shop-api";
 import { ShopDetails } from "@/types/shop";
 import { toast } from "sonner";
 import { handleApiError } from "@/lib/api/error";
 import { SELLER_STATUS_QUERY_KEY } from "./queries";
 
 export const MY_SHOP_QUERY_KEY = ["myShop"];
+
+export function usePublicShops(params?: { search?: string; categoryId?: string }) {
+  return useQuery<ShopDetails[]>({
+    queryKey: ["publicShops", params],
+    queryFn: () => getPublicShopsApi(params),
+    staleTime: 1000 * 60 * 2,
+  });
+}
 
 export function useMyShop() {
   return useQuery<ShopDetails | null>({

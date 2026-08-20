@@ -58,5 +58,11 @@ export const createShopSchema = z.object({
 
 export const updateShopSchema = createShopSchema.partial();
 
+export const shopSearchSchema = z.object({
+  search: z.string().trim().max(100).optional(),
+  categoryId: z.string().uuid().optional(),
+});
+
 export type CreateShopInput = z.infer<typeof createShopSchema>;
 export type UpdateShopInput = z.infer<typeof updateShopSchema>;
+export type ShopSearchInput = z.infer<typeof shopSearchSchema>;

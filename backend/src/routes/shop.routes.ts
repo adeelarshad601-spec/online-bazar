@@ -13,23 +13,16 @@ import { authorize } from "../middleware/role.middleware.js";
 const router = Router();
 
 router.get("/", getAll);
-router.get(
-  "/mine",
-  authenticate,
-  authorize("SELLER", "ADMIN"),
-  getMine
-);
+router.get("/mine", authenticate, getMine);
 router.get("/:id", getOne);
 router.post(
   "/",
   authenticate,
-  authorize("SELLER"),
   create
 );
 router.patch(
   "/:id",
   authenticate,
-  authorize("SELLER", "ADMIN"),
   update
 );
 router.delete(

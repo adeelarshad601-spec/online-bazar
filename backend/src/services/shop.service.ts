@@ -2,6 +2,7 @@ import prisma from "../config/database.js";
 import {
   CreateShopInput,
   UpdateShopInput,
+  ShopSearchInput,
 } from "../validators/shop.validator.js";
 import { verifyActiveSeller } from "./seller.service.js";
 
@@ -53,8 +54,28 @@ export const createShop = async (
   });
 };
 
-export const getShops = async () => {
+export const getShops = async (query: ShopSearchInput = {}) => {
+  const search = query.search?.trim();
+
   return await prisma.shop.findMany({
+    where: {
+      seller: {
+        role: "SELLER",
+        sellerStatus: "APPROVED",
+      },
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { slug: { contains: search, mode: "insensitive" } },
+              { description: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : {}),
+      ...(query.categoryId
+        ? { products: { some: { categoryId: query.categoryId, status: "APPROVED", isActive: true } } }
+        : {}),
+    },
     include: {
       seller: {
         select: {

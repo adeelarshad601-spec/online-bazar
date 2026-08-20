@@ -8,6 +8,7 @@ import ProductGrid from "@/components/product/ProductGrid";
 import ProductSkeleton from "@/components/product/ProductSkeleton";
 import ProductPagination from "@/components/product/ProductPagination";
 import { useCategoryDetails, useProductSearch } from "@/features/products/queries";
+import { usePublicShops } from "@/features/seller/shop-queries";
 import { Layers, ArrowLeft, AlertCircle } from "lucide-react";
 
 interface CategoryPageProps {
@@ -30,6 +31,7 @@ function CategoryPageContent({ categoryId }: { categoryId: string }) {
   });
 
   const products = productsData?.products || [];
+  const { data: categoryShops = [] } = usePublicShops({ categoryId });
   const pagination = productsData?.pagination || { page: 1, limit: 12, total: 0, totalPages: 0 };
 
   if (isCategoryLoading) {
@@ -105,6 +107,19 @@ function CategoryPageContent({ categoryId }: { categoryId: string }) {
           )}
         </div>
       </div>
+
+      {categoryShops.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-base font-bold text-zinc-900 dark:text-white">Shops in {category.name}</h2>
+          <div className="flex flex-wrap gap-3">
+            {categoryShops.map((shop) => (
+              <Link key={shop.id} href={`/shops/${shop.id}`} className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-bold text-zinc-900 shadow-xs hover:border-emerald-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white">
+                {shop.name}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Category Products Grid */}
       <div className="space-y-6">
