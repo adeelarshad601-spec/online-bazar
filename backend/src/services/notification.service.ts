@@ -18,7 +18,43 @@ export const createNotification = async (input: CreateNotificationInput) => {
   });
 };
 
+const ensurePendingProductNotifications = async (userId: string) => {
+  const admin = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
+  if (admin?.role !== "ADMIN") return;
+
+  const pendingProducts = await prisma.product.findMany({
+    where: { status: "PENDING" },
+    select: { id: true, title: true, shop: { select: { name: true } } },
+  });
+
+  for (const product of pendingProducts) {
+    const message = `${product.title} from ${product.shop.name} is waiting for moderation.`;
+    const exists = await prisma.notification.findFirst({
+      where: {
+        userId,
+        type: "PRODUCT",
+        title: "New product submitted for approval",
+        message,
+      },
+    });
+
+    if (!exists) {
+      await createNotification({
+        userId,
+        type: "PRODUCT",
+        title: "New product submitted for approval",
+        message,
+      });
+    }
+  }
+};
+
 export const getNotifications = async (userId: string, page = 1, limit = 10) => {
+  await ensurePendingProductNotifications(userId);
   const skip = (page - 1) * limit;
   const [total, notifications] = await Promise.all([
     prisma.notification.count({ where: { userId } }),
@@ -42,6 +78,7 @@ export const getNotifications = async (userId: string, page = 1, limit = 10) => 
 };
 
 export const getUnreadCount = async (userId: string) => {
+  await ensurePendingProductNotifications(userId);
   const count = await prisma.notification.count({ where: { userId, isRead: false } });
   return { unreadCount: count };
 };

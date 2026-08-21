@@ -101,7 +101,7 @@ export const createProduct = async (
 };
 
 export const getAdminProducts = async () => {
-  const products = await prisma.product.findMany({
+  return prisma.product.findMany({
     include: {
       shop: true,
       category: true,
@@ -109,31 +109,6 @@ export const getAdminProducts = async () => {
     },
     orderBy: { createdAt: "desc" },
   });
-
-  // Backfill moderation alerts for pending products created before notifications were enabled.
-  const [admins, pendingProducts] = await Promise.all([
-    prisma.user.findMany({ where: { role: "ADMIN" }, select: { id: true } }),
-    Promise.resolve(products.filter((product) => product.status === "PENDING")),
-  ]);
-
-  await Promise.all(
-    pendingProducts.flatMap((product) =>
-      admins.map(async (admin) => {
-        const title = "New product submitted for approval";
-        const message = `${product.title} from ${product.shop.name} is waiting for moderation.`;
-        const existing = await prisma.notification.findFirst({
-          where: { userId: admin.id, type: "PRODUCT", title, message },
-          select: { id: true },
-        });
-
-        if (!existing) {
-          await createNotification({ userId: admin.id, type: "PRODUCT", title, message });
-        }
-      })
-    )
-  );
-
-  return products;
 };
 
 // Get all products
@@ -211,7 +186,7 @@ export const updateProduct = async (
   role: string,
   data: UpdateProductInput
 ) => {
-  const { images: imageUrls, ...productData } = data;
+  const { images: _images, ...productData } = data;
   const product = await prisma.product.findUnique({
     where: {
       id: productId,
@@ -265,18 +240,6 @@ export const updateProduct = async (
 
     data: {
       ...productData,
-      ...(imageUrls
-        ? {
-            images: {
-              deleteMany: {},
-              create: imageUrls.map((url, index) => ({
-                url,
-                isPrimary: index === 0,
-                sortOrder: index,
-              })),
-            },
-          }
-        : {}),
 
       // Seller update requires approval again
       ...(role === "SELLER" && {
