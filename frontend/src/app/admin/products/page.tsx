@@ -1,8 +1,8 @@
 "use client";
 
-import { useProducts } from "@/features/products/queries";
-import { useUpdateProductStatusMutation } from "@/features/admin/products-queries";
+import { useAdminProducts, useUpdateProductStatusMutation } from "@/features/admin/products-queries";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Package,
@@ -27,7 +27,8 @@ import {
 const PAGE_SIZES = [10, 25, 50];
 
 export default function AdminProductsPage() {
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const searchParams = useSearchParams();
+  const [statusFilter, setStatusFilter] = useState<string>(() => searchParams.get("status") || "");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -36,7 +37,7 @@ export default function AdminProductsPage() {
   const [revisionProductId, setRevisionProductId] = useState<string | null>(null);
   const [revisionNote, setRevisionNote] = useState("");
 
-  const { data: products = [], isLoading } = useProducts();
+  const { data: products = [], isLoading } = useAdminProducts();
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateProductStatusMutation();
 
   const [activeId, setActiveId] = useState<string | null>(null);

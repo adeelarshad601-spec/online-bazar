@@ -14,6 +14,7 @@ import {
   updateProduct,
   deleteProduct,
   updateProductStatus,
+  getAdminProducts,
 } from "../services/product.service.js";
 
 export const create = async (
@@ -293,5 +294,19 @@ export const changeStatus = async (
       success: false,
       message: "Something went wrong",
     });
+  }
+};
+
+export const getAllForAdmin = async (_req: AuthRequest, res: Response) => {
+  try {
+    const products = await getAdminProducts();
+    return res.status(200).json({
+      success: true,
+      message: "All products fetched successfully",
+      data: products,
+    });
+  } catch (error) {
+    console.error("Get admin products error:", error);
+    return res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };

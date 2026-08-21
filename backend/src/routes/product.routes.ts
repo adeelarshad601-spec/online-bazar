@@ -7,6 +7,7 @@ import {
   update,
   remove,
   changeStatus,
+  getAllForAdmin,
 } from "../controllers/product.controller.js";
 
 import { authenticate } from "../middleware/auth.middleware.js";
@@ -17,6 +18,7 @@ const router = Router();
 
 // Public
 router.get("/", getAll);
+router.get("/admin", authenticate, authorize("ADMIN"), getAllForAdmin);
 router.use("/search", searchRoutes);
 router.get("/:id", getOne);
 

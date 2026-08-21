@@ -4,6 +4,7 @@ import {
   UpdateProductInput,
 } from "../validators/product.validator.js";
 import { verifyActiveSeller } from "./seller.service.js";
+import { createNotification } from "./notification.service.js";
 
 export const createProduct = async (
   data: CreateProductInput,
@@ -78,7 +79,36 @@ export const createProduct = async (
     },
   });
 
+  if (role !== "ADMIN") {
+    const admins = await prisma.user.findMany({
+      where: { role: "ADMIN" },
+      select: { id: true },
+    });
+
+    await Promise.all(
+      admins.map((admin) =>
+        createNotification({
+          userId: admin.id,
+          type: "PRODUCT",
+          title: "New product submitted for approval",
+          message: `${product.title} from ${product.shop.name} is waiting for moderation.`,
+        })
+      )
+    );
+  }
+
   return product;
+};
+
+export const getAdminProducts = async () => {
+  return prisma.product.findMany({
+    include: {
+      shop: true,
+      category: true,
+      images: { orderBy: { sortOrder: "asc" } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
 };
 
 // Get all products
