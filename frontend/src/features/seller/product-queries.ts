@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { createProductApi, updateProductApi, deleteProductApi, CreateProductPayload, UpdateProductPayload } from "./product-api";
+import { createProductApi, getSellerProductsApi, updateProductApi, deleteProductApi, CreateProductPayload, UpdateProductPayload } from "./product-api";
 import { searchProductsApi } from "@/features/products/api";
 import { PRODUCTS_QUERY_KEY } from "@/features/products/queries";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { handleApiError } from "@/lib/api/error";
 export function useShopProducts(shopId?: string) {
   return useQuery({
     queryKey: [...PRODUCTS_QUERY_KEY, "shop", shopId],
-    queryFn: () => searchProductsApi({ shopId, limit: 100 }),
+    queryFn: getSellerProductsApi,
     enabled: Boolean(shopId),
     staleTime: 1000 * 60 * 2,
   });

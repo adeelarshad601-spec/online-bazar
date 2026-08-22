@@ -308,7 +308,7 @@ export const updateProductStatus = async (
     throw new Error("Product not found");
   }
 
-  return await prisma.product.update({
+  const updatedProduct = await prisma.product.update({
     where: {
       id: productId,
     },
@@ -316,5 +316,35 @@ export const updateProductStatus = async (
     data: {
       status,
     },
+  });
+
+  const shop = await prisma.shop.findUnique({
+    where: { id: updatedProduct.shopId },
+    select: { sellerId: true, name: true },
+  });
+
+  if (shop && (status === "APPROVED" || status === "REJECTED")) {
+    await createNotification({
+      userId: shop.sellerId,
+      type: "PRODUCT",
+      title: `Product ${status.toLowerCase()}`,
+      message: `Your product "${updatedProduct.title}" from ${shop.name} was ${status.toLowerCase()} by the admin team.`,
+    });
+  }
+
+  return updatedProduct;
+};
+
+export const getSellerProducts = async (userId: string) => {
+  await verifyActiveSeller(userId);
+
+  return prisma.product.findMany({
+    where: { shop: { sellerId: userId } },
+    include: {
+      shop: true,
+      category: true,
+      images: { orderBy: { sortOrder: "asc" } },
+    },
+    orderBy: { createdAt: "desc" },
   });
 };

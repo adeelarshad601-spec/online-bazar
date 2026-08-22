@@ -2,6 +2,8 @@
 
 import { useSellerPayoutDashboard, useVendorOrders } from "@/features/seller/dashboard-queries";
 import { useSellerStatus } from "@/features/seller/queries";
+import { useShopProducts } from "@/features/seller/product-queries";
+import { useUnreadCount } from "@/features/notifications/queries";
 import Link from "next/link";
 import {
   DollarSign,
@@ -14,14 +16,17 @@ import {
   Loader2,
   AlertCircle,
   Plus,
+  Bell,
 } from "lucide-react";
 
 export default function SellerDashboardPage() {
   const { data: sellerStatus, isLoading: isStatusLoading } = useSellerStatus();
   const { data: payoutDashboard, isLoading: isPayoutLoading } = useSellerPayoutDashboard();
   const { data: vendorOrdersData, isLoading: isOrdersLoading } = useVendorOrders();
+  const { data: sellerProductsData, isLoading: isProductsLoading } = useShopProducts(sellerStatus?.shop?.id);
+  const { data: unreadData } = useUnreadCount();
 
-  const isLoading = isStatusLoading || isPayoutLoading || isOrdersLoading;
+  const isLoading = isStatusLoading || isPayoutLoading || isOrdersLoading || isProductsLoading;
 
   if (isLoading) {
     return (
@@ -37,6 +42,8 @@ export default function SellerDashboardPage() {
     : vendorOrdersData?.orders || [];
 
   const shop = sellerStatus?.shop;
+  const sellerProducts = sellerProductsData?.products || [];
+  const pendingProducts = sellerProducts.filter((product) => product.status === "PENDING");
 
   const totalEarnings = Number(payoutDashboard?.totalEarnings || 0);
   const pendingBalance = Number(payoutDashboard?.balance || 0);
@@ -57,6 +64,19 @@ export default function SellerDashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/account/notifications"
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
+            aria-label={`Notifications, ${unreadData?.unreadCount ?? 0} unread`}
+            title="Open notifications"
+          >
+            <Bell className="h-4 w-4" />
+            {(unreadData?.unreadCount ?? 0) > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                {(unreadData?.unreadCount ?? 0) > 99 ? "99+" : unreadData?.unreadCount}
+              </span>
+            )}
+          </Link>
           <Link
             href="/seller/products/new"
             className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 shadow-xs"
@@ -174,6 +194,36 @@ export default function SellerDashboardPage() {
             <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
+      </div>
+
+      <div className="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 shadow-xs dark:border-amber-900/40 dark:bg-amber-950/20">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-base font-bold text-amber-900 dark:text-amber-200">Product Approval Requests</h2>
+            <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+              Track products submitted to the admin team for review.
+            </p>
+          </div>
+          <div className="text-left sm:text-right">
+            <p className="text-2xl font-black text-amber-900 dark:text-amber-200">{pendingProducts.length}</p>
+            <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-300">Pending approval</p>
+          </div>
+        </div>
+        {sellerProducts.length > 0 && (
+          <div className="mt-4 divide-y divide-amber-200/70 border-t border-amber-200/70 dark:divide-amber-900/40 dark:border-amber-900/40">
+            {sellerProducts.slice(0, 3).map((product) => (
+              <div key={product.id} className="flex items-center justify-between gap-4 py-3 text-xs">
+                <div className="min-w-0">
+                  <p className="truncate font-bold text-amber-950 dark:text-amber-100">{product.title}</p>
+                  <p className="text-[11px] text-amber-700 dark:text-amber-300">{product.category?.name || "Uncategorized"}</p>
+                </div>
+                <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-[10px] font-bold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                  {product.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Recent Vendor Orders Section */}

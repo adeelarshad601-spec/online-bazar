@@ -4,6 +4,7 @@ import { useMyShop } from "@/features/seller/shop-queries";
 import { useShopProducts, useDeleteProductMutation } from "@/features/seller/product-queries";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Package,
   Plus,
@@ -19,12 +20,15 @@ import {
 } from "lucide-react";
 
 export default function SellerProductsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: shop, isLoading: isShopLoading } = useMyShop();
   const { data: productsData, isLoading: isProductsLoading } = useShopProducts(shop?.id);
   const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProductMutation();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const statusFilter = searchParams.get("status") || "";
 
   const isLoading = isShopLoading || isProductsLoading;
 
@@ -59,8 +63,9 @@ export default function SellerProductsPage() {
   const products = productsData?.products || [];
   const filteredProducts = products.filter(
     (p) =>
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.sku.toLowerCase().includes(searchQuery.toLowerCase())
+      (p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.sku.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (!statusFilter || p.status === statusFilter)
   );
 
   const handleDelete = (id: string) => {
@@ -104,6 +109,21 @@ export default function SellerProductsPage() {
             className="w-full rounded-xl border border-zinc-300 bg-white pl-10 pr-4 py-2 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
           />
         </div>
+        <select
+          value={statusFilter}
+          onChange={(event) => {
+            const value = event.target.value;
+            router.push(value ? `/seller/products?status=${value}` : "/seller/products");
+          }}
+          className="rounded-xl border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+          aria-label="Filter products by status"
+        >
+          <option value="">All Statuses</option>
+          <option value="PENDING">Pending Approval</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="SUSPENDED">Suspended</option>
+        </select>
       </div>
 
       {/* Table Card */}

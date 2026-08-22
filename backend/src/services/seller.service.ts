@@ -31,7 +31,7 @@ export const applyForSeller = async (userId: string) => {
     throw new Error("Suspended sellers cannot reapply");
   }
 
-  return await prisma.user.update({
+  const approvedSeller = await prisma.user.update({
     where: { id: userId },
     data: {
       sellerStatus: "PENDING",
@@ -56,6 +56,15 @@ export const applyForSeller = async (userId: string) => {
       updatedAt: true,
     },
   });
+
+  await createNotification({
+    userId: approvedSeller.id,
+    type: "SELLER",
+    title: "Seller application approved",
+    message: "Your seller application has been approved. Your seller portal is now active.",
+  });
+
+  return approvedSeller;
 };
 
 export const getMySellerStatus = async (userId: string) => {
@@ -223,7 +232,7 @@ export const approveSeller = async (sellerId: string) => {
     throw new Error("Only pending sellers can be approved");
   }
 
-  return await prisma.user.update({
+  const rejectedSeller = await prisma.user.update({
     where: { id: sellerId },
     data: {
       sellerStatus: "APPROVED",
@@ -249,6 +258,15 @@ export const approveSeller = async (sellerId: string) => {
       updatedAt: true,
     },
   });
+
+  await createNotification({
+    userId: rejectedSeller.id,
+    type: "SELLER",
+    title: "Seller application rejected",
+    message: "Your seller application was rejected by the admin team.",
+  });
+
+  return rejectedSeller;
 };
 
 export const rejectSeller = async (sellerId: string) => {

@@ -150,7 +150,7 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     .slice(2, 8)
     .toUpperCase()}`;
 
-  return await prisma.$transaction(async (tx) => {
+  const completedOrder = await prisma.$transaction(async (tx) => {
     const lockedCart = await tx.cart.findUnique({
       where: { userId },
       include: {
@@ -330,5 +330,24 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
       createdAt: order.createdAt,
     };
   });
+
+  const shopIds = completedOrder.vendorOrders.map((vendorOrder) => vendorOrder.shopId);
+  const shops = await prisma.shop.findMany({
+    where: { id: { in: shopIds } },
+    select: { id: true, name: true, sellerId: true },
+  });
+
+  await Promise.all(
+    shops.map((shop) =>
+      createNotification({
+        userId: shop.sellerId,
+        type: "ORDER",
+        title: "New order received",
+        message: `A new order has been placed for products from ${shop.name}.`,
+      })
+    )
+  );
+
+  return completedOrder;
 };
 

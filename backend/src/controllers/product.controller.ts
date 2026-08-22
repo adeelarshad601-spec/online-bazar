@@ -15,6 +15,7 @@ import {
   deleteProduct,
   updateProductStatus,
   getAdminProducts,
+  getSellerProducts,
 } from "../services/product.service.js";
 
 export const create = async (
@@ -307,6 +308,20 @@ export const getAllForAdmin = async (_req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     console.error("Get admin products error:", error);
+    return res.status(500).json({ success: false, message: "Something went wrong" });
+  }
+};
+
+export const getAllForSeller = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
+    }
+
+    const products = await getSellerProducts(req.user.userId);
+    return res.status(200).json({ success: true, message: "Seller products fetched successfully", data: products });
+  } catch (error) {
+    console.error("Get seller products error:", error);
     return res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };

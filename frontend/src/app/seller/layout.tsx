@@ -4,7 +4,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useCurrentUser } from "@/features/auth/queries";
 import { useSellerStatus } from "@/features/seller/queries";
 import Link from "next/link";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import {
   LayoutDashboard,
   Store,
@@ -26,6 +26,7 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
   const { data: user } = useCurrentUser();
   const { data: sellerStatus } = useSellerStatus();
   const pathname = usePathname();
+  const [productsMenuOpen, setProductsMenuOpen] = useState(pathname.startsWith("/seller/products"));
 
   // Only block access to seller portal pages — not to seller/apply or seller/status
   const isSellerPortalPath =
@@ -69,7 +70,6 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
   const navItems = [
     { name: "Dashboard", href: "/seller/dashboard", icon: LayoutDashboard },
     { name: "My Shop", href: "/seller/shop", icon: Store },
-    { name: "Products", href: "/seller/products", icon: Package },
     { name: "Orders", href: "/seller/orders", icon: ShoppingBag },
     { name: "Payouts", href: "/seller/payouts", icon: CreditCard },
   ];
@@ -127,6 +127,36 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
               </Link>
             );
           })}
+          <div>
+            <button
+              type="button"
+              onClick={() => setProductsMenuOpen((open) => !open)}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-xs font-bold transition-all ${
+                pathname.startsWith("/seller/products")
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                  : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-white"
+              }`}
+            >
+              <Package className="h-4 w-4" />
+              <span>Products</span>
+              <ChevronRight className={`ml-auto h-3.5 w-3.5 transition-transform ${productsMenuOpen ? "rotate-90" : ""}`} />
+            </button>
+            {productsMenuOpen && (
+              <div className="ml-8 space-y-1 border-l border-emerald-200 py-1 pl-3 dark:border-emerald-900">
+                {[
+                  ["All Products", "/seller/products"],
+                  ["Pending Approval", "/seller/products?status=PENDING"],
+                  ["Approved", "/seller/products?status=APPROVED"],
+                  ["Rejected", "/seller/products?status=REJECTED"],
+                  ["Suspended", "/seller/products?status=SUSPENDED"],
+                ].map(([name, href]) => (
+                  <Link key={href} href={href} className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">
+                    {name}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </nav>
 
         <div className="p-4 mt-auto border-t border-zinc-100 dark:border-zinc-800 space-y-2">
@@ -148,9 +178,7 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-8 max-w-7xl overflow-x-hidden">
-        {children}
-      </main>
+      <main className="max-w-7xl flex-1 overflow-x-hidden p-6 md:p-8">{children}</main>
     </div>
   );
 }
