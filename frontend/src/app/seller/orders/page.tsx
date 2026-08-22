@@ -3,6 +3,7 @@
 import { useVendorOrders, useUpdateVendorOrderStatusMutation } from "@/features/seller/dashboard-queries";
 import Link from "next/link";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ShoppingBag,
   Clock,
@@ -16,7 +17,8 @@ import {
 } from "lucide-react";
 
 export default function SellerOrdersPage() {
-  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const searchParams = useSearchParams();
+  const [selectedStatus, setSelectedStatus] = useState<string>(() => searchParams.get("status") || "");
   const { data: vendorOrdersData, isLoading } = useVendorOrders(selectedStatus || undefined);
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateVendorOrderStatusMutation();
 

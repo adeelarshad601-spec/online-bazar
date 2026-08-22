@@ -27,6 +27,9 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
   const { data: sellerStatus } = useSellerStatus();
   const pathname = usePathname();
   const [productsMenuOpen, setProductsMenuOpen] = useState(pathname.startsWith("/seller/products"));
+  const [shopMenuOpen, setShopMenuOpen] = useState(pathname.startsWith("/seller/shop"));
+  const [ordersMenuOpen, setOrdersMenuOpen] = useState(pathname.startsWith("/seller/orders"));
+  const [payoutsMenuOpen, setPayoutsMenuOpen] = useState(pathname.startsWith("/seller/payouts"));
 
   // Only block access to seller portal pages — not to seller/apply or seller/status
   const isSellerPortalPath =
@@ -69,9 +72,6 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
 
   const navItems = [
     { name: "Dashboard", href: "/seller/dashboard", icon: LayoutDashboard },
-    { name: "My Shop", href: "/seller/shop", icon: Store },
-    { name: "Orders", href: "/seller/orders", icon: ShoppingBag },
-    { name: "Payouts", href: "/seller/payouts", icon: CreditCard },
   ];
 
   // For non-portal paths like /seller/apply or /seller/status, render without the sidebar shell
@@ -107,7 +107,7 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
           </Link>
         </div>
 
-        <nav className="p-4 space-y-1">
+        <nav className="flex flex-col p-4 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -127,7 +127,65 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
               </Link>
             );
           })}
-          <div>
+          <div className="order-5">
+            <button type="button" onClick={() => setOrdersMenuOpen((open) => !open)} className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-xs font-bold transition-all ${pathname.startsWith("/seller/orders") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300" : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-white"}`}>
+              <ShoppingBag className="h-4 w-4" />
+              <span>Orders</span>
+              <ChevronRight className={`ml-auto h-3.5 w-3.5 transition-transform ${ordersMenuOpen ? "rotate-90" : ""}`} />
+            </button>
+            {ordersMenuOpen && (
+              <div className="ml-8 space-y-1 border-l border-emerald-200 py-1 pl-3 dark:border-emerald-900">
+                {[["All Orders", ""], ["Pending", "PENDING"], ["Processing", "PROCESSING"], ["Shipped", "SHIPPED"], ["Delivered", "DELIVERED"], ["Cancelled", "CANCELLED"]].map(([name, status]) => (
+                  <Link key={name} href={status ? `/seller/orders?status=${status}` : "/seller/orders"} className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">{name}</Link>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="order-4">
+            <button type="button" onClick={() => setPayoutsMenuOpen((open) => !open)} className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-xs font-bold transition-all ${pathname.startsWith("/seller/payouts") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300" : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-white"}`}>
+              <CreditCard className="h-4 w-4" />
+              <span>Payouts</span>
+              <ChevronRight className={`ml-auto h-3.5 w-3.5 transition-transform ${payoutsMenuOpen ? "rotate-90" : ""}`} />
+            </button>
+            {payoutsMenuOpen && (
+              <div className="ml-8 space-y-1 border-l border-emerald-200 py-1 pl-3 dark:border-emerald-900">
+                {[["Payout Overview", ""], ["Pending Requests", "PENDING"], ["Processing", "PROCESSING"], ["Completed", "COMPLETED"], ["Failed", "FAILED"]].map(([name, status]) => (
+                  <Link key={name} href={status ? `/seller/payouts?status=${status}` : "/seller/payouts"} className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">{name}</Link>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="order-2">
+            <button
+              type="button"
+              onClick={() => setShopMenuOpen((open) => !open)}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-xs font-bold transition-all ${
+                pathname.startsWith("/seller/shop")
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                  : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-white"
+              }`}
+            >
+              <Store className="h-4 w-4" />
+              <span>My Shop</span>
+              <ChevronRight className={`ml-auto h-3.5 w-3.5 transition-transform ${shopMenuOpen ? "rotate-90" : ""}`} />
+            </button>
+            {shopMenuOpen && (
+              <div className="ml-8 space-y-1 border-l border-emerald-200 py-1 pl-3 dark:border-emerald-900">
+                <Link href="/seller/shop/overview" className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">
+                  Shop Overview
+                </Link>
+                <Link href="/seller/shop" className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">
+                  Manage Shop Profile
+                </Link>
+                {sellerStatus?.shop?.id && (
+                  <Link href={`/shops/${sellerStatus.shop.id}`} target="_blank" className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">
+                    View Storefront
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="order-3">
             <button
               type="button"
               onClick={() => setProductsMenuOpen((open) => !open)}

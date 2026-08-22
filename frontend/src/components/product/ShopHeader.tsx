@@ -16,7 +16,7 @@ export default function ShopHeader({ shop, totalProducts = 0 }: ShopHeaderProps)
   return (
     <div className="relative overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-900" id="seller-shop-header">
       {/* Banner Cover Area */}
-      <div className="relative h-44 w-full bg-gradient-to-r from-emerald-800 via-teal-800 to-zinc-900 sm:h-56">
+      <div className="relative h-44 w-full bg-linear-to-r from-emerald-800 via-teal-800 to-zinc-900 sm:h-56">
         {shop.banner && (
           <Image
             src={shop.banner}
@@ -26,7 +26,7 @@ export default function ShopHeader({ shop, totalProducts = 0 }: ShopHeaderProps)
             className="object-cover opacity-60"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
       </div>
 
       {/* Profile Info Overlay & Details */}
@@ -70,8 +70,14 @@ export default function ShopHeader({ shop, totalProducts = 0 }: ShopHeaderProps)
 
           <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-500 pt-1 dark:text-zinc-400">
             {shop.seller && (
-              <div className="flex items-center gap-1">
-                <UserCheck className="h-3.5 w-3.5 text-emerald-600" />
+              <div className="flex items-center gap-2">
+                <div className="relative h-6 w-6 overflow-hidden rounded-full border border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950">
+                  {shop.seller.avatar ? (
+                    <Image src={shop.seller.avatar} alt={shop.seller.name} fill className="object-cover" />
+                  ) : (
+                    <UserCheck className="m-1 h-4 w-4 text-emerald-600" />
+                  )}
+                </div>
                 <span>Owner: <strong className="text-zinc-700 dark:text-zinc-200">{shop.seller.name}</strong></span>
               </div>
             )}

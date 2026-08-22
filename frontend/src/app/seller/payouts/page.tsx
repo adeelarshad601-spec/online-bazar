@@ -2,6 +2,7 @@
 
 import { useSellerPayoutDashboard, useSellerPayouts, useRequestPayoutMutation } from "@/features/seller/dashboard-queries";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,9 +25,11 @@ const payoutSchema = z.object({
 type PayoutFormData = z.infer<typeof payoutSchema>;
 
 export default function SellerPayoutsPage() {
+  const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
   const { data: dashboard, isLoading: isDashboardLoading } = useSellerPayoutDashboard();
-  const { data: payoutsData, isLoading: isPayoutsLoading } = useSellerPayouts(page, 10);
+  const status = searchParams.get("status") || undefined;
+  const { data: payoutsData, isLoading: isPayoutsLoading } = useSellerPayouts(page, 10, status);
   const { mutate: requestPayout, isPending: isRequesting } = useRequestPayoutMutation();
 
   const [showForm, setShowForm] = useState(false);

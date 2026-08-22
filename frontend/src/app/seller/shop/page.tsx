@@ -6,7 +6,7 @@ import { z } from "zod";
 import { useMyShop, useCreateShopMutation, useUpdateShopMutation } from "@/features/seller/shop-queries";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Store, Globe, Image as ImageIcon, FileText, Loader2, ExternalLink, Save, Upload, X } from "lucide-react";
+import { Store, Globe, Image as ImageIcon, FileText, Loader2, ExternalLink, Save, Upload, X, CheckCircle2 } from "lucide-react";
 
 const shopSchema = z.object({
   name: z
@@ -212,12 +212,22 @@ export default function SellerShopPage() {
         )}
       </div>
 
+      {shop && (
+        <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-xs dark:border-emerald-900/50 dark:bg-emerald-950/20">
+          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+          <div>
+            <p className="font-bold text-emerald-900 dark:text-emerald-200">Shop is active</p>
+            <p className="text-emerald-700 dark:text-emerald-300">This account already has one shop: {shop.name}</p>
+          </div>
+        </div>
+      )}
+
       {/* Form Card */}
       <div className="rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Basic Info Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider text-xs">
+            <h3 className="font-bold text-zinc-900 dark:text-white uppercase tracking-wider text-xs">
               General Details
             </h3>
 
@@ -275,7 +285,7 @@ export default function SellerShopPage() {
 
           {/* Media Section */}
           <div className="space-y-4 border-t border-zinc-100 pt-6 dark:border-zinc-800">
-            <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
+            <h3 className="font-bold text-zinc-900 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
               <ImageIcon className="h-4 w-4 text-emerald-600" />
               <span>Shop Branding & Media (File Upload)</span>
             </h3>

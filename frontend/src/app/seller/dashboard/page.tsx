@@ -2,6 +2,7 @@
 
 import { useSellerPayoutDashboard, useVendorOrders } from "@/features/seller/dashboard-queries";
 import { useSellerStatus } from "@/features/seller/queries";
+import { useCurrentUser } from "@/features/auth/queries";
 import { useShopProducts } from "@/features/seller/product-queries";
 import { useUnreadCount } from "@/features/notifications/queries";
 import Link from "next/link";
@@ -13,6 +14,7 @@ import {
   ArrowRight,
   TrendingUp,
   Store,
+  User,
   Loader2,
   AlertCircle,
   Plus,
@@ -21,6 +23,7 @@ import {
 
 export default function SellerDashboardPage() {
   const { data: sellerStatus, isLoading: isStatusLoading } = useSellerStatus();
+  const { data: currentUser } = useCurrentUser();
   const { data: payoutDashboard, isLoading: isPayoutLoading } = useSellerPayoutDashboard();
   const { data: vendorOrdersData, isLoading: isOrdersLoading } = useVendorOrders();
   const { data: sellerProductsData, isLoading: isProductsLoading } = useShopProducts(sellerStatus?.shop?.id);
@@ -55,7 +58,14 @@ export default function SellerDashboardPage() {
       {/* Top Welcome Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white flex items-center gap-2">
+          <h1 className="flex items-center gap-3 text-2xl font-extrabold text-zinc-900 dark:text-white sm:text-3xl">
+            <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+              {currentUser?.avatar ? (
+                <img src={currentUser.avatar} alt={currentUser.name} className="h-full w-full object-cover" />
+              ) : (
+                <User className="h-5 w-5" />
+              )}
+            </span>
             <span>Welcome back, {sellerStatus?.name || "Merchant"}!</span>
           </h1>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">

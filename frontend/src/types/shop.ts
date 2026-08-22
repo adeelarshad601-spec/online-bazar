@@ -2,6 +2,7 @@ export interface ShopSeller {
   id: string;
   name: string;
   email: string;
+  avatar?: string | null;
 }
 
 export interface ShopDetails {
