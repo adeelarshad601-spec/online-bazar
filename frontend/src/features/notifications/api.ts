@@ -7,6 +7,7 @@ export interface NotificationItem {
   type: "ORDER" | "PAYMENT" | "PRODUCT" | "SELLER" | "SYSTEM";
   title: string;
   message: string;
+  actionUrl?: string | null;
   isRead: boolean;
   createdAt: string;
 }

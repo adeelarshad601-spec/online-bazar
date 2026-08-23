@@ -5,6 +5,7 @@ type CreateNotificationInput = {
   type: string;
   title: string;
   message: string;
+  actionUrl?: string;
 };
 
 export const createNotification = async (input: CreateNotificationInput) => {
@@ -14,6 +15,7 @@ export const createNotification = async (input: CreateNotificationInput) => {
       type: input.type as any,
       title: input.title,
       message: input.message,
+      actionUrl: input.actionUrl,
     },
   });
 };
@@ -48,6 +50,7 @@ const ensurePendingProductNotifications = async (userId: string) => {
         type: "PRODUCT",
         title: "New product submitted for approval",
         message,
+          actionUrl: `/seller/products/${product.id}/edit`,
       });
     }
   }

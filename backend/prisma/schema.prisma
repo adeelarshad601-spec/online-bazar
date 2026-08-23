@@ -603,6 +603,7 @@ model Notification {
   type        NotificationType
   title       String
   message     String
+  actionUrl   String?
 
   isRead      Boolean          @default(false)
 

@@ -62,6 +62,7 @@ export const applyForSeller = async (userId: string) => {
     type: "SELLER",
     title: "Seller application approved",
     message: "Your seller application has been approved. Your seller portal is now active.",
+    actionUrl: "/seller/dashboard",
   });
 
   return approvedSeller;
@@ -264,6 +265,7 @@ export const approveSeller = async (sellerId: string) => {
     type: "SELLER",
     title: "Seller application rejected",
     message: "Your seller application was rejected by the admin team.",
+    actionUrl: "/seller/status",
   });
 
   return rejectedSeller;

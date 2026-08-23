@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useUpdateProductMutation } from "@/features/seller/product-queries";
-import { useProductDetails, useCategories } from "@/features/products/queries";
+import { getSellerProductByIdApi } from "@/features/seller/product-api";
+import { useCategories } from "@/features/products/queries";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Package, ArrowLeft, Loader2, Save, AlertCircle } from "lucide-react";
@@ -54,7 +56,11 @@ type EditProductFormData = z.infer<typeof updateProductSchema>;
 
 function EditProductContent({ productId }: { productId: string }) {
   const router = useRouter();
-  const { data: product, isLoading: isProductLoading, isError } = useProductDetails(productId);
+  const { data: product, isLoading: isProductLoading, isError } = useQuery({
+    queryKey: ["sellerProduct", productId],
+    queryFn: () => getSellerProductByIdApi(productId),
+    enabled: Boolean(productId),
+  });
   const { data: categories = [], isLoading: isCategoriesLoading } = useCategories();
   const { mutate: updateProduct, isPending: isSubmitting } = useUpdateProductMutation();
 

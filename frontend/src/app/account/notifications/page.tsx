@@ -46,7 +46,9 @@ function NotificationsContent() {
       markRead(notification.id);
     }
 
-    if (notification.title === "Seller reactivation requested") {
+    if (notification.actionUrl) {
+      router.push(notification.actionUrl);
+    } else if (notification.title === "Seller reactivation requested") {
       router.push("/admin/sellers?status=SUSPENDED");
     } else if (notification.title === "New product submitted for approval") {
       router.push("/admin/products?status=PENDING");

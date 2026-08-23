@@ -36,6 +36,11 @@ export async function getSellerProductsApi(): Promise<Product[]> {
   return response.data.data || [];
 }
 
+export async function getSellerProductByIdApi(id: string): Promise<Product> {
+  const response = await apiClient.get<ApiResponse<Product>>(`/products/mine/${id}`);
+  return response.data.data!;
+}
+
 export async function updateProductApi(id: string, payload: UpdateProductPayload): Promise<Product> {
   const response = await apiClient.patch<ApiResponse<Product>>(`/products/${id}`, payload);
   return response.data.data!;

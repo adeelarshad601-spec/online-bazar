@@ -9,6 +9,7 @@ import {
   changeStatus,
   getAllForAdmin,
   getAllForSeller,
+  getOneForSeller,
 } from "../controllers/product.controller.js";
 
 import { authenticate } from "../middleware/auth.middleware.js";
@@ -21,6 +22,7 @@ const router = Router();
 router.get("/", getAll);
 router.get("/admin", authenticate, authorize("ADMIN"), getAllForAdmin);
 router.get("/mine", authenticate, getAllForSeller);
+router.get("/mine/:id", authenticate, getOneForSeller);
 router.use("/search", searchRoutes);
 router.get("/:id", getOne);
 

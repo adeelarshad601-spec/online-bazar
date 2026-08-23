@@ -92,6 +92,7 @@ export const createProduct = async (
           type: "PRODUCT",
           title: "New product submitted for approval",
           message: `${product.title} from ${product.shop.name} is waiting for moderation.`,
+          actionUrl: `/admin/products?status=PENDING`,
         })
       )
     );
@@ -329,6 +330,7 @@ export const updateProductStatus = async (
       type: "PRODUCT",
       title: `Product ${status.toLowerCase()}`,
       message: `Your product "${updatedProduct.title}" from ${shop.name} was ${status.toLowerCase()} by the admin team.`,
+      actionUrl: `/seller/products/${updatedProduct.id}/edit`,
     });
   }
 
@@ -347,4 +349,23 @@ export const getSellerProducts = async (userId: string) => {
     },
     orderBy: { createdAt: "desc" },
   });
+};
+
+export const getSellerProductById = async (productId: string, userId: string) => {
+  await verifyActiveSeller(userId);
+
+  const product = await prisma.product.findFirst({
+    where: { id: productId, shop: { sellerId: userId } },
+    include: {
+      shop: true,
+      category: true,
+      images: { orderBy: { sortOrder: "asc" } },
+    },
+  });
+
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  return product;
 };
