@@ -73,7 +73,8 @@ export const login = async (req: Request, res: Response) => {
 
     if (
       error instanceof Error &&
-      error.message === "Invalid email or password"
+      (error.message === "Invalid email or password" ||
+       error.message === "Admin accounts must use the admin login")
     ) {
       return res.status(401).json({
         success: false,

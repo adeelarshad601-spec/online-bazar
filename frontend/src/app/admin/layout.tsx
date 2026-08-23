@@ -373,6 +373,12 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
 }
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
   return (
     <ProtectedRoute>
       <AdminLayoutContent>{children}</AdminLayoutContent>

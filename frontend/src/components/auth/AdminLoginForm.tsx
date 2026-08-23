@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import apiClient from "@/lib/api/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { CURRENT_USER_QUERY_KEY } from "@/features/auth/queries";
 
 export default function AdminLoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +30,7 @@ export default function AdminLoginForm() {
   const passwordRef = useRef<HTMLInputElement | null>(null);
 
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -110,6 +113,7 @@ export default function AdminLoginForm() {
           return;
         }
         clearForm();
+        queryClient.setQueryData(CURRENT_USER_QUERY_KEY, user);
         toast.success(`Welcome back, ${user.name}!`);
         router.replace("/admin/dashboard");
       } else {

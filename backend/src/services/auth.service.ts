@@ -51,6 +51,10 @@ export const loginUser = async (data: LoginInput) => {
          throw new Error("Invalid email or password");
      }
 
+     if (user.role === "ADMIN") {
+       throw new Error("Admin accounts must use the admin login");
+     }
+
      const isPasswordValid = await verifyPassword(user.password, data.password);
 
      if (!isPasswordValid) {

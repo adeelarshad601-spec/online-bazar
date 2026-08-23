@@ -16,7 +16,8 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+      const loginPath = pathname.startsWith("/admin") ? "/admin/login" : "/login";
+      router.push(`${loginPath}?redirect=${encodeURIComponent(pathname)}`);
     }
   }, [user, isLoading, router, pathname]);
 
