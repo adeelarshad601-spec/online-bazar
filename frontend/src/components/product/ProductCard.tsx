@@ -156,12 +156,16 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
               <span>Marketplace</span>
             )}
 
-            <div className="flex items-center gap-1 text-amber-500">
-              <Star className="h-3 w-3 fill-amber-400" />
-              <span className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300">
-                {product.rating || "4.8"}
-              </span>
-            </div>
+            {product.reviewCount ? (
+              <div className="flex items-center gap-1 text-amber-500">
+                <Star className="h-3 w-3 fill-amber-400" />
+                <span className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300">
+                  {product.rating?.toFixed(1)}
+                </span>
+              </div>
+            ) : (
+              <span className="text-[10px] font-semibold text-zinc-400">New</span>
+            )}
           </div>
 
           {/* Title */}

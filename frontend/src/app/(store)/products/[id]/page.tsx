@@ -196,13 +196,17 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               </span>
             )}
 
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-              <span className="text-xs font-bold text-zinc-900 dark:text-white">
-                {product.rating || "4.8"}
-              </span>
-              <span className="text-xs text-zinc-400">({product.reviewCount || 0} reviews)</span>
-            </div>
+            {product.reviewCount ? (
+              <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                <span className="text-xs font-bold text-zinc-900 dark:text-white">
+                  {product.rating?.toFixed(1)}
+                </span>
+                <span className="text-xs text-zinc-400">({product.reviewCount} reviews)</span>
+              </div>
+            ) : (
+              <span className="text-xs font-semibold text-zinc-400">No reviews yet</span>
+            )}
           </div>
 
           {/* Title & SKU */}
