@@ -20,8 +20,8 @@ export function useUpdateProductStatusMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED" }) =>
-      updateProductStatusApi(id, status),
+    mutationFn: ({ id, status, feedback }: { id: string; status: "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED"; feedback?: string }) =>
+      updateProductStatusApi(id, status, feedback),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ADMIN_PRODUCTS_QUERY_KEY });

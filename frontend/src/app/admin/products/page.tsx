@@ -118,7 +118,7 @@ export default function AdminProductsPage() {
 
     setActiveId(revisionProductId);
     updateStatus(
-      { id: revisionProductId, status: "PENDING" },
+      { id: revisionProductId, status: "PENDING", feedback: revisionNote.trim() },
       {
         onSettled: () => {
           setActiveId(null);
@@ -503,6 +503,7 @@ export default function AdminProductsPage() {
               <button
                 type="button"
                 onClick={handleRevisionSubmit}
+                disabled={!revisionNote.trim() || isUpdating}
                 className="rounded-xl bg-amber-500 px-3 py-2 text-[11px] font-bold text-white hover:bg-amber-600"
               >
                 Send Revision

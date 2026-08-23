@@ -283,7 +283,8 @@ export const changeStatus = async (
 
     const product = await updateProductStatus(
       req.params.id,
-      validationResult.data.status
+      validationResult.data.status,
+      validationResult.data.feedback
     );
 
     return res.status(200).json({

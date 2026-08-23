@@ -2279,6 +2279,7 @@ export const ProductScalarFieldEnum = {
   compareAtPrice: 'compareAtPrice',
   stock: 'stock',
   status: 'status',
+  moderationFeedback: 'moderationFeedback',
   isActive: 'isActive',
   shopId: 'shopId',
   categoryId: 'categoryId',
@@ -2466,6 +2467,7 @@ export const NotificationScalarFieldEnum = {
   type: 'type',
   title: 'title',
   message: 'message',
+  actionUrl: 'actionUrl',
   isRead: 'isRead',
   createdAt: 'createdAt'
 } as const

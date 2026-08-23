@@ -202,20 +202,27 @@ export default function SellerProductsPage() {
                         </span>
                       </td>
                       <td className="py-4 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                        <div className="space-y-2">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
                             product.status === "APPROVED"
                               ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
                               : product.status === "PENDING"
                               ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
                               : "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
-                          }`}
-                        >
-                          {product.status === "APPROVED" && <CheckCircle2 className="h-3 w-3" />}
-                          {product.status === "PENDING" && <Clock className="h-3 w-3" />}
-                          {product.status === "REJECTED" && <XCircle className="h-3 w-3" />}
-                          <span>{product.status}</span>
-                        </span>
+                            }`}
+                          >
+                            {product.status === "APPROVED" && <CheckCircle2 className="h-3 w-3" />}
+                            {product.status === "PENDING" && <Clock className="h-3 w-3" />}
+                            {product.status === "REJECTED" && <XCircle className="h-3 w-3" />}
+                            <span>{product.status}</span>
+                          </span>
+                          {product.moderationFeedback && (
+                            <p className="max-w-xs text-[11px] leading-4 text-amber-700 dark:text-amber-300">
+                              <span className="font-bold">Admin feedback:</span> {product.moderationFeedback}
+                            </p>
+                          )}
+                        </div>
                       </td>
                       <td className="py-4 px-6 text-right">
                         {isConfirmingDelete ? (

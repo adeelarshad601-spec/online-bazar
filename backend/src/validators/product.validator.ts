@@ -61,6 +61,7 @@ export const updateProductStatusSchema = z.object({
     "REJECTED",
     "SUSPENDED",
   ]),
+  feedback: z.string().trim().max(2000, "Feedback must not exceed 2000 characters").optional(),
 });
 
 export type CreateProductInput =

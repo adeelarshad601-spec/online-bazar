@@ -42,6 +42,7 @@ export interface Product {
   stock: number;
   isActive?: boolean;
   status?: string;
+  moderationFeedback?: string | null;
   createdAt: string;
   updatedAt?: string;
   shop?: ProductShop;

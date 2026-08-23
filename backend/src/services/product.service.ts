@@ -297,7 +297,8 @@ export const updateProductStatus = async (
     | "PENDING"
     | "APPROVED"
     | "REJECTED"
-    | "SUSPENDED"
+    | "SUSPENDED",
+  feedback?: string
 ) => {
   const product = await prisma.product.findUnique({
     where: {
@@ -316,6 +317,7 @@ export const updateProductStatus = async (
 
     data: {
       status,
+      moderationFeedback: feedback?.trim() || null,
     },
   });
 
@@ -324,12 +326,14 @@ export const updateProductStatus = async (
     select: { sellerId: true, name: true },
   });
 
-  if (shop && (status === "APPROVED" || status === "REJECTED")) {
+  if (shop && (status === "APPROVED" || status === "REJECTED" || feedback?.trim())) {
     await createNotification({
       userId: shop.sellerId,
       type: "PRODUCT",
       title: `Product ${status.toLowerCase()}`,
-      message: `Your product "${updatedProduct.title}" from ${shop.name} was ${status.toLowerCase()} by the admin team.`,
+      message: feedback?.trim()
+        ? `Your product "${updatedProduct.title}" from ${shop.name} was sent back for updates. Feedback: ${feedback.trim()}`
+        : `Your product "${updatedProduct.title}" from ${shop.name} was ${status.toLowerCase()} by the admin team.`,
       actionUrl: `/seller/products/${updatedProduct.id}/edit`,
     });
   }
