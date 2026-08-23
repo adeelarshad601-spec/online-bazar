@@ -31,7 +31,7 @@ import {
   CreditCard,
   Shield,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 interface AdminLayoutContentProps {
   children: ReactNode;
@@ -41,6 +41,7 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
   const { data: user } = useCurrentUser();
   const { mutate: logout } = useLogout();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { data: unreadData } = useUnreadCount();
   const [darkMode, setDarkMode] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -49,6 +50,12 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
     sellers: true,
   });
   const notificationCount = unreadData?.unreadCount ?? 0;
+
+  const isNavLinkActive = (href: string) => {
+    const [hrefPath, hrefQuery = ""] = href.split("?");
+    const expectedParams = new URLSearchParams(hrefQuery);
+    return pathname === hrefPath && expectedParams.toString() === searchParams.toString();
+  };
 
   // Initialize dark mode after hydration
   useEffect(() => {
@@ -177,9 +184,10 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
 
               {group.items.map((item) => {
                 const Icon = item.icon;
-                const isActive =
-                  pathname === item.href ||
-                  (item.href !== "/admin/dashboard" && pathname.startsWith(`${item.href}/`));
+                const [itemPath, itemQuery = ""] = item.href.split("?");
+                const isActive = itemQuery
+                  ? isNavLinkActive(item.href)
+                  : pathname === itemPath || (itemPath !== "/admin/dashboard" && pathname.startsWith(`${itemPath}/`));
                 const isExpanded = item.children ? expandedItems[item.id] ?? true : false;
 
                 return (
@@ -212,16 +220,20 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
 
                     {item.children && isExpanded && (
                       <div className="ml-8 space-y-1 border-l border-zinc-200 pl-3 dark:border-zinc-700">
-                        {item.children.map((child) => (
-                          <Link
-                            key={`${child.name}-${child.href}`}
-                            href={child.href}
-                            className="block rounded-lg px-2 py-1.5 text-[10px] font-semibold text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
-                            onClick={() => setExpandedItems((prev) => ({ ...prev, [item.id]: true }))}
-                          >
-                            {child.name}
-                          </Link>
-                        ))}
+                        {item.children.map((child) => {
+                          const isChildActive = isNavLinkActive(child.href);
+
+                          return (
+                            <Link
+                              key={`${child.name}-${child.href}`}
+                              href={child.href}
+                              className={`block rounded-lg px-2 py-1.5 text-[10px] font-semibold transition ${isChildActive ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300" : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"}`}
+                              onClick={() => setExpandedItems((prev) => ({ ...prev, [item.id]: true }))}
+                            >
+                              {child.name}
+                            </Link>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

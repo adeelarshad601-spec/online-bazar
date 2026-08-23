@@ -60,7 +60,7 @@ export default function SellerProductsPage() {
     );
   }
 
-  const products = productsData?.products || [];
+  const products = productsData || [];
   const filteredProducts = products.filter(
     (p) =>
       (p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

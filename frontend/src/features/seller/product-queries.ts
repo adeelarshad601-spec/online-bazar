@@ -35,8 +35,15 @@ export function useUpdateProductMutation() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateProductPayload }) => updateProductApi(id, payload),
     onSuccess: (data) => {
+      queryClient.setQueriesData({ queryKey: PRODUCTS_QUERY_KEY }, (products: unknown) =>
+        Array.isArray(products)
+          ? products.map((product) => (product.id === data.id ? { ...product, ...data, status: data.status } : product))
+          : products
+      );
+      queryClient.setQueryData(["sellerProduct", data.id], data);
       queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: [...PRODUCTS_QUERY_KEY, data.id] });
+      queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
       toast.success("Product updated successfully!");
     },
     onError: (error: unknown) => {

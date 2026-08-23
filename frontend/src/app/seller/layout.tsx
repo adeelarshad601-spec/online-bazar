@@ -16,7 +16,7 @@ import {
   Home,
   ChevronRight,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 interface SellerLayoutContentProps {
   children: ReactNode;
@@ -26,6 +26,13 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
   const { data: user } = useCurrentUser();
   const { data: sellerStatus } = useSellerStatus();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const productStatus = searchParams.get("status") || "";
+  const isNavLinkActive = (href: string) => {
+    const [hrefPath, hrefQuery = ""] = href.split("?");
+    const expectedParams = new URLSearchParams(hrefQuery);
+    return pathname === hrefPath && expectedParams.toString() === searchParams.toString();
+  };
   const [productsMenuOpen, setProductsMenuOpen] = useState(pathname.startsWith("/seller/products"));
   const [shopMenuOpen, setShopMenuOpen] = useState(pathname.startsWith("/seller/shop"));
   const [ordersMenuOpen, setOrdersMenuOpen] = useState(pathname.startsWith("/seller/orders"));
@@ -136,7 +143,7 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
             {ordersMenuOpen && (
               <div className="ml-8 space-y-1 border-l border-emerald-200 py-1 pl-3 dark:border-emerald-900">
                 {[["All Orders", ""], ["Pending", "PENDING"], ["Processing", "PROCESSING"], ["Shipped", "SHIPPED"], ["Delivered", "DELIVERED"], ["Cancelled", "CANCELLED"]].map(([name, status]) => (
-                  <Link key={name} href={status ? `/seller/orders?status=${status}` : "/seller/orders"} className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">{name}</Link>
+                  <Link key={name} href={status ? `/seller/orders?status=${status}` : "/seller/orders"} className={`block rounded-lg px-3 py-2 text-[11px] font-semibold ${isNavLinkActive(status ? `/seller/orders?status=${status}` : "/seller/orders") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300"}`}>{name}</Link>
                 ))}
               </div>
             )}
@@ -150,7 +157,7 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
             {payoutsMenuOpen && (
               <div className="ml-8 space-y-1 border-l border-emerald-200 py-1 pl-3 dark:border-emerald-900">
                 {[["Payout Overview", ""], ["Pending Requests", "PENDING"], ["Processing", "PROCESSING"], ["Completed", "COMPLETED"], ["Failed", "FAILED"]].map(([name, status]) => (
-                  <Link key={name} href={status ? `/seller/payouts?status=${status}` : "/seller/payouts"} className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">{name}</Link>
+                  <Link key={name} href={status ? `/seller/payouts?status=${status}` : "/seller/payouts"} className={`block rounded-lg px-3 py-2 text-[11px] font-semibold ${isNavLinkActive(status ? `/seller/payouts?status=${status}` : "/seller/payouts") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300"}`}>{name}</Link>
                 ))}
               </div>
             )}
@@ -171,10 +178,10 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
             </button>
             {shopMenuOpen && (
               <div className="ml-8 space-y-1 border-l border-emerald-200 py-1 pl-3 dark:border-emerald-900">
-                <Link href="/seller/shop/overview" className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">
+                <Link href="/seller/shop/overview" className={`block rounded-lg px-3 py-2 text-[11px] font-semibold ${isNavLinkActive("/seller/shop/overview") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300"}`}>
                   Shop Overview
                 </Link>
-                <Link href="/seller/shop" className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">
+                <Link href="/seller/shop" className={`block rounded-lg px-3 py-2 text-[11px] font-semibold ${isNavLinkActive("/seller/shop") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300"}`}>
                   Manage Shop Profile
                 </Link>
                 {sellerStatus?.shop?.id && (
@@ -202,16 +209,21 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
             {productsMenuOpen && (
               <div className="ml-8 space-y-1 border-l border-emerald-200 py-1 pl-3 dark:border-emerald-900">
                 {[
-                  ["All Products", "/seller/products"],
-                  ["Pending Approval", "/seller/products?status=PENDING"],
-                  ["Approved", "/seller/products?status=APPROVED"],
-                  ["Rejected", "/seller/products?status=REJECTED"],
-                  ["Suspended", "/seller/products?status=SUSPENDED"],
-                ].map(([name, href]) => (
-                  <Link key={href} href={href} className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">
+                  ["All Products", ""],
+                  ["Pending Approval", "PENDING"],
+                  ["Approved", "APPROVED"],
+                  ["Rejected", "REJECTED"],
+                  ["Suspended", "SUSPENDED"],
+                ].map(([name, status]) => {
+                  const href = status ? `/seller/products?status=${status}` : "/seller/products";
+                  const isProductPageActive = pathname === "/seller/products" && productStatus === status;
+
+                  return (
+                  <Link key={href} href={href} className={`block rounded-lg px-3 py-2 text-[11px] font-semibold ${isProductPageActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300"}`}>
                     {name}
                   </Link>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
