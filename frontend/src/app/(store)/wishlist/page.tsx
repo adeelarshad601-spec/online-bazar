@@ -49,7 +49,7 @@ function WishlistItemCard({ item }: { item: WishlistItem }) {
       <div>
         {/* Product Image Container */}
         <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-          <Link href={`/products/${product.id}`} className="block h-full w-full">
+          <Link href={`/products/${product.id}`} className="relative block h-full w-full">
             {primaryImage ? (
               <Image
                 src={primaryImage}
