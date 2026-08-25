@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt.js";
+import prisma from "../config/database.js";
 
 export interface AuthRequest extends Request<{ id: string }> {
   user?: {
@@ -8,7 +9,7 @@ export interface AuthRequest extends Request<{ id: string }> {
   };
 }
 
-export const authenticate = (
+export const authenticate = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -29,10 +30,19 @@ export const authenticate = (
 
     const payload = verifyToken(token);
 
-    req.user = {
-      userId: payload.userId,
-      role: payload.role,
-    };
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { role: true },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    req.user = { userId: payload.userId, role: user.role };
 
     next();
   } catch (error) {

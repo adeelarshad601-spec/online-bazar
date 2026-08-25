@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Category } from "@/types/category";
@@ -9,6 +12,8 @@ interface CategoryCardProps {
 }
 
 export default function CategoryCard({ category, priority = false }: CategoryCardProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+
   // Generate consistent icon placeholder based on category name
   const getCategoryIcon = (name: string) => {
     const lower = name.toLowerCase();
@@ -24,6 +29,18 @@ export default function CategoryCard({ category, priority = false }: CategoryCar
   };
 
   const productCount = category._count?.products;
+  const categoryImage = (() => {
+    if (!category.image || imageFailed) return null;
+
+    try {
+      const imageUrl = new URL(category.image);
+      return imageUrl.hostname === "example.com" || imageUrl.hostname === "www.example.com"
+        ? null
+        : category.image;
+    } catch {
+      return null;
+    }
+  })();
 
   return (
     <Link
@@ -37,14 +54,15 @@ export default function CategoryCard({ category, priority = false }: CategoryCar
       {/* Top Bar: Icon/Image + Arrow Indicator */}
       <div className="flex items-start justify-between">
         <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-zinc-100 bg-zinc-50 text-2xl shadow-xs transition-transform duration-300 group-hover:scale-110 dark:border-zinc-800 dark:bg-zinc-800">
-          {category.image ? (
+          {categoryImage ? (
             <Image
-              src={category.image}
+              src={categoryImage}
               alt={category.name}
               fill
               sizes="48px"
               priority={priority}
               className="object-cover"
+              onError={() => setImageFailed(true)}
             />
           ) : (
             <span>{getCategoryIcon(category.name)}</span>
