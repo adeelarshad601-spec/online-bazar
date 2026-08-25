@@ -18,6 +18,9 @@ interface CategoryPageProps {
 function CategoryPageContent({ categoryId }: { categoryId: string }) {
   const { data: category, isLoading: isCategoryLoading, isError: isCategoryError } = useCategoryDetails(categoryId);
   const [page, setPage] = useState(1);
+  const categoryImage = category?.image && !/^(https?:\/\/)?(www\.)?example\.com\//i.test(category.image)
+    ? category.image
+    : null;
 
   const {
     data: productsData,
@@ -95,10 +98,10 @@ function CategoryPageContent({ categoryId }: { categoryId: string }) {
             </p>
           </div>
 
-          {category.image && (
+          {categoryImage && (
             <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-white/20 shadow-md">
               <Image
-                src={category.image}
+                src={categoryImage}
                 alt={category.name}
                 fill
                 className="object-cover"

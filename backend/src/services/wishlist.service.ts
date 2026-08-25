@@ -7,7 +7,14 @@ export const getWishlist = async (userId: string) => {
     include: {
       items: {
         include: {
-          product: true,
+          product: {
+            include: {
+              images: {
+                orderBy: { sortOrder: "asc" },
+              },
+              shop: true,
+            },
+          },
         },
       },
     },
@@ -63,7 +70,14 @@ export const addWishlistItem = async (userId: string, productId: string) => {
       productId,
     },
     include: {
-      product: true,
+      product: {
+        include: {
+          images: {
+            orderBy: { sortOrder: "asc" },
+          },
+          shop: true,
+        },
+      },
     },
   });
 

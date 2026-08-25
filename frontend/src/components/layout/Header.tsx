@@ -230,7 +230,10 @@ export default function Header() {
                             className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                           >
                             <Heart className="h-4 w-4 text-pink-600" />
-                            Wishlist
+                            <span>Wishlist</span>
+                            <span className="ml-auto min-w-5 rounded-full bg-emerald-600 px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
+                              {wishlistData?.items?.length || 0}
+                            </span>
                           </Link>
 
                           <Link

@@ -17,15 +17,30 @@ function normalizeProduct(p: any): Product {
   };
 }
 
+function normalizeCategory(category: Category): Category {
+  if (!category.image) return category;
+
+  try {
+    const hostname = new URL(category.image).hostname;
+    if (hostname === "example.com" || hostname === "www.example.com") {
+      return { ...category, image: null };
+    }
+  } catch {
+    return { ...category, image: null };
+  }
+
+  return category;
+}
+
 export async function getCategoriesApi(): Promise<Category[]> {
   try {
     const response = await apiClient.get<ApiResponse<Category[]>>("/categories");
-    return response.data.data || [];
+    return (response.data.data || []).map(normalizeCategory);
   } catch (err) {
     console.warn("Failed /categories, attempting fallback /api/categories", err);
     try {
       const response = await apiClient.get<ApiResponse<Category[]>>("/api/categories");
-      return response.data.data || [];
+      return (response.data.data || []).map(normalizeCategory);
     } catch (fallbackErr) {
       console.error("Failed to fetch categories:", fallbackErr);
       return [];
@@ -36,7 +51,7 @@ export async function getCategoriesApi(): Promise<Category[]> {
 export async function getCategoryByIdApi(id: string): Promise<Category> {
   try {
     const response = await apiClient.get<ApiResponse<Category>>(`/categories/${id}`);
-    if (response.data.data) return response.data.data;
+    if (response.data.data) return normalizeCategory(response.data.data);
   } catch (err) {
     // Fallback if full route is used
   }
@@ -44,7 +59,7 @@ export async function getCategoryByIdApi(id: string): Promise<Category> {
   if (!response.data.data) {
     throw new Error("Category data not found");
   }
-  return response.data.data;
+  return normalizeCategory(response.data.data);
 }
 
 export async function getProductsApi(): Promise<Product[]> {
