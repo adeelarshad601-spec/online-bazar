@@ -173,7 +173,7 @@ export default function RegisterForm() {
               <input
                 id="reg-name"
                 type="text"
-                placeholder="John Doe"
+                placeholder="Enter your name"
                 aria-invalid={!!errors.name}
                 {...register("name")}
                 className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 transition-all ${
