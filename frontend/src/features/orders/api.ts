@@ -103,6 +103,35 @@ export interface CancelOrderApiResponse {
   data: OrderDetails;
 }
 
+function toNumber(value: unknown): number {
+  const numberValue = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(numberValue) ? numberValue : 0;
+}
+
+function normalizeOrder(order: OrderDetails): OrderDetails {
+  return {
+    ...order,
+    totalAmount: toNumber(order.totalAmount),
+    vendorOrders: order.vendorOrders?.map((vendorOrder) => ({
+      ...vendorOrder,
+      subTotal: toNumber(vendorOrder.subTotal),
+      items: vendorOrder.items.map((item) => ({
+        ...item,
+        price: toNumber(item.price),
+        product: item.product
+          ? { ...item.product, price: toNumber(item.product.price) }
+          : item.product,
+        variant: item.variant
+          ? { ...item.variant, price: item.variant.price == null ? item.variant.price : toNumber(item.variant.price) }
+          : item.variant,
+      })),
+    })),
+    payment: order.payment
+      ? { ...order.payment, amount: toNumber(order.payment.amount) }
+      : order.payment,
+  };
+}
+
 export async function getCustomerOrdersApi(
   page: number = 1,
   limit: number = 10
@@ -110,12 +139,21 @@ export async function getCustomerOrdersApi(
   const response = await apiClient.get<GetOrdersApiResponse>(
     `/orders?page=${page}&limit=${limit}`
   );
-  return response.data;
+  return {
+    ...response.data,
+    data: {
+      ...response.data.data,
+      orders: response.data.data.orders.map(normalizeOrder),
+    },
+  };
 }
 
 export async function getOrderByIdApi(orderId: string): Promise<GetOrderResponse> {
   const response = await apiClient.get<GetOrderResponse>(`/orders/${orderId}`);
-  return response.data;
+  return {
+    ...response.data,
+    data: normalizeOrder(response.data.data),
+  };
 }
 
 export async function getPaymentForOrderApi(orderId: string): Promise<GetPaymentResponse> {
