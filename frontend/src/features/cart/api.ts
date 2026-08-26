@@ -14,6 +14,7 @@ function normalizeCart(rawCart: any): Cart {
 
     return {
       ...item,
+      quantity: typeof item.quantity === "number" ? item.quantity : parseInt(String(item.quantity || 1), 10),
       price: typeof rawPrice === "number" ? rawPrice : parseFloat(String(rawPrice || 0)),
       subtotal: typeof rawSubtotal === "number" ? rawSubtotal : parseFloat(String(rawSubtotal || 0)),
       product: item.product
@@ -28,10 +29,12 @@ function normalizeCart(rawCart: any): Cart {
   const rawTotal = rawCart.totalAmount;
   const totalAmount = typeof rawTotal === "number" ? rawTotal : parseFloat(String(rawTotal || 0));
 
+  const totalItems = items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+
   return {
     id: rawCart.id || "",
     items,
-    totalItems: rawCart.totalItems ?? items.length,
+    totalItems,
     totalAmount,
   };
 }

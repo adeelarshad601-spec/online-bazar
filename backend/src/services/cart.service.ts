@@ -39,10 +39,15 @@ const mapCart = (cart: any) => {
     new Decimal(0)
   );
 
+  const totalItems = items.reduce(
+    (sum: number, item: any) => sum + item.quantity,
+    0
+  );
+
   return {
     id: cart.id,
     items,
-    totalItems: items.length,
+    totalItems,
     totalAmount,
   };
 };

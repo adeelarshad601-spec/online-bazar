@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { processCheckoutApi } from "./api";
 import { CheckoutInput, CheckoutApiResponse } from "./schemas";
 import { CART_QUERY_KEY } from "@/features/cart/queries";
+import { ORDERS_QUERY_KEY } from "@/features/orders/queries";
 import { toast } from "sonner";
 
 export function useCheckoutMutation() {
@@ -21,8 +22,9 @@ export function useCheckoutMutation() {
         };
       });
 
-      // Invalidate cart query for server synchronization across application
+      // Invalidate cart and orders query for server synchronization across application
       queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ORDERS_QUERY_KEY });
       toast.success(data.message || "Order placed successfully!");
     },
     onError: (error: any) => {

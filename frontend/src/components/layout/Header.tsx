@@ -8,6 +8,7 @@ import { useCurrentUser, useLogout } from "@/features/auth/queries";
 import { useCategories } from "@/features/products/queries";
 import { useCart } from "@/features/cart/queries";
 import { useWishlist } from "@/features/wishlist/queries";
+import { useCustomerOrders } from "@/features/orders/queries";
 import {
   Search,
   ShoppingCart,
@@ -32,6 +33,7 @@ export default function Header() {
   const { data: categoriesData, isLoading: isCategoriesLoading } = useCategories();
   const { data: cartData } = useCart();
   const { data: wishlistData } = useWishlist();
+  const { data: customerOrdersData } = useCustomerOrders();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -221,7 +223,10 @@ export default function Header() {
                             className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                           >
                             <Package className="h-4 w-4 text-emerald-600" />
-                            My Orders
+                            <span>My Orders</span>
+                            <span className="ml-auto min-w-5 rounded-full bg-emerald-600 px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
+                              {customerOrdersData?.pagination?.total ?? customerOrdersData?.orders?.length ?? 0}
+                            </span>
                           </Link>
 
                           <Link
@@ -530,10 +535,15 @@ export default function Header() {
                 <Link
                   href="/orders"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 text-zinc-800 hover:text-emerald-600 dark:text-zinc-200 dark:hover:text-emerald-400"
+                  className="flex items-center justify-between text-zinc-800 hover:text-emerald-600 dark:text-zinc-200 dark:hover:text-emerald-400"
                 >
-                  <Package className="h-4 w-4 text-emerald-600" />
-                  <span>My Orders</span>
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-emerald-600" />
+                    <span>My Orders</span>
+                  </div>
+                  <span className="min-w-5 rounded-full bg-emerald-600 px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
+                    {customerOrdersData?.pagination?.total ?? customerOrdersData?.orders?.length ?? 0}
+                  </span>
                 </Link>
               )}
               <Link
