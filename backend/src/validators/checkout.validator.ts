@@ -13,6 +13,14 @@ export const checkoutSchema = z.object({
   shippingAddress: shippingAddressSchema,
   paymentMethod: z.enum(["COD"]),
   couponCode: z.string().trim().min(1, "Coupon code must not be empty").nullable().optional(),
+  buyNowItem: z
+    .object({
+      productId: z.string().min(1),
+      variantId: z.string().optional().nullable(),
+      quantity: z.number().int().positive().default(1),
+    })
+    .optional()
+    .nullable(),
 });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

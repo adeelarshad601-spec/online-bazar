@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useCart } from "@/features/cart/queries";
+import { useProductDetails } from "@/features/products/queries";
 import { useCurrentUser } from "@/features/auth/queries";
 import { useCheckoutMutation } from "@/features/checkout/queries";
 import { shippingAddressSchema, ShippingAddressInput } from "@/features/checkout/schemas";
@@ -106,6 +107,17 @@ function CheckoutSkeleton() {
 
 function CheckoutFormContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isBuyNowParam = searchParams.get("buyNow") === "true";
+  const buyNowProductId = searchParams.get("productId");
+  const buyNowVariantId = searchParams.get("variantId");
+  const buyNowQtyParam = parseInt(searchParams.get("quantity") || "1", 10);
+  const buyNowQuantity = isNaN(buyNowQtyParam) || buyNowQtyParam < 1 ? 1 : buyNowQtyParam;
+
+  const { data: buyNowProduct, isLoading: isBuyNowProductLoading } = useProductDetails(
+    isBuyNowParam && buyNowProductId ? buyNowProductId : ""
+  );
+
   const { data: user } = useCurrentUser();
   const { data: cart, isLoading: isCartLoading, isError: isCartError } = useCart();
   const { mutate: executeCheckout, isPending: isSubmitting, data: checkoutData } = useCheckoutMutation();
@@ -161,11 +173,13 @@ function CheckoutFormContent() {
     );
   }
 
-  if (isCartLoading) {
+  const isLoading = isBuyNowParam ? isBuyNowProductLoading : isCartLoading;
+
+  if (isLoading) {
     return <CheckoutSkeleton />;
   }
 
-  if (isCartError) {
+  if (!isBuyNowParam && isCartError) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-center rounded-3xl border border-red-200 bg-red-50/50 p-12 text-center dark:border-red-900/40 dark:bg-red-950/20">
@@ -188,7 +202,41 @@ function CheckoutFormContent() {
     );
   }
 
-  const items = cart?.items || [];
+  let items: any[] = [];
+  if (isBuyNowParam) {
+    if (buyNowProduct) {
+      let selectedVariant = null;
+      if (buyNowVariantId && buyNowProduct.variants) {
+        selectedVariant = buyNowProduct.variants.find((v: any) => v.id === buyNowVariantId) || null;
+      }
+      const rawPrice = selectedVariant?.price ?? buyNowProduct.price;
+      const numericPrice = typeof rawPrice === "number" ? rawPrice : parseFloat(String(rawPrice || 0));
+
+      items = [
+        {
+          id: "buy-now-item",
+          productId: buyNowProduct.id,
+          variantId: selectedVariant?.id || null,
+          quantity: buyNowQuantity,
+          price: numericPrice,
+          subtotal: numericPrice * buyNowQuantity,
+          product: buyNowProduct,
+          variant: selectedVariant,
+        },
+      ];
+    }
+  } else {
+    items = (cart?.items || []).map((item: any) => {
+      const rawPrice = item.price;
+      const numericPrice = typeof rawPrice === "number" ? rawPrice : parseFloat(String(rawPrice || 0));
+      return {
+        ...item,
+        price: numericPrice,
+        subtotal: numericPrice * item.quantity,
+      };
+    });
+  }
+
   const isCartEmpty = items.length === 0;
 
   if (isCartEmpty) {
@@ -199,10 +247,10 @@ function CheckoutFormContent() {
             <ShoppingBag className="h-10 w-10 stroke-[1.5]" />
           </div>
           <h2 className="mt-6 text-xl font-bold text-zinc-900 dark:text-white">
-            Your Cart is Empty
+            No Items Selected for Checkout
           </h2>
           <p className="mt-2 max-w-sm text-xs text-zinc-500 dark:text-zinc-400">
-            You cannot proceed to checkout without items in your cart. Browse our store to add products.
+            You cannot proceed to checkout without selecting a product. Browse our store to add products.
           </p>
           <Link
             href="/products"
@@ -215,6 +263,9 @@ function CheckoutFormContent() {
       </div>
     );
   }
+
+  const totalItemsCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalAmountValue = items.reduce((sum, item) => sum + item.subtotal, 0);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,6 +287,13 @@ function CheckoutFormContent() {
       shippingAddress: data,
       paymentMethod: "COD",
       couponCode: appliedCoupon || null,
+      buyNowItem: isBuyNowParam && buyNowProductId
+        ? {
+            productId: buyNowProductId,
+            variantId: buyNowVariantId || null,
+            quantity: buyNowQuantity,
+          }
+        : null,
     });
   };
 
@@ -476,7 +534,7 @@ function CheckoutFormContent() {
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                      3. Order Items ({cart?.totalItems})
+                      3. Order Items ({totalItemsCount})
                     </h2>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
                       Review products in your checkout payload
@@ -590,9 +648,9 @@ function CheckoutFormContent() {
               {/* Cost Calculations */}
               <div className="space-y-3 border-y border-zinc-100 py-4 text-xs dark:border-zinc-800">
                 <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-                  <span>Subtotal ({cart?.totalItems} items)</span>
+                  <span>Subtotal ({totalItemsCount} items)</span>
                   <span className="font-bold text-zinc-900 dark:text-white">
-                    ${cart?.totalAmount.toFixed(2)}
+                    ${totalAmountValue.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
@@ -613,7 +671,7 @@ function CheckoutFormContent() {
               <div className="flex items-baseline justify-between text-base font-extrabold text-zinc-900 dark:text-white">
                 <span>Total Due</span>
                 <span className="text-2xl text-emerald-600 dark:text-emerald-400">
-                  ${cart?.totalAmount.toFixed(2)}
+                  ${totalAmountValue.toFixed(2)}
                 </span>
               </div>
 
@@ -659,7 +717,9 @@ function CheckoutFormContent() {
 export default function CheckoutPage() {
   return (
     <ProtectedRoute>
-      <CheckoutFormContent />
+      <Suspense fallback={<CheckoutSkeleton />}>
+        <CheckoutFormContent />
+      </Suspense>
     </ProtectedRoute>
   );
 }

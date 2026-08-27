@@ -51,17 +51,6 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [isBuyNowTriggered, setIsBuyNowTriggered] = useState(false);
-
-  // Navigate to cart after successful Buy Now
-  useEffect(() => {
-    if (isBuyNowTriggered && isAddToCartSuccess) {
-      setIsBuyNowTriggered(false);
-      setTimeout(() => {
-        router.push("/cart");
-      }, 300);
-    }
-  }, [isBuyNowTriggered, isAddToCartSuccess, router]);
 
   if (isLoading) {
     return <ProductDetailSkeleton />;
@@ -125,12 +114,17 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
       return;
     }
 
-    setIsBuyNowTriggered(true);
-    addToCart({
+    const queryParams = new URLSearchParams({
+      buyNow: "true",
       productId: product.id,
-      variantId: selectedVariant?.id,
-      quantity,
+      quantity: String(quantity),
     });
+
+    if (selectedVariant?.id) {
+      queryParams.set("variantId", selectedVariant.id);
+    }
+
+    router.push(`/checkout?${queryParams.toString()}`);
   };
 
   const handleWishlistToggle = () => {
@@ -239,9 +233,8 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
           {/* Stock Status Badge */}
           <div className="flex items-center gap-2">
             <span
-              className={`h-2.5 w-2.5 rounded-full ${
-                activeStock > 0 ? "bg-emerald-500" : "bg-red-500"
-              }`}
+              className={`h-2.5 w-2.5 rounded-full ${activeStock > 0 ? "bg-emerald-500" : "bg-red-500"
+                }`}
             />
             <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
               {activeStock > 0 ? `In Stock (${activeStock} units available)` : "Out of Stock"}
@@ -294,11 +287,10 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               type="button"
               disabled={isWishlistBusy}
               onClick={handleWishlistToggle}
-              className={`flex h-12 w-12 items-center justify-center rounded-2xl border transition-all ${
-                isWishlisted
+              className={`flex h-12 w-12 items-center justify-center rounded-2xl border transition-all ${isWishlisted
                   ? "border-red-200 bg-red-50 text-red-600 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400"
                   : "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:text-red-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
-              }`}
+                }`}
               aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
               title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
               id="product-wishlist-btn"

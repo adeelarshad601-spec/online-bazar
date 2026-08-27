@@ -22,22 +22,38 @@ const mapVendorOrder = (vendorOrder: any) => ({
 });
 
 export const processCheckout = async (userId: string, input: CheckoutInput) => {
-  const { shippingAddress, paymentMethod, couponCode } = input;
+  const { shippingAddress, paymentMethod, couponCode, buyNowItem } = input;
 
-  const cart = await prisma.cart.findUnique({
-    where: { userId },
-    include: {
-      items: {
-        include: {
-          product: true,
-          variant: true,
-        },
+  let rawItems: Array<{ productId: string; variantId?: string | null; quantity: number }> = [];
+
+  let lockedCartId: string | null = null;
+
+  if (buyNowItem) {
+    rawItems = [
+      {
+        productId: buyNowItem.productId,
+        variantId: buyNowItem.variantId || null,
+        quantity: buyNowItem.quantity || 1,
       },
-    },
-  });
+    ];
+  } else {
+    const cart = await prisma.cart.findUnique({
+      where: { userId },
+      include: {
+        items: true,
+      },
+    });
 
-  if (!cart || cart.items.length === 0) {
-    throw new Error("Cart is empty");
+    if (!cart || cart.items.length === 0) {
+      throw new Error("Cart is empty");
+    }
+
+    lockedCartId = cart.id;
+    rawItems = cart.items.map((item) => ({
+      productId: item.productId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+    }));
   }
 
   const coupon = couponCode
@@ -66,53 +82,60 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     }
   }
 
-  const checkedItems = cart.items.map((item) => {
-    const product = item.product;
+  const checkedItems = await Promise.all(
+    rawItems.map(async (item) => {
+      const product = await prisma.product.findUnique({
+        where: { id: item.productId },
+      });
 
-    if (!product) {
-      throw new Error("Product not found");
-    }
+      if (!product) {
+        throw new Error("Product not found");
+      }
 
-    if (product.status !== "APPROVED" || !product.isActive) {
-      throw new Error("Product is not available");
-    }
+      if (product.status !== "APPROVED" || !product.isActive) {
+        throw new Error("Product is not available");
+      }
 
-    if (item.variantId) {
-      const variant = item.variant;
-      if (!variant) {
-        throw new Error("Variant not found");
+      if (item.variantId) {
+        const variant = await prisma.productVariant.findUnique({
+          where: { id: item.variantId },
+        });
+
+        if (!variant) {
+          throw new Error("Variant not found");
+        }
+        if (variant.productId !== product.id) {
+          throw new Error("Variant does not belong to product");
+        }
+        if (!variant.isActive) {
+          throw new Error("Variant is not available");
+        }
+        if (variant.stock < item.quantity) {
+          throw new Error("Variant is out of stock");
+        }
+
+        return {
+          product,
+          variant,
+          quantity: item.quantity,
+          unitPrice: variant.price ?? product.price,
+          subtotal: (variant.price ?? product.price).mul(item.quantity),
+        };
       }
-      if (variant.productId !== product.id) {
-        throw new Error("Variant does not belong to product");
-      }
-      if (!variant.isActive) {
-        throw new Error("Variant is not available");
-      }
-      if (variant.stock < item.quantity) {
-        throw new Error("Variant is out of stock");
+
+      if (product.stock < item.quantity) {
+        throw new Error("Product is out of stock");
       }
 
       return {
         product,
-        variant,
+        variant: null,
         quantity: item.quantity,
-        unitPrice: variant.price ?? product.price,
-        subtotal: variant.price?.mul(item.quantity) ?? product.price.mul(item.quantity),
+        unitPrice: product.price,
+        subtotal: product.price.mul(item.quantity),
       };
-    }
-
-    if (product.stock < item.quantity) {
-      throw new Error("Product is out of stock");
-    }
-
-    return {
-      product,
-      variant: null,
-      quantity: item.quantity,
-      unitPrice: product.price,
-      subtotal: product.price.mul(item.quantity),
-    };
-  });
+    })
+  );
 
   const orderSubTotal = checkedItems.reduce(
     (sum, item) => sum.add(item.subtotal),
@@ -151,62 +174,54 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     .toUpperCase()}`;
 
   const completedOrder = await prisma.$transaction(async (tx) => {
-    const lockedCart = await tx.cart.findUnique({
-      where: { userId },
-      include: {
-        items: {
-          include: {
-            product: true,
-            variant: true,
-          },
-        },
-      },
-    });
+    const lockedCheckedItems = await Promise.all(
+      rawItems.map(async (item) => {
+        const product = await tx.product.findUnique({
+          where: { id: item.productId },
+        });
 
-    if (!lockedCart || lockedCart.items.length === 0) {
-      throw new Error("Cart is empty");
-    }
+        if (!product) {
+          throw new Error("Product not found");
+        }
+        if (product.status !== "APPROVED" || !product.isActive) {
+          throw new Error("Product is not available");
+        }
 
-    const lockedCheckedItems = lockedCart.items.map((item) => {
-      const product = item.product;
-      if (!product) {
-        throw new Error("Product not found");
-      }
-      if (product.status !== "APPROVED" || !product.isActive) {
-        throw new Error("Product is not available");
-      }
-      if (item.variantId) {
-        const variant = item.variant;
-        if (!variant) {
-          throw new Error("Variant not found");
+        if (item.variantId) {
+          const variant = await tx.productVariant.findUnique({
+            where: { id: item.variantId },
+          });
+          if (!variant) {
+            throw new Error("Variant not found");
+          }
+          if (!variant.isActive) {
+            throw new Error("Variant is not available");
+          }
+          if (variant.stock < item.quantity) {
+            throw new Error("Variant is out of stock");
+          }
+          return {
+            product,
+            variant,
+            quantity: item.quantity,
+            unitPrice: variant.price ?? product.price,
+            subtotal: (variant.price ?? product.price).mul(item.quantity),
+          };
         }
-        if (!variant.isActive) {
-          throw new Error("Variant is not available");
+
+        if (product.stock < item.quantity) {
+          throw new Error("Product is out of stock");
         }
-        if (variant.stock < item.quantity) {
-          throw new Error("Variant is out of stock");
-        }
+
         return {
-          item,
           product,
-          variant,
+          variant: null,
           quantity: item.quantity,
-          unitPrice: variant.price ?? product.price,
-          subtotal: variant.price?.mul(item.quantity) ?? product.price.mul(item.quantity),
+          unitPrice: product.price,
+          subtotal: product.price.mul(item.quantity),
         };
-      }
-      if (product.stock < item.quantity) {
-        throw new Error("Product is out of stock");
-      }
-      return {
-        item,
-        product,
-        variant: null,
-        quantity: item.quantity,
-        unitPrice: product.price,
-        subtotal: product.price.mul(item.quantity),
-      };
-    });
+      })
+    );
 
     const order = await tx.order.create({
       data: {
@@ -293,9 +308,11 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
 
     await Promise.all(stockUpdates);
 
-    await tx.cartItem.deleteMany({
-      where: { cartId: lockedCart.id },
-    });
+    if (!buyNowItem && lockedCartId) {
+      await tx.cartItem.deleteMany({
+        where: { cartId: lockedCartId },
+      });
+    }
 
     if (coupon) {
       await tx.coupon.update({
