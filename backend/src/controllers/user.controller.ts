@@ -2,6 +2,7 @@ import { Response } from "express";
 import {
   updateProfileSchema,
   changePasswordSchema,
+  deleteAccountSchema,
 } from "../validators/user.validator.js";
 import {
   updateProfile,
@@ -113,7 +114,17 @@ export const removeAccount = async (
       });
     }
 
-    await deleteAccount(req.user.userId);
+    const validationResult = deleteAccountSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: validationResult.error.issues,
+      });
+    }
+
+    await deleteAccount(req.user.userId, validationResult.data);
 
     res.clearCookie("accessToken", {
       httpOnly: true,
@@ -126,6 +137,16 @@ export const removeAccount = async (
       message: "Account deleted successfully",
     });
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message === "Current password is incorrect"
+    ) {
+      return res.status(401).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
     console.error("Delete account error:", error);
 
     return res.status(500).json({

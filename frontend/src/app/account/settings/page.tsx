@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   User as UserIcon,
   Lock,
@@ -18,9 +19,11 @@ import {
   Save,
   Loader2,
   ShieldAlert,
-  LogOut,
   ImageUp,
   Camera,
+  Eye,
+  EyeOff,
+  X as XIcon,
 } from "lucide-react";
 
 const profileSchema = z.object({
@@ -59,15 +62,24 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 
 function AccountSettingsContent() {
   const { data: user } = useCurrentUser();
+  const router = useRouter();
   const { mutate: updateProfile, isPending: isUpdatingProfile } = useUpdateProfileMutation();
   const { mutate: changePassword, isPending: isChangingPassword } = useChangePasswordMutation();
   const { mutate: deleteAccount, isPending: isDeletingAccount } = useDeleteAccountMutation();
   const { mutate: logout } = useLogout();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState<string>(user?.avatar || "");
+  const [deleteStep, setDeleteStep] = useState<"confirm" | "password">("confirm");
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deletePasswordError, setDeletePasswordError] = useState("");
+  const [localAvatar, setLocalAvatar] = useState("");
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const avatarPreview = localAvatar || user?.avatar || "";
 
   const {
     register: registerProfile,
@@ -93,7 +105,6 @@ function AccountSettingsContent() {
     if (user) {
       setProfileValue("name", user.name || "");
       setProfileValue("avatar", user.avatar || "");
-      setAvatarPreview(user.avatar || "");
     }
   }, [user, setProfileValue]);
 
@@ -119,7 +130,7 @@ function AccountSettingsContent() {
     const reader = new FileReader();
     reader.onload = () => {
       const result = typeof reader.result === "string" ? reader.result : "";
-      setAvatarPreview(result);
+      setLocalAvatar(result);
       setProfileValue("avatar", result, { shouldDirty: true, shouldValidate: true });
       if (fileInputRef.current) {
         fileInputRef.current.removeAttribute("capture");
@@ -154,23 +165,44 @@ function AccountSettingsContent() {
   };
 
   const handleRemoveAvatar = () => {
-    setAvatarPreview("");
+    setLocalAvatar("");
     setProfileValue("avatar", "", { shouldDirty: true, shouldValidate: true });
     setAvatarMenuOpen(false);
   };
 
   const handleDeleteAccount = () => {
-    deleteAccount(undefined, {
-      onSuccess: () => {
-        logout();
-      },
-    });
+    if (!deletePassword.trim()) {
+      setDeletePasswordError("Current password is required to permanently delete your account.");
+      return;
+    }
+
+    setDeletePasswordError("");
+
+    deleteAccount(
+      { currentPassword: deletePassword },
+      {
+        onSuccess: () => {
+          logout();
+        },
+      }
+    );
   };
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="rounded-[30px] border border-zinc-200 bg-white p-6 shadow-[0_1px_0_rgba(16,24,40,0.02)] dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
-        <form onSubmit={handleSubmitProfile(onProfileSubmit)} className="mx-auto max-w-md space-y-5">
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-red-200 bg-red-500 text-white shadow-sm transition hover:bg-red-600 dark:border-red-900 dark:bg-red-600 dark:hover:bg-red-700"
+          aria-label="Go back to previous page"
+          title="Close"
+        >
+          <XIcon className="h-4 w-4" />
+        </button>
+
+        <div className="rounded-[30px] border border-zinc-200 bg-white p-6 shadow-[0_1px_0_rgba(16,24,40,0.02)] dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+          <form id="profile" onSubmit={handleSubmitProfile(onProfileSubmit)} className="mx-auto max-w-md space-y-5">
           <div className="relative flex flex-col items-center justify-center pt-2">
             <button
               type="button"
@@ -281,10 +313,11 @@ function AccountSettingsContent() {
             <span>Save Profile</span>
           </button>
         </form>
+        </div>
       </div>
 
       {/* Password Card */}
-      <div className="rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 space-y-6">
+      <div id="security" className="rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 space-y-6">
         <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800 pb-4">
           <Lock className="h-5 w-5 text-emerald-600" />
           <h2 className="text-base font-bold text-zinc-900 dark:text-white">
@@ -297,12 +330,22 @@ function AccountSettingsContent() {
             <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
               Current Password
             </label>
-            <input
-              type="password"
-              disabled={isChangingPassword}
-              {...registerPassword("currentPassword")}
-              className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-            />
+            <div className="relative">
+              <input
+                type={showCurrentPassword ? "text" : "password"}
+                disabled={isChangingPassword}
+                {...registerPassword("currentPassword")}
+                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 pr-10 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword((prev) => !prev)}
+                className="absolute inset-y-0 right-3 flex items-center text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                aria-label={showCurrentPassword ? "Hide current password" : "Show current password"}
+              >
+                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
             {passwordErrors.currentPassword && (
               <p className="mt-1 text-[11px] text-red-500">{passwordErrors.currentPassword.message}</p>
             )}
@@ -313,12 +356,22 @@ function AccountSettingsContent() {
               <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
                 New Password
               </label>
-              <input
-                type="password"
-                disabled={isChangingPassword}
-                {...registerPassword("newPassword")}
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-              />
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  disabled={isChangingPassword}
+                  {...registerPassword("newPassword")}
+                  className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 pr-10 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-3 flex items-center text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  aria-label={showNewPassword ? "Hide new password" : "Show new password"}
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
               {passwordErrors.newPassword && (
                 <p className="mt-1 text-[11px] text-red-500">{passwordErrors.newPassword.message}</p>
               )}
@@ -328,12 +381,22 @@ function AccountSettingsContent() {
               <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
                 Confirm New Password
               </label>
-              <input
-                type="password"
-                disabled={isChangingPassword}
-                {...registerPassword("confirmPassword")}
-                className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  disabled={isChangingPassword}
+                  {...registerPassword("confirmPassword")}
+                  className="w-full rounded-xl border border-zinc-300 px-4 py-2.5 pr-10 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-3 flex items-center text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
               {passwordErrors.confirmPassword && (
                 <p className="mt-1 text-[11px] text-red-500">{passwordErrors.confirmPassword.message}</p>
               )}
@@ -352,7 +415,7 @@ function AccountSettingsContent() {
       </div>
 
       {/* Danger Zone Card */}
-      <div className="rounded-3xl border border-red-200 bg-red-50/50 p-6 sm:p-8 dark:border-red-900/40 dark:bg-red-950/20 space-y-4">
+      <div id="danger" className="rounded-3xl border border-red-200 bg-red-50/50 p-6 sm:p-8 dark:border-red-900/40 dark:bg-red-950/20 space-y-4">
         <div className="flex items-center gap-2">
           <ShieldAlert className="h-5 w-5 text-red-600" />
           <h2 className="text-base font-bold text-red-900 dark:text-red-300">
@@ -366,17 +429,84 @@ function AccountSettingsContent() {
         {!showDeleteConfirm ? (
           <button
             type="button"
-            onClick={() => setShowDeleteConfirm(true)}
+            onClick={() => {
+              setDeleteStep("confirm");
+              setDeletePassword("");
+              setDeletePasswordError("");
+              setShowDeleteConfirm(true);
+            }}
             className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700"
           >
             <Trash2 className="h-4 w-4" />
             <span>Delete Account</span>
           </button>
-        ) : (
+        ) : deleteStep === "confirm" ? (
           <div className="rounded-2xl border border-red-300 bg-white p-4 space-y-3 dark:bg-zinc-900 dark:border-red-900">
             <p className="text-xs font-bold text-red-900 dark:text-red-200">
               Are you sure you want to permanently delete your account?
             </p>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteStep("password");
+                  setDeletePasswordError("");
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700"
+              >
+                <span>Yes, Continue</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteStep("confirm");
+                  setDeletePassword("");
+                  setDeletePasswordError("");
+                }}
+                className="rounded-xl border border-zinc-300 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+              >
+                No, Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-red-300 bg-white p-4 space-y-3 dark:bg-zinc-900 dark:border-red-900">
+            <p className="text-xs font-bold text-red-900 dark:text-red-200">
+              Enter your current password to confirm deletion.
+            </p>
+
+            <div>
+              <label className="mb-1 block text-[11px] font-bold text-zinc-700 dark:text-zinc-300">
+                Current password
+              </label>
+              <div className="relative">
+                <input
+                  type={showDeletePassword ? "text" : "password"}
+                  value={deletePassword}
+                  onChange={(event) => {
+                    setDeletePassword(event.target.value);
+                    if (deletePasswordError) setDeletePasswordError("");
+                  }}
+                  placeholder="Current password"
+                  disabled={isDeletingAccount}
+                  className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-2.5 pr-10 text-xs text-zinc-900 focus:border-red-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowDeletePassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-3 flex items-center text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  aria-label={showDeletePassword ? "Hide current password" : "Show current password"}
+                >
+                  {showDeletePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {deletePasswordError && (
+                <p className="mt-1 text-[11px] text-red-500">{deletePasswordError}</p>
+              )}
+            </div>
+
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -390,7 +520,12 @@ function AccountSettingsContent() {
               <button
                 type="button"
                 disabled={isDeletingAccount}
-                onClick={() => setShowDeleteConfirm(false)}
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteStep("confirm");
+                  setDeletePassword("");
+                  setDeletePasswordError("");
+                }}
                 className="rounded-xl border border-zinc-300 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
               >
                 Cancel

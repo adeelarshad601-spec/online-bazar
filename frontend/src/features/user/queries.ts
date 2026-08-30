@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateUserProfileApi, updateUserPasswordApi, deleteAccountApi, UpdateProfileInput, ChangePasswordInput } from "./api";
+import { updateUserProfileApi, updateUserPasswordApi, deleteAccountApi, UpdateProfileInput, ChangePasswordInput, DeleteAccountInput } from "./api";
 import { CURRENT_USER_QUERY_KEY } from "@/features/auth/queries";
 import { toast } from "sonner";
 import { handleApiError } from "@/lib/api/error";
@@ -35,7 +35,7 @@ export function useDeleteAccountMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteAccountApi,
+    mutationFn: (payload: DeleteAccountInput) => deleteAccountApi(payload),
     onSuccess: () => {
       queryClient.setQueryData(CURRENT_USER_QUERY_KEY, null);
       toast.success("Account deleted successfully");

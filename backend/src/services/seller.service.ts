@@ -31,7 +31,7 @@ export const applyForSeller = async (userId: string) => {
     throw new Error("Suspended sellers cannot reapply");
   }
 
-  const approvedSeller = await prisma.user.update({
+  const appliedSeller = await prisma.user.update({
     where: { id: userId },
     data: {
       sellerStatus: "PENDING",
@@ -57,15 +57,44 @@ export const applyForSeller = async (userId: string) => {
     },
   });
 
-  await createNotification({
-    userId: approvedSeller.id,
-    type: "SELLER",
-    title: "Seller application approved",
-    message: "Your seller application has been approved. Your seller portal is now active.",
-    actionUrl: "/seller/dashboard",
+  const admins = await prisma.user.findMany({
+    where: { role: "ADMIN" },
+    select: { id: true },
   });
 
-  return approvedSeller;
+  await Promise.all(
+    admins.map(async (admin) => {
+      const message = `${appliedSeller.name} (${appliedSeller.email}) submitted a new seller application.`;
+      const existing = await prisma.notification.findFirst({
+        where: {
+          userId: admin.id,
+          type: "SELLER",
+          title: "New seller application received",
+          message,
+        },
+      });
+
+      if (!existing) {
+        await createNotification({
+          userId: admin.id,
+          type: "SELLER",
+          title: "New seller application received",
+          message,
+          actionUrl: "/admin/sellers?status=PENDING",
+        });
+      }
+    })
+  );
+
+  await createNotification({
+    userId: appliedSeller.id,
+    type: "SELLER",
+    title: "Seller application submitted",
+    message: "Your seller application has been submitted and is pending admin review.",
+    actionUrl: "/seller/status",
+  });
+
+  return appliedSeller;
 };
 
 export const getMySellerStatus = async (userId: string) => {
@@ -137,6 +166,7 @@ export const requestSellerReactivation = async (userId: string) => {
         type: "SELLER",
         title: "Seller reactivation requested",
         message: `${seller.name} (${seller.email}) has requested reactivation of their suspended seller account.`,
+        actionUrl: "/admin/sellers?status=SUSPENDED",
       })
     )
   );
@@ -288,7 +318,7 @@ export const rejectSeller = async (sellerId: string) => {
     throw new Error("Only pending sellers can be rejected");
   }
 
-  return await prisma.user.update({
+  const rejectedSeller = await prisma.user.update({
     where: { id: sellerId },
     data: {
       sellerStatus: "REJECTED",
@@ -313,6 +343,16 @@ export const rejectSeller = async (sellerId: string) => {
       updatedAt: true,
     },
   });
+
+  await createNotification({
+    userId: rejectedSeller.id,
+    type: "SELLER",
+    title: "Seller application rejected",
+    message: "Your seller application was rejected by the admin team.",
+    actionUrl: "/seller/status",
+  });
+
+  return rejectedSeller;
 };
 
 export const suspendSeller = async (sellerId: string) => {
@@ -333,7 +373,7 @@ export const suspendSeller = async (sellerId: string) => {
     throw new Error("Only approved sellers can be suspended");
   }
 
-  return await prisma.user.update({
+  const suspendedSeller = await prisma.user.update({
     where: { id: sellerId },
     data: {
       sellerStatus: "SUSPENDED",
@@ -358,6 +398,16 @@ export const suspendSeller = async (sellerId: string) => {
       updatedAt: true,
     },
   });
+
+  await createNotification({
+    userId: suspendedSeller.id,
+    type: "SELLER",
+    title: "Seller account suspended",
+    message: "Your seller account has been suspended by the admin team.",
+    actionUrl: "/seller/status",
+  });
+
+  return suspendedSeller;
 };
 
 export const reactivateSeller = async (sellerId: string) => {
@@ -378,7 +428,7 @@ export const reactivateSeller = async (sellerId: string) => {
     throw new Error("Only suspended sellers can be reactivated");
   }
 
-  return await prisma.user.update({
+  const reactivatedSeller = await prisma.user.update({
     where: { id: sellerId },
     data: {
       sellerStatus: "APPROVED",
@@ -403,6 +453,16 @@ export const reactivateSeller = async (sellerId: string) => {
       updatedAt: true,
     },
   });
+
+  await createNotification({
+    userId: reactivatedSeller.id,
+    type: "SELLER",
+    title: "Seller account reactivated",
+    message: "Your seller account has been reactivated and is active again.",
+    actionUrl: "/seller/dashboard",
+  });
+
+  return reactivatedSeller;
 };
 
 export const verifyActiveSeller = async (userId: string) => {

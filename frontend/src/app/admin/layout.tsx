@@ -152,9 +152,12 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
   const adminAvatar = user?.avatar || "";
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col md:flex-row">
+    <div className="h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950 flex flex-col md:flex-row">
       {/* Admin Sidebar */}
-      <aside className="w-full md:w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 shrink-0">
+      <aside
+        className="w-full md:w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 shrink-0 md:sticky md:top-0 md:h-screen md:overflow-y-auto [&::-webkit-scrollbar]:hidden"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
         <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
           <Link href="/account/settings" className="flex items-center gap-2 rounded-xl transition hover:bg-zinc-100 dark:hover:bg-zinc-800/60 p-1.5">
             <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-indigo-600 text-white font-bold ring-2 ring-white dark:ring-zinc-900">
@@ -255,7 +258,10 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-x-hidden">
+      <main
+        className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden"
+        style={{ scrollbarGutter: "stable", scrollbarWidth: "thin", msOverflowStyle: "auto" }}
+      >
         <header className="border-b border-zinc-200 bg-white/90 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/80">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3">

@@ -21,7 +21,9 @@ export function useNotifications(page: number = 1, limit: number = 10) {
     queryKey: [...NOTIFICATIONS_QUERY_KEY, page, limit],
     queryFn: () => getNotificationsApi(page, limit),
     enabled: Boolean(user),
-    staleTime: 1000 * 30,
+    staleTime: 1000 * 15,
+    refetchInterval: 1000 * 15,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -32,7 +34,8 @@ export function useUnreadCount() {
     queryKey: UNREAD_COUNT_QUERY_KEY,
     queryFn: getUnreadCountApi,
     enabled: Boolean(user),
-    staleTime: 1000 * 30,
+    staleTime: 1000 * 15,
+    refetchInterval: 1000 * 15,
     refetchOnWindowFocus: true,
   });
 }

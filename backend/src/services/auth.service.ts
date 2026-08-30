@@ -21,8 +21,8 @@ export const registerUser = async (data: RegisterInput) => {
             name: data.name,
             email: data.email,
             password: hashedPassword,
-            role: data.role,
-            sellerStatus: data.role === "SELLER" ? "APPROVED" : undefined,
+            role: "CUSTOMER",
+            sellerStatus: data.role === "SELLER" ? "PENDING" : undefined,
         },
         select: {
             id: true,

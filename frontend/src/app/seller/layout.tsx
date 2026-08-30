@@ -1,7 +1,7 @@
 "use client";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { useCurrentUser } from "@/features/auth/queries";
+import { useCurrentUser, useLogout } from "@/features/auth/queries";
 import { useSellerStatus } from "@/features/seller/queries";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Home,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -25,6 +26,7 @@ interface SellerLayoutContentProps {
 function SellerLayoutContent({ children }: SellerLayoutContentProps) {
   const { data: user } = useCurrentUser();
   const { data: sellerStatus } = useSellerStatus();
+  const { mutate: logout } = useLogout();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const productStatus = searchParams.get("status") || "";
@@ -37,6 +39,7 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
   const [shopMenuOpen, setShopMenuOpen] = useState(pathname.startsWith("/seller/shop"));
   const [ordersMenuOpen, setOrdersMenuOpen] = useState(pathname.startsWith("/seller/orders"));
   const [payoutsMenuOpen, setPayoutsMenuOpen] = useState(pathname.startsWith("/seller/payouts"));
+  const [accountSettingsMenuOpen, setAccountSettingsMenuOpen] = useState(pathname === "/account/settings");
 
   // Only block access to seller portal pages — not to seller/apply or seller/status
   const isSellerPortalPath =
@@ -95,9 +98,12 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col md:flex-row">
+    <div className="h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950 flex flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 shrink-0">
+      <aside
+        className="w-full md:w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 shrink-0 flex flex-col md:sticky md:top-0 md:h-screen md:overflow-y-auto [&::-webkit-scrollbar]:hidden"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
         <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
           <Link href="/seller/dashboard" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold">
@@ -114,7 +120,7 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
           </Link>
         </div>
 
-        <nav className="flex flex-col p-4 space-y-1">
+        <nav className="flex flex-col flex-1 p-4 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -229,26 +235,58 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
           </div>
         </nav>
 
-        <div className="p-4 mt-auto border-t border-zinc-100 dark:border-zinc-800 space-y-2">
-          <Link
-            href="/account/settings"
-            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
-          >
-            <User className="h-4 w-4" />
-            <span>Account Settings</span>
-          </Link>
-          <Link
-            href="/"
-            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
-          >
-            <Home className="h-4 w-4" />
-            <span>Customer Storefront</span>
-          </Link>
+        <div className="p-4 mt-auto border-t border-zinc-100 dark:border-zinc-800 space-y-3">
+          <div className="space-y-1.5">
+            <button
+              type="button"
+              onClick={() => setAccountSettingsMenuOpen((open) => !open)}
+              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/60"
+            >
+              <User className="h-4 w-4" />
+              <span>Account Settings</span>
+              <ChevronRight className={`ml-auto h-3.5 w-3.5 transition-transform ${accountSettingsMenuOpen ? "rotate-90" : ""}`} />
+            </button>
+
+            {accountSettingsMenuOpen && (
+              <div className="ml-8 space-y-1 border-l border-zinc-200 py-1 pl-3 dark:border-zinc-700">
+                <Link href="/account/settings#profile" className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-white">
+                  Profile
+                </Link>
+                <Link href="/account/settings#security" className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-white">
+                  Security & Password
+                </Link>
+                <Link href="/account/settings#danger" className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-white">
+                  Danger Zone
+                </Link>
+              </div>
+            )}
+
+            <Link
+              href="/"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
+            >
+              <Home className="h-4 w-4" />
+              <span>Customer Storefront</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => logout()}
+              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl flex-1 overflow-x-hidden p-6 md:p-8">{children}</main>
+      <main
+        className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden"
+        style={{ scrollbarGutter: "stable", scrollbarWidth: "thin", msOverflowStyle: "auto" }}
+      >
+        <div className="max-w-7xl p-6 md:p-8">{children}</div>
+      </main>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import {
 import {
   UpdateProfileInput,
   ChangePasswordInput,
+  DeleteAccountInput,
 } from "../validators/user.validator.js";
 
 export const updateProfile = async (
@@ -67,7 +68,7 @@ export const changePassword = async (
   });
 };
 
-export const deleteAccount = async (userId: string) => {
+export const deleteAccount = async (userId: string, payload: DeleteAccountInput) => {
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -76,6 +77,12 @@ export const deleteAccount = async (userId: string) => {
 
   if (!user) {
     throw new Error("User not found");
+  }
+
+  const isPasswordValid = await verifyPassword(user.password, payload.currentPassword);
+
+  if (!isPasswordValid) {
+    throw new Error("Current password is incorrect");
   }
 
   await prisma.user.delete({

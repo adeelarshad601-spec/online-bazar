@@ -12,6 +12,10 @@ export interface ChangePasswordInput {
   confirmPassword: string;
 }
 
+export interface DeleteAccountInput {
+  currentPassword: string;
+}
+
 export async function updateUserProfileApi(payload: UpdateProfileInput): Promise<User> {
   const response = await apiClient.patch<ApiResponse<User>>("/users/profile", payload);
   return response.data.data!;
@@ -21,6 +25,6 @@ export async function updateUserPasswordApi(payload: ChangePasswordInput): Promi
   await apiClient.patch("/users/password", payload);
 }
 
-export async function deleteAccountApi(): Promise<void> {
-  await apiClient.delete("/users/account");
+export async function deleteAccountApi(payload: DeleteAccountInput): Promise<void> {
+  await apiClient.delete("/users/account", { data: payload });
 }
