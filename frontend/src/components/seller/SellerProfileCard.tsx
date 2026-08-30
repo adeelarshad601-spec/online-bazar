@@ -14,23 +14,15 @@ import {
   Settings2,
   HelpCircle,
   Palette,
-  Copy,
 } from "lucide-react";
 import { useState } from "react";
 
-export default function SellerProfileCard({
-  isOpen = false,
-  onOpenChange,
-}: {
-  isOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}) {
+export default function SellerProfileCard() {
   const { data: user } = useCurrentUser();
   const { data: sellerStatus } = useSellerStatus();
   const { mutate: logout } = useLogout();
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isClaimOfferOpen, setIsClaimOfferOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   // Handle click outside
@@ -170,60 +162,24 @@ export default function SellerProfileCard({
         )}
       </div>
 
-      {/* Claim Offer Card - unchanged */}
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/20 overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setIsClaimOfferOpen(!isClaimOfferOpen)}
-          className="flex w-full items-center justify-between px-4 py-3 transition hover:bg-amber-100 dark:hover:bg-amber-950/40"
-        >
-          <div className="flex items-center gap-2 text-left">
-            <Gift className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-            <span className="text-xs font-bold text-amber-900 dark:text-amber-300">
-              Claim offer
-            </span>
+      {/* Upgrade Plans Button */}
+      <Link
+        href="/seller/upgrade"
+        className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 transition hover:bg-amber-100 dark:border-amber-900/40 dark:bg-amber-950/20 dark:hover:bg-amber-950/40"
+      >
+        <div className="flex items-center gap-2 text-left">
+          <Gift className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+          <div>
+            <p className="text-xs font-bold text-amber-900 dark:text-amber-300">
+              Upgrade Now
+            </p>
+            <p className="text-[11px] text-amber-700 dark:text-amber-400">
+              View Plans
+            </p>
           </div>
-          <ChevronUp
-            className={`h-4 w-4 text-amber-600 dark:text-amber-400 transition-transform ${
-              isClaimOfferOpen ? "" : "rotate-180"
-            }`}
-          />
-        </button>
-
-        {/* Expandable Content */}
-        {isClaimOfferOpen && (
-          <div className="border-t border-amber-200 dark:border-amber-900/40 px-4 py-3 space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-amber-900 dark:text-amber-300">
-                Get 20% commission boost
-              </p>
-              <p className="text-[11px] text-amber-800 dark:text-amber-400">
-                Use code <span className="font-bold">SELLER20</span> to increase your earnings for the next 30 days.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-lg bg-white/60 dark:bg-zinc-900/40 px-3 py-2">
-              <code className="flex-1 text-xs font-mono font-bold text-amber-900 dark:text-amber-300">
-                SELLER20
-              </code>
-              <button
-                type="button"
-                className="flex items-center gap-1 rounded-md bg-amber-600 px-2 py-1 text-[10px] font-bold text-white transition hover:bg-amber-700"
-              >
-                <Copy className="h-3 w-3" />
-                <span>Copy</span>
-              </button>
-            </div>
-
-            <button
-              type="button"
-              className="w-full rounded-lg bg-amber-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-amber-700"
-            >
-              Claim Now
-            </button>
-          </div>
-        )}
-      </div>
+        </div>
+        <ChevronUp className="h-4 w-4 -rotate-90 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+      </Link>
     </div>
   );
 }
