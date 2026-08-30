@@ -45,8 +45,8 @@ export default function SellerDashboardPage() {
     : vendorOrdersData?.orders || [];
 
   const shop = sellerStatus?.shop;
-  const sellerProducts = sellerProductsData?.products || [];
-  const pendingProducts = sellerProducts.filter((product) => product.status === "PENDING");
+  const sellerProducts = Array.isArray(sellerProductsData) ? sellerProductsData : [];
+  const pendingProducts = sellerProducts.filter((product: any) => product.status === "PENDING");
 
   const totalEarnings = Number(payoutDashboard?.totalEarnings || 0);
   const pendingBalance = Number(payoutDashboard?.balance || 0);
@@ -221,7 +221,7 @@ export default function SellerDashboardPage() {
         </div>
         {sellerProducts.length > 0 && (
           <div className="mt-4 divide-y divide-amber-200/70 border-t border-amber-200/70 dark:divide-amber-900/40 dark:border-amber-900/40">
-            {sellerProducts.slice(0, 3).map((product) => (
+            {sellerProducts.slice(0, 3).map((product: any) => (
               <div key={product.id} className="flex items-center justify-between gap-4 py-3 text-xs">
                 <div className="min-w-0">
                   <p className="truncate font-bold text-amber-950 dark:text-amber-100">{product.title}</p>
