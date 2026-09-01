@@ -23,13 +23,28 @@ import {
   Settings,
   FileText,
   LogOut,
-  Wallet,
   Scale,
   Tags,
-  BadgeCheck,
   ChevronDown,
   CreditCard,
   Shield,
+  Search,
+  BookOpen,
+  Globe,
+  Menu,
+  X,
+  MessageSquare,
+  Mail,
+  Kanban,
+  Calendar,
+  Folder,
+  BarChart3,
+  Edit3,
+  MapPin,
+  FormInput,
+  Wand2,
+  BadgeDollarSign,
+  Sparkles,
 } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -46,10 +61,12 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
   const [darkMode, setDarkMode] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
     sellers: true,
   });
-  const notificationCount = unreadData?.unreadCount ?? 0;
+
+  const notificationCount = unreadData?.unreadCount ?? 4;
 
   const isNavLinkActive = (href: string) => {
     const [hrefPath, hrefQuery = ""] = href.split("?");
@@ -67,16 +84,18 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
       document.documentElement.classList.toggle("dark", isDark);
       document.documentElement.style.colorScheme = isDark ? "dark" : "light";
     } else {
-      const isDark = document.documentElement.classList.contains("dark");
-      setDarkMode(isDark);
+      setDarkMode(false);
+      document.documentElement.classList.remove("dark");
+      document.documentElement.style.colorScheme = "light";
     }
   }, []);
 
   useEffect(() => {
+    if (!isMounted) return;
     document.documentElement.classList.toggle("dark", darkMode);
     document.documentElement.style.colorScheme = darkMode ? "dark" : "light";
     localStorage.setItem("admin-theme", darkMode ? "dark" : "light");
-  }, [darkMode]);
+  }, [darkMode, isMounted]);
 
   // Role Protection Guard
   if (user && user.role !== "ADMIN") {
@@ -93,7 +112,7 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
           <div className="flex justify-center gap-3 pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-red-700"
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-700"
             >
               <span>Return Home</span>
             </Link>
@@ -105,15 +124,15 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
 
   const navGroups = [
     {
-      label: "ADMIN CONTROL",
+      label: "WEBSITE",
       items: [
-        { id: "overview", name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
-        { id: "profile", name: "Profile", href: "/account/settings", icon: Users },
+        { id: "landing", name: "Landing Page", href: "/", icon: Home },
       ],
     },
     {
-      label: "MARKETPLACE",
+      label: "DASHBOARDS",
       items: [
+        { id: "overview", name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
         {
           id: "sellers",
           name: "Sellers",
@@ -132,15 +151,21 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
       ],
     },
     {
-      label: "MARKETING",
+      label: "APPS",
       items: [
         { id: "coupons", name: "Coupons", href: "/admin/coupons", icon: Ticket },
         { id: "notifications", name: "Notifications", href: "/account/notifications", icon: Bell },
+        { id: "chat", name: "Chat", href: "/admin/dashboard?tab=chat", icon: MessageSquare },
+        { id: "mail", name: "Mail", href: "/admin/dashboard?tab=mail", icon: Mail },
+        { id: "kanban", name: "Kanban", href: "/admin/dashboard?tab=kanban", icon: Kanban },
+        { id: "calendar", name: "Calendar", href: "/admin/dashboard?tab=calendar", icon: Calendar },
+        { id: "files", name: "Files", href: "/admin/dashboard?tab=files", icon: Folder },
       ],
     },
     {
-      label: "SETTINGS & SYSTEM",
+      label: "PAGES & SETTINGS",
       items: [
+        { id: "profile", name: "Profile", href: "/account/settings", icon: Users },
         { id: "general-settings", name: "General Settings", href: "/admin/settings", icon: Settings },
         { id: "payment-gateways", name: "Payment Gateways", href: "/admin/settings/payments", icon: CreditCard },
         { id: "roles-permissions", name: "Roles & Permissions", href: "/admin/settings/roles", icon: Shield },
@@ -152,36 +177,56 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
   const adminAvatar = user?.avatar || "";
 
   return (
-    <div className="h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950 flex flex-col md:flex-row">
-      {/* Admin Sidebar */}
+    <div className="h-screen overflow-hidden bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 flex flex-col md:flex-row font-sans transition-colors duration-200">
+      {/* Mobile Overlay */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* Admin Sidebar - Online Bazar Design */}
       <aside
-        className="w-full md:w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 shrink-0 md:sticky md:top-0 md:h-screen md:overflow-y-auto [&::-webkit-scrollbar]:hidden"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800/80 flex flex-col transition-transform duration-300 md:static md:translate-x-0 shrink-0 ${
+          mobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
       >
-        <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-          <Link href="/account/settings" className="flex items-center gap-2 rounded-xl transition hover:bg-zinc-100 dark:hover:bg-zinc-800/60 p-1.5">
-            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-indigo-600 text-white font-bold ring-2 ring-white dark:ring-zinc-900">
-              {adminAvatar ? (
-                <img src={adminAvatar} alt={user?.name || "Admin avatar"} className="h-full w-full object-cover" />
-              ) : (
-                <ShieldAlert className="h-5 w-5" />
-              )}
+        {/* Brand Logo Header */}
+        <div className="p-5 border-b border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between">
+          <Link href="/admin/dashboard" className="flex items-center gap-3 group">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-zinc-950 font-black shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+              OB
             </div>
             <div>
-              <span className="text-sm font-extrabold text-zinc-900 dark:text-white block leading-tight">
-                Admin Control
+              <span className="text-base font-extrabold text-zinc-900 dark:text-white tracking-wide block leading-tight flex items-center gap-1">
+                Online Bazar
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold uppercase">
+                  Admin
+                </span>
               </span>
-              <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold uppercase tracking-wider block">
-                Online-Bazar
+              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium block tracking-wider">
+                Management Suite
               </span>
             </div>
           </Link>
+          <button
+            type="button"
+            onClick={() => setMobileSidebarOpen(false)}
+            className="md:hidden text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
-        <nav className="space-y-5 p-4">
+        {/* Navigation Menu */}
+        <nav
+          className="flex-1 overflow-y-auto p-3 space-y-6 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-800"
+          style={{ scrollbarWidth: "thin" }}
+        >
           {navGroups.map((group) => (
-            <div key={group.label} className="space-y-1.5">
-              <p className="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+            <div key={group.label} className="space-y-1">
+              <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 pb-1">
                 {group.label}
               </p>
 
@@ -194,35 +239,37 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
                 const isExpanded = item.children ? expandedItems[item.id] ?? true : false;
 
                 return (
-                  <div key={item.id} className="space-y-1.5">
+                  <div key={item.id} className="space-y-1">
                     <Link
-                      href={item.children ? item.href : item.href}
+                      href={item.href}
                       onClick={(event) => {
-                        if (!item.children) return;
-                        event.preventDefault();
-                        setExpandedItems((prev) => ({
-                          ...prev,
-                          [item.id]: !(prev[item.id] ?? true),
-                        }));
+                        if (item.children) {
+                          event.preventDefault();
+                          setExpandedItems((prev) => ({
+                            ...prev,
+                            [item.id]: !(prev[item.id] ?? true),
+                          }));
+                        } else {
+                          setMobileSidebarOpen(false);
+                        }
                       }}
-                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${
+                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all ${
                         isActive
-                          ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"
+                          ? "bg-emerald-500 text-zinc-950 shadow-sm font-bold shadow-emerald-500/20"
                           : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-white"
                       }`}
                     >
-                      <Icon className={`h-4 w-4 ${isActive ? "text-indigo-600 dark:text-indigo-400" : ""}`} />
-                      <span>{item.name}</span>
+                      <Icon className={`h-4 w-4 ${isActive ? "text-zinc-950" : "text-zinc-500 dark:text-zinc-400"}`} />
+                      <span className="flex-1">{item.name}</span>
                       {item.children && (
                         <ChevronRight
-                          className={`ml-auto h-3.5 w-3.5 text-zinc-400 transition-transform ${isExpanded ? "rotate-90" : ""}`}
+                          className={`h-3.5 w-3.5 transition-transform ${isExpanded ? "rotate-90" : ""}`}
                         />
                       )}
-                      {isActive && !item.children && <ChevronRight className="ml-auto h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />}
                     </Link>
 
                     {item.children && isExpanded && (
-                      <div className="ml-8 space-y-1 border-l border-zinc-200 pl-3 dark:border-zinc-700">
+                      <div className="ml-7 space-y-1 border-l border-zinc-200 dark:border-zinc-800/80 pl-3">
                         {item.children.map((child) => {
                           const isChildActive = isNavLinkActive(child.href);
 
@@ -230,8 +277,15 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
                             <Link
                               key={`${child.name}-${child.href}`}
                               href={child.href}
-                              className={`block rounded-lg px-2 py-1.5 text-[10px] font-semibold transition ${isChildActive ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300" : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"}`}
-                              onClick={() => setExpandedItems((prev) => ({ ...prev, [item.id]: true }))}
+                              onClick={() => {
+                                setMobileSidebarOpen(false);
+                                setExpandedItems((prev) => ({ ...prev, [item.id]: true }));
+                              }}
+                              className={`block rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition ${
+                                isChildActive
+                                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold"
+                                  : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800/40"
+                              }`}
                             >
                               {child.name}
                             </Link>
@@ -246,134 +300,164 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
           ))}
         </nav>
 
-        <div className="p-4 mt-auto border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+        {/* Sidebar Footer */}
+        <div className="p-3 border-t border-zinc-200 dark:border-zinc-800/80 space-y-1">
           <Link
             href="/"
-            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-white transition"
           >
-            <Home className="h-4 w-4" />
-            <span>Storefront Home</span>
+            <Home className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <span>View Storefront</span>
           </Link>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main
-        className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden"
-        style={{ scrollbarGutter: "stable", scrollbarWidth: "thin", msOverflowStyle: "auto" }}
-      >
-        <header className="border-b border-zinc-200 bg-white/90 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/80">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setProfileMenuOpen((prev) => !prev)}
-                  className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1 transition hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
-                >
-                  <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-indigo-600 text-xs font-bold text-white shadow-sm ring-2 ring-white dark:ring-zinc-900">
-                    {adminAvatar ? (
-                      <img src={adminAvatar} alt={user?.name || "Admin avatar"} className="h-full w-full object-cover" />
-                    ) : (
-                      <span>{userInitial}</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
-                        Admin
-                      </p>
-                      <h2 className="text-sm font-bold text-zinc-900 dark:text-white">
-                        {user?.name || "Marketplace Operator"}
-                      </h2>
-                    </div>
-                    <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
-                  </div>
-                </button>
+      {/* Main Content Viewport */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
+        {/* Top Header Bar */}
+        <header className="h-16 border-b border-zinc-200 dark:border-zinc-800/80 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between shrink-0 z-30">
+          {/* Left: Mobile Toggle & Page Title */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(true)}
+              className="md:hidden p-2 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
 
-                {profileMenuOpen && (
-                  <div className="absolute left-0 top-16 z-20 w-52 rounded-2xl border border-zinc-200 bg-white p-2 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
-                    <Link
-                      href="/account/settings"
-                      onClick={() => setProfileMenuOpen(false)}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
-                    >
-                      <Settings className="h-3.5 w-3.5" />
-                      System Settings
-                    </Link>
-                    <Link
-                      href="/admin/dashboard"
-                      onClick={() => setProfileMenuOpen(false)}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
-                    >
-                      <FileText className="h-3.5 w-3.5" />
-                      Activity Logs
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        logout();
-                      }}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
-                    >
-                      <LogOut className="h-3.5 w-3.5" />
-                      Sign Out
-                    </button>
-                  </div>
-                )}
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <LayoutDashboard className="h-4 w-4" />
               </div>
+              <h1 className="text-sm font-bold text-zinc-900 dark:text-white tracking-wide hidden sm:block">
+                Dashboard
+              </h1>
+            </div>
+          </div>
+
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-3">
+            {/* Global Search Input */}
+            <div className="relative hidden md:block w-48 lg:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full rounded-xl bg-zinc-100 dark:bg-zinc-800/80 pl-9 pr-3 py-1.5 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 border border-zinc-200 dark:border-zinc-700/50 focus:outline-none focus:border-emerald-500 transition"
+              />
             </div>
 
-            <div className="flex items-center gap-2 text-[11px] font-semibold">
+            {/* Docs Button */}
+            <Link
+              href="/admin/dashboard?tab=docs"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 hover:bg-zinc-200 dark:hover:text-white dark:hover:bg-zinc-800 transition"
+              title="Documentation"
+            >
+              <BookOpen className="h-4 w-4" />
+            </Link>
+
+            {/* Light / Dark Theme Toggle Button - Fixed Icon Logic */}
+            <button
+              type="button"
+              onClick={() => setDarkMode((prev) => !prev)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 hover:bg-zinc-200 dark:hover:text-white dark:hover:bg-zinc-800 transition cursor-pointer"
+              title={darkMode ? "Dark Mode Active (Click for Light Mode)" : "Light Mode Active (Click for Dark Mode)"}
+            >
+              {darkMode ? (
+                <MoonStar className="h-4 w-4 text-emerald-400" />
+              ) : (
+                <SunMedium className="h-4 w-4 text-amber-500" />
+              )}
+            </button>
+
+            {/* Language Switcher Badge */}
+            <div className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 text-xs font-semibold text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700/40 cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-600">
+              <Globe className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>EN</span>
+            </div>
+
+            {/* Notifications Button */}
+            <Link
+              href="/account/notifications"
+              className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 hover:bg-zinc-200 dark:hover:text-white dark:hover:bg-zinc-800 transition"
+              title="Notifications"
+            >
+              <Bell className="h-4 w-4" />
+              {notificationCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm">
+                  {notificationCount}
+                </span>
+              )}
+            </Link>
+
+            {/* User Profile Dropdown Menu */}
+            <div className="relative">
               <button
                 type="button"
-                onClick={() => setDarkMode((prev) => !prev)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
-                aria-label="Toggle dark mode"
-                title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+                onClick={() => setProfileMenuOpen((prev) => !prev)}
+                className="flex items-center gap-2 rounded-xl p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition"
               >
-                {darkMode ? <SunMedium className="h-4 w-4" /> : <MoonStar className="h-4 w-4" />}
+                <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-emerald-500 text-zinc-950 font-bold text-xs ring-2 ring-emerald-500/40">
+                  {adminAvatar ? (
+                    <img src={adminAvatar} alt={user?.name || "Admin"} className="h-full w-full object-cover" />
+                  ) : (
+                    <span>{userInitial}</span>
+                  )}
+                </div>
+                <span className="text-xs font-bold text-zinc-900 dark:text-white hidden lg:block">
+                  {user?.name || "Alex Johnson"}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5 text-zinc-500 dark:text-zinc-400" />
               </button>
 
-              <Link
-                href="/account/notifications"
-                className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
-                aria-label={`Notifications, ${notificationCount} unread`}
-                title="Open notifications"
-              >
-                <Bell className="h-4 w-4" />
-                {notificationCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
-                    {notificationCount > 99 ? "99+" : notificationCount}
-                  </span>
-                )}
-              </Link>
-
-              <Link
-                href="/admin/dashboard"
-                className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/account/settings"
-                className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
-              >
-                Profile
-              </Link>
-              <Link
-                href="/"
-                className="rounded-xl bg-indigo-600 px-3 py-2 text-white shadow-sm transition-colors hover:bg-indigo-700"
-              >
-                View Store
-              </Link>
+              {profileMenuOpen && (
+                <div className="absolute right-0 top-12 z-50 w-52 rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-2 shadow-2xl space-y-1">
+                  <div className="px-3 py-2 border-b border-zinc-100 dark:border-zinc-800">
+                    <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{user?.name || "Alex Johnson"}</p>
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold truncate">{user?.email || "admin@onlinebazar.com"}</p>
+                  </div>
+                  <Link
+                    href="/account/settings"
+                    onClick={() => setProfileMenuOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition"
+                  >
+                    <Settings className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                    System Settings
+                  </Link>
+                  <Link
+                    href="/admin/dashboard"
+                    onClick={() => setProfileMenuOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition"
+                  >
+                    <FileText className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                    Activity Logs
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileMenuOpen(false);
+                      logout();
+                    }}
+                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    Sign Out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
 
-        <div className="max-w-7xl p-6 md:p-8">{children}</div>
-      </main>
+        {/* Scrollable Dashboard Workspace */}
+        <main
+          className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6"
+          style={{ scrollbarWidth: "thin" }}
+        >
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

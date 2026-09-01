@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/ui/logo";
@@ -25,6 +25,9 @@ import {
   Sparkles,
   Bell,
   HelpCircle,
+  SunMedium,
+  MoonStar,
+  Check,
 } from "lucide-react";
 
 export default function Header() {
@@ -39,10 +42,39 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState(false);
+  const [searchCatOpen, setSearchCatOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  const [darkMode, setDarkMode] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Initialize theme on hydration
+  useEffect(() => {
+    setIsMounted(true);
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      const isDark = savedTheme === "dark";
+      setDarkMode(isDark);
+      document.documentElement.classList.toggle("dark", isDark);
+      document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+    } else {
+      const isDark = document.documentElement.classList.contains("dark");
+      setDarkMode(isDark);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    document.documentElement.classList.toggle("dark", darkMode);
+    document.documentElement.style.colorScheme = darkMode ? "dark" : "light";
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode, isMounted]);
+
   const categories = categoriesData || [];
+
+  const selectedCatObj = categories.find((c) => c.id === selectedCategory);
+  const selectedCatName = selectedCategory === "All" ? "All Categories" : selectedCatObj?.name || "All Categories";
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,29 +113,66 @@ export default function Header() {
             <Logo size="md" showSubtitle />
           </div>
 
-          {/* Center Compact Sharp Rectangle Search Bar (User Requested Style) */}
+          {/* Center Search Bar with Custom Category Dropdown */}
           <form
             onSubmit={handleSearchSubmit}
             className="hidden flex-1 max-w-lg items-center lg:flex"
             id="storefront-search-form"
           >
-            <div className="relative flex w-full h-10 items-stretch overflow-hidden rounded-none border border-zinc-300 bg-white shadow-xs transition-all focus-within:border-emerald-600 dark:border-zinc-700 dark:bg-zinc-900">
-              {/* Category Dropdown inside Search Bar with Black Background */}
-              <div className="relative bg-zinc-950 flex items-center px-3.5 text-white border-r border-zinc-800 shrink-0">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="h-full cursor-pointer appearance-none bg-zinc-950 pr-6 text-xs font-bold text-white focus:outline-none"
-                  aria-label="Select search category"
+            <div className="relative flex w-full h-10 items-stretch overflow-visible rounded-none border border-zinc-300 bg-white shadow-xs transition-all focus-within:border-emerald-600 dark:border-zinc-700 dark:bg-zinc-900">
+              {/* Custom Styled Category Dropdown */}
+              <div className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setSearchCatOpen((prev) => !prev)}
+                  className="h-full flex items-center gap-2 bg-zinc-950 px-3.5 text-xs font-bold text-white border-r border-zinc-800 hover:bg-zinc-900 transition-colors cursor-pointer"
+                  id="search-category-dropdown-btn"
                 >
-                  <option value="All" className="bg-zinc-900 text-white">All Categories</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id} className="bg-zinc-900 text-white">
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-3.5 h-3.5 w-3.5 text-zinc-300" />
+                  <span className="max-w-[120px] truncate">{selectedCatName}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 text-zinc-400 transition-transform ${searchCatOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {searchCatOpen && (
+                  <div
+                    className="absolute left-0 top-full mt-1.5 w-56 rounded-2xl border border-zinc-200 bg-white p-2 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 z-50 max-h-64 overflow-y-auto"
+                    onMouseLeave={() => setSearchCatOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategory("All");
+                        setSearchCatOpen(false);
+                      }}
+                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition ${
+                        selectedCategory === "All"
+                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold"
+                          : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                      }`}
+                    >
+                      <span>All Categories</span>
+                      {selectedCategory === "All" && <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />}
+                    </button>
+                    <div className="my-1 border-t border-zinc-100 dark:border-zinc-800" />
+                    {categories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategory(cat.id);
+                          setSearchCatOpen(false);
+                        }}
+                        className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition ${
+                          selectedCategory === cat.id
+                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold"
+                            : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                        }`}
+                      >
+                        <span className="truncate">{cat.name}</span>
+                        {selectedCategory === cat.id && <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Search Input Field */}
@@ -156,8 +225,25 @@ export default function Header() {
               </span>
             </Link>
 
+            {/* Storefront Dark / Light Mode Toggle Button next to Cart */}
+            <button
+              type="button"
+              onClick={() => setDarkMode((prev) => !prev)}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900 cursor-pointer"
+              aria-label="Toggle Dark Mode"
+              title={darkMode ? "Dark Mode Active (Click for Light Mode)" : "Light Mode Active (Click for Dark Mode)"}
+              id="header-theme-toggle-btn"
+            >
+              {darkMode ? (
+                <MoonStar className="h-5 w-5 text-emerald-400" />
+              ) : (
+                <SunMedium className="h-5 w-5 text-amber-500" />
+              )}
+            </button>
+
             {/* Vertical Separator */}
             <div className="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800" />
+
 
             {/* User Account / Profile Pill */}
             {isUserLoading ? (
