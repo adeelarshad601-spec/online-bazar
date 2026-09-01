@@ -24,6 +24,7 @@ import {
   Layers,
   Sparkles,
   Bell,
+  HelpCircle,
 } from "lucide-react";
 
 export default function Header() {
@@ -80,29 +81,29 @@ export default function Header() {
             <Logo size="md" showSubtitle />
           </div>
 
-          {/* Center Search Bar with Integrated Category Dropdown (Image Reference) */}
+          {/* Center Compact Sharp Rectangle Search Bar (User Requested Style) */}
           <form
             onSubmit={handleSearchSubmit}
-            className="hidden flex-1 max-w-2xl items-center lg:flex"
+            className="hidden flex-1 max-w-lg items-center lg:flex"
             id="storefront-search-form"
           >
-            <div className="relative flex w-full items-center rounded-full border border-zinc-300 bg-zinc-50 p-1 pl-3 shadow-xs transition-all focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-600/20 dark:border-zinc-700 dark:bg-zinc-900">
-              {/* Category Dropdown inside Search Bar */}
-              <div className="relative border-r border-zinc-200 pr-1 dark:border-zinc-700">
+            <div className="relative flex w-full h-10 items-stretch overflow-hidden rounded-none border border-zinc-300 bg-white shadow-xs transition-all focus-within:border-emerald-600 dark:border-zinc-700 dark:bg-zinc-900">
+              {/* Category Dropdown inside Search Bar with Black Background */}
+              <div className="relative bg-zinc-950 flex items-center px-3.5 text-white border-r border-zinc-800 shrink-0">
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="h-9 cursor-pointer appearance-none bg-transparent py-1.5 pl-2 pr-7 text-xs font-semibold text-zinc-700 focus:outline-none dark:text-zinc-300"
+                  className="h-full cursor-pointer appearance-none bg-zinc-950 pr-6 text-xs font-bold text-white focus:outline-none"
                   aria-label="Select search category"
                 >
-                  <option value="All">All Categories</option>
+                  <option value="All" className="bg-zinc-900 text-white">All Categories</option>
                   {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
+                    <option key={cat.id} value={cat.id} className="bg-zinc-900 text-white">
                       {cat.name}
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-3 h-3.5 w-3.5 text-zinc-400" />
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-3.5 h-3.5 w-3.5 text-zinc-300" />
               </div>
 
               {/* Search Input Field */}
@@ -111,14 +112,14 @@ export default function Header() {
                 placeholder="Search products, brands, or shops..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent px-3 py-1.5 text-xs font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none dark:text-white"
+                className="w-full bg-transparent px-3.5 py-2 text-xs font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none dark:text-white"
                 id="search-input-field"
               />
 
-              {/* Search Submit Button */}
+              {/* Square Search Submit Button inside Input */}
               <button
                 type="submit"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xs transition-colors hover:bg-emerald-700 focus:outline-none"
+                className="flex h-full w-10 shrink-0 items-center justify-center rounded-none bg-emerald-600 text-white transition-colors hover:bg-emerald-700 focus:outline-none"
                 aria-label="Submit search"
                 id="search-submit-btn"
               >
@@ -232,6 +233,15 @@ export default function Header() {
                             <UserIcon className="h-4 w-4 text-blue-600" />
                             Account Settings
                           </Link>
+
+                          <Link
+                            href="/support"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <HelpCircle className="h-4 w-4 text-teal-600" />
+                            Help & Support
+                          </Link>
                         </>
                       )}
 
@@ -298,6 +308,15 @@ export default function Header() {
                           >
                             <UserIcon className="h-4 w-4 text-blue-600" />
                             Settings
+                          </Link>
+
+                          <Link
+                            href="/support"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          >
+                            <HelpCircle className="h-4 w-4 text-teal-600" />
+                            Help & Support
                           </Link>
                         </>
                       )}
@@ -371,16 +390,16 @@ export default function Header() {
         </div>
       </div>
 
-      {/* 2. Sub-Navbar Row (Matching Reference Image) */}
+      {/* 2. Sub-Navbar Row with Full Navigation Links (Home, Shop, New Arrivals, Deals, Sellers, Support, Become a Seller) */}
       <nav className="border-b border-emerald-700/30 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 sm:gap-6 text-xs font-bold">
+          <div className="flex items-center gap-3 sm:gap-5 text-xs font-bold">
             {/* All Categories Button with Dropdown */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setCategoriesDropdownOpen(!categoriesDropdownOpen)}
-                className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700"
+                className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700"
                 id="categories-dropdown-toggle"
               >
                 <Layers className="h-4 w-4" />
@@ -418,7 +437,14 @@ export default function Header() {
               )}
             </div>
 
-            {/* Navigation Links */}
+            {/* Core Navigation Links */}
+            <Link
+              href="/"
+              className="text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+            >
+              Home
+            </Link>
+
             <Link
               href="/products"
               className="text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
@@ -428,7 +454,7 @@ export default function Header() {
 
             <Link
               href="/products?sort=newest"
-              className="flex items-center gap-1.5 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+              className="hidden md:flex items-center gap-1 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
             >
               <Sparkles className="h-3.5 w-3.5 text-amber-500" />
               <span>New Arrivals</span>
@@ -436,7 +462,7 @@ export default function Header() {
 
             <Link
               href="/products?featured=true"
-              className="text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+              className="hidden lg:block text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
             >
               Featured Deals
             </Link>
@@ -447,10 +473,26 @@ export default function Header() {
             >
               Browse Sellers
             </Link>
+
+            <Link
+              href="/support"
+              className="flex items-center gap-1 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+            >
+              <HelpCircle className="h-3.5 w-3.5 text-teal-600" />
+              <span>Help & Support</span>
+            </Link>
+
+            <Link
+              href="/seller/apply"
+              className="hidden sm:inline-flex items-center gap-1 text-emerald-700 font-extrabold hover:underline dark:text-emerald-400"
+            >
+              <Store className="h-3.5 w-3.5" />
+              <span>Become a Seller</span>
+            </Link>
           </div>
 
-          {/* Right Support Indicator */}
-          <div className="hidden sm:block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+          {/* Right Support Hotline */}
+          <div className="hidden xl:block text-xs font-medium text-zinc-600 dark:text-zinc-400">
             24/7 Support: <span className="font-bold text-emerald-600 dark:text-emerald-400">+1 800-ONLINE-BAZAR</span>
           </div>
         </div>
@@ -464,11 +506,11 @@ export default function Header() {
             placeholder="Search products, brands, or shops..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2 text-xs text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+            className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2 text-xs text-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
           />
           <button
             type="submit"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white"
             aria-label="Submit search"
           >
             <Search className="h-3.5 w-3.5" />
@@ -503,6 +545,13 @@ export default function Header() {
 
             <div className="space-y-2 text-sm font-semibold">
               <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-zinc-800 hover:text-emerald-600 dark:text-zinc-200 dark:hover:text-emerald-400"
+              >
+                Home
+              </Link>
+              <Link
                 href="/products"
                 onClick={() => setMobileMenuOpen(false)}
                 className="block text-zinc-800 hover:text-emerald-600 dark:text-zinc-200 dark:hover:text-emerald-400"
@@ -531,6 +580,13 @@ export default function Header() {
               >
                 Browse Sellers
               </Link>
+              <Link
+                href="/support"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-zinc-800 hover:text-emerald-600 dark:text-zinc-200 dark:hover:text-emerald-400"
+              >
+                Help & Support
+              </Link>
               {user && (
                 <Link
                   href="/orders"
@@ -549,7 +605,7 @@ export default function Header() {
               <Link
                 href="/seller/apply"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-emerald-600 dark:text-emerald-400"
+                className="block text-emerald-600 dark:text-emerald-400 font-bold"
               >
                 Become a Seller
               </Link>
