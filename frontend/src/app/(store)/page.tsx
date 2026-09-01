@@ -22,45 +22,69 @@ export default function StorefrontHomePage() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {/* Main Hero Banner (Spans 2 columns on desktop) */}
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-100 via-teal-50 to-emerald-200/50 p-8 sm:p-12 lg:col-span-2 flex flex-col justify-between dark:from-emerald-950/60 dark:via-zinc-900 dark:to-emerald-900/40 border border-emerald-200/50 dark:border-emerald-800/30">
-            <div className="max-w-md space-y-4 z-10">
-              {/* Pill Badge */}
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+            <div className="max-w-xl space-y-4 z-10">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300">
                 <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">
-                  NEWS
+                  TOP RATED
                 </span>
-                <span>Free Shipping on Orders Above $50!</span>
+                <span>World's #1 Multi-Vendor Marketplace Ecosystem</span>
                 <ChevronRight className="h-3.5 w-3.5" />
               </div>
 
               {/* Slogan */}
               <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-4xl lg:text-5xl leading-tight">
-                Gadgets you'll love. <br />
-                <span className="text-emerald-700 dark:text-emerald-400">Prices you'll trust.</span>
+                Empowering Global Sellers. <br />
+                <span className="text-emerald-700 dark:text-emerald-400">Delivering Quality to Your Door.</span>
               </h1>
 
-              {/* Subtext */}
-              <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-300">
-                Starts from <span className="text-lg font-extrabold text-emerald-700 dark:text-emerald-400">$4.90</span>
+              {/* Value Proposition & Seller Benefits */}
+              <p className="text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                Connect with 100,000+ verified buyers globally. Sell products with <strong>0% listing fees</strong>, automated instant payouts, and state-of-the-art seller analytics tools.
               </p>
+
+              {/* Seller Benefit Pills */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="rounded-full bg-emerald-600/10 border border-emerald-600/20 px-3 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+                  ✓ 0% Listing Fees
+                </span>
+                <span className="rounded-full bg-emerald-600/10 border border-emerald-600/20 px-3 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+                  ✓ Instant Daily Payouts
+                </span>
+                <span className="rounded-full bg-emerald-600/10 border border-emerald-600/20 px-3 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+                  ✓ Verified Buyer Protection
+                </span>
+              </div>
             </div>
 
-            {/* Product Graphic Cutout / Illustration */}
-            <div className="mt-8 flex items-end justify-between z-10">
-              <Link
-                href="/products"
-                className="inline-flex items-center gap-2 rounded-2xl bg-zinc-900 px-6 py-3.5 text-xs font-bold text-white shadow-lg transition-all hover:bg-zinc-800 dark:bg-emerald-600 dark:hover:bg-emerald-500"
-              >
-                <span>Shop Marketplace</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+            {/* Actions: Shop Marketplace & Become a Seller */}
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-4 z-10">
+              <div className="flex flex-wrap items-center gap-3">
+                <Link
+                  href="/products"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-zinc-900 px-6 py-3.5 text-xs font-bold text-white shadow-lg transition-all hover:bg-zinc-800 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+                >
+                  <span>Shop Marketplace</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
 
-              <div className="hidden sm:flex items-center gap-2 rounded-2xl bg-white/80 p-2.5 shadow-sm backdrop-blur-md dark:bg-zinc-900/80">
+                <Link
+                  href="/seller/apply"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-xs font-bold text-emerald-700 shadow-md border border-emerald-200/80 transition-all hover:bg-emerald-50 hover:shadow-lg dark:bg-zinc-800 dark:text-emerald-400 dark:border-emerald-800"
+                  id="hero-become-seller-btn"
+                >
+                  <Store className="h-4 w-4" />
+                  <span>Become a Seller</span>
+                </Link>
+              </div>
+
+              <div className="hidden sm:flex items-center gap-2.5 rounded-2xl bg-white/90 p-3 shadow-sm backdrop-blur-md dark:bg-zinc-900/90 border border-emerald-100 dark:border-zinc-800">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                   <Store className="h-5 w-5" />
                 </div>
                 <div className="text-xs">
-                  <p className="font-bold text-zinc-900 dark:text-white">Verified Vendors</p>
-                  <p className="text-[10px] text-zinc-500">100% Quality Guaranteed</p>
+                  <p className="font-bold text-zinc-900 dark:text-white">100K+ Global Buyers</p>
+                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">100% Guaranteed Payouts</p>
                 </div>
               </div>
             </div>
