@@ -156,11 +156,11 @@ export default function RegisterForm() {
         )}
 
         {selectedRole && <form
-  onSubmit={handleSubmit(onSubmit, onInvalid)}
-  className="space-y-4"
-  noValidate
-  autoComplete="off"
->
+          onSubmit={handleSubmit(onSubmit, onInvalid)}
+          className="space-y-4"
+          noValidate
+          autoComplete="off"
+        >
           {/* Name Field */}
           <div className="space-y-1.5">
             <label htmlFor="reg-name" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
@@ -176,11 +176,10 @@ export default function RegisterForm() {
                 placeholder="Enter your name"
                 aria-invalid={!!errors.name}
                 {...register("name")}
-                className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 transition-all ${
-                  errors.name
+                className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 transition-all ${errors.name
                     ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-800"
                     : "border-zinc-200 focus:border-emerald-600 focus:ring-emerald-600/20 dark:border-zinc-700"
-                }`}
+                  }`}
               />
             </div>
             {errors.name && (
@@ -201,14 +200,13 @@ export default function RegisterForm() {
                 id="reg-email"
                 type="email"
                 autoComplete="off"
-                placeholder="example@gmail.com"
+                placeholder="enter your email"
                 aria-invalid={!!errors.email}
                 {...register("email")}
-                className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 transition-all ${
-                  errors.email
+                className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 transition-all ${errors.email
                     ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-800"
                     : "border-zinc-200 focus:border-emerald-600 focus:ring-emerald-600/20 dark:border-zinc-700"
-                }`}
+                  }`}
               />
             </div>
             {errors.email && (
@@ -232,11 +230,10 @@ export default function RegisterForm() {
                 placeholder="••••••••"
                 aria-invalid={!!errors.password}
                 {...register("password")}
-                className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pl-10 pr-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 transition-all ${
-                  errors.password
+                className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pl-10 pr-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 transition-all ${errors.password
                     ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-800"
                     : "border-zinc-200 focus:border-emerald-600 focus:ring-emerald-600/20 dark:border-zinc-700"
-                }`}
+                  }`}
               />
               <button
                 type="button"
@@ -281,11 +278,10 @@ export default function RegisterForm() {
                 autoComplete="new-password"
                 aria-invalid={!!errors.confirmPassword}
                 {...register("confirmPassword")}
-                className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pl-10 pr-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 transition-all ${
-                  errors.confirmPassword
+                className={`w-full rounded-2xl border bg-zinc-50/70 py-3 pl-10 pr-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 dark:bg-zinc-800/50 dark:text-zinc-100 dark:focus:bg-zinc-800 transition-all ${errors.confirmPassword
                     ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-800"
                     : "border-zinc-200 focus:border-emerald-600 focus:ring-emerald-600/20 dark:border-zinc-700"
-                }`}
+                  }`}
               />
               <button
                 type="button"

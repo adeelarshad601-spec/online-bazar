@@ -57,47 +57,33 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/95 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/95">
-      {/* Top Announcement Bar */}
-      <div className="bg-emerald-700 text-xs font-medium text-white dark:bg-emerald-950 dark:text-emerald-200">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 sm:px-6 lg:px-8">
+      {/* Top Announcement Bar (GoCart Style) */}
+      <div className="bg-gradient-to-r from-purple-700 via-pink-600 to-rose-500 text-xs font-semibold text-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
-            <span className="inline-block rounded bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white dark:bg-emerald-800">
-              Welcome
-            </span>
-            <span className="hidden sm:inline">
-              Discover millions of products from verified local sellers!
-            </span>
-            <span className="sm:hidden">Multi-vendor marketplace deals!</span>
+            <span>Get 20% OFF on Your First Order!</span>
           </div>
 
-          <div className="flex items-center gap-4 text-[11px]">
+          <div className="flex items-center gap-3">
             <Link
-              href="/seller/apply"
-              className="flex items-center gap-1 text-emerald-100 hover:text-white hover:underline"
+              href="/products?featured=true"
+              className="rounded-full bg-white px-3 py-0.5 text-[11px] font-bold text-zinc-900 shadow-xs hover:bg-zinc-100"
             >
-              <Store className="h-3 w-3" />
-              <span>Sell on Online-Bazar</span>
-            </Link>
-            <span className="text-emerald-500">|</span>
-            <Link
-              href="/account/notifications"
-              className="text-emerald-100 hover:text-white hover:underline"
-            >
-              Notifications
+              Claim Offer
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Main Header */}
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto flex min-h-16 w-full max-w-[1600px] items-center justify-between gap-4 py-2">
-          {/* Logo & Mobile menu button */}
+      {/* Main Header Bar */}
+      <div className="w-full border-b border-zinc-200/80 bg-white/95 px-4 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/95 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center justify-between gap-6 py-2.5">
+          {/* Mobile Menu & Logo */}
           <div className="flex shrink-0 items-center gap-3">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white lg:hidden"
+              className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white lg:hidden"
               aria-label="Toggle Navigation Menu"
               id="mobile-menu-toggle-btn"
             >
@@ -106,50 +92,38 @@ export default function Header() {
             <Logo size="md" showSubtitle />
           </div>
 
-          {/* Search Bar UI */}
+          {/* Nav Links (Desktop) */}
+          <div className="hidden lg:flex items-center gap-8 text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+            <Link href="/" className="hover:text-emerald-600 transition-colors dark:hover:text-emerald-400">
+              Home
+            </Link>
+            <Link href="/products" className="hover:text-emerald-600 transition-colors dark:hover:text-emerald-400">
+              Shop
+            </Link>
+            <Link href="/shops" className="hover:text-emerald-600 transition-colors dark:hover:text-emerald-400">
+              Sellers
+            </Link>
+            <Link href="/seller/apply" className="hover:text-emerald-600 transition-colors dark:hover:text-emerald-400">
+              Become a Seller
+            </Link>
+          </div>
+
+          {/* Pill Search Bar */}
           <form
             onSubmit={handleSearchSubmit}
-            className="hidden flex-1 max-w-2xl items-center lg:flex"
+            className="hidden flex-1 max-w-md items-center lg:flex"
             id="storefront-search-form"
           >
-            <div className="relative flex w-full items-center rounded-xl border border-zinc-300 bg-zinc-50 shadow-xs focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-600/20 dark:border-zinc-700 dark:bg-zinc-900 dark:focus-within:border-emerald-500 dark:focus-within:bg-zinc-900">
-              {/* Category Select Dropdown */}
-              <div className="relative border-r border-zinc-200 dark:border-zinc-700">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="h-10 cursor-pointer appearance-none bg-transparent py-2 pl-3 pr-7 text-xs font-medium text-zinc-700 focus:outline-none dark:text-zinc-300"
-                  aria-label="Select search category"
-                >
-                  <option value="All">All Categories</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-2 top-3 h-3.5 w-3.5 text-zinc-400" />
-              </div>
-
-              {/* Search Text Field */}
+            <div className="relative flex w-full items-center rounded-full border border-zinc-200 bg-zinc-100/80 px-4 py-2 shadow-xs focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-600/20 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-within:border-emerald-500">
+              <Search className="h-4 w-4 shrink-0 text-zinc-400 mr-2" />
               <input
                 type="text"
-                placeholder="Search products, brands, or shops..."
+                placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent px-4 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none dark:text-white"
+                className="w-full bg-transparent text-xs font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none dark:text-white"
                 id="search-input-field"
               />
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className="mr-1 rounded-lg bg-emerald-600 p-2 text-white transition-colors hover:bg-emerald-700 focus:outline-none dark:bg-emerald-600 dark:hover:bg-emerald-500"
-                aria-label="Submit search"
-                id="search-submit-btn"
-              >
-                <Search className="h-4 w-4" />
-              </button>
             </div>
           </form>
 
@@ -416,87 +390,6 @@ export default function Header() {
           </button>
         </form>
       </div>
-
-      {/* Category Navigation Bar (Desktop) */}
-      <nav className="hidden border-t border-zinc-100 bg-zinc-50/50 lg:block dark:border-zinc-800/80 dark:bg-zinc-900/40">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6 text-xs font-semibold">
-            {/* All Categories Dropdown button */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setCategoriesDropdownOpen(!categoriesDropdownOpen)}
-                className="flex items-center gap-2 rounded-t-lg bg-emerald-600 px-4 py-2.5 text-white hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600"
-                id="categories-dropdown-toggle"
-              >
-                <Layers className="h-4 w-4" />
-                <span>All Categories</span>
-                <ChevronDown className="h-3.5 w-3.5" />
-              </button>
-
-              {categoriesDropdownOpen && (
-                <div
-                  className="absolute left-0 z-50 max-h-80 w-64 overflow-y-auto rounded-b-2xl border border-zinc-200 bg-white py-2 shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
-                  onMouseLeave={() => setCategoriesDropdownOpen(false)}
-                  id="categories-menu-list"
-                >
-                  {isCategoriesLoading ? (
-                    <div className="px-4 py-3 text-xs text-zinc-400 animate-pulse">
-                      Loading categories...
-                    </div>
-                  ) : categories.length === 0 ? (
-                    <div className="px-4 py-3 text-xs text-zinc-400">
-                      No categories found
-                    </div>
-                  ) : (
-                    categories.map((cat) => (
-                      <Link
-                        key={cat.id}
-                        href={`/categories/${cat.id}`}
-                        onClick={() => setCategoriesDropdownOpen(false)}
-                        className="block px-4 py-2 text-xs font-medium text-zinc-700 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400"
-                      >
-                        {cat.name}
-                      </Link>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Quick Links */}
-            <Link
-              href="/products"
-              className="py-2.5 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
-            >
-              All Products
-            </Link>
-            <Link
-              href="/products?sort=newest"
-              className="flex items-center gap-1 py-2.5 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-              New Arrivals
-            </Link>
-            <Link
-              href="/products?featured=true"
-              className="py-2.5 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
-            >
-              Featured Deals
-            </Link>
-            <Link
-              href="/shops"
-              className="py-2.5 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
-            >
-              Browse Sellers
-            </Link>
-          </div>
-
-          <div className="text-xs font-medium text-zinc-500">
-            24/7 Support: <span className="font-semibold text-emerald-600">+1 800-ONLINE-BAZAR</span>
-          </div>
-        </div>
-      </nav>
 
       {/* Mobile Drawer Navigation */}
       {mobileMenuOpen && (

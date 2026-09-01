@@ -34,16 +34,38 @@ export const searchProducts = async (query: ProductSearchQuery) => {
     orderBy.createdAt = "desc";
   }
 
-  const [total, products] = await Promise.all([
+  const [total, productsRaw] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,
-      include: { images: true, shop: true, category: true },
+      include: {
+        images: true,
+        shop: true,
+        category: true,
+        reviews: {
+          select: { rating: true },
+        },
+      },
       orderBy,
       skip,
       take: limit,
     }),
   ]);
+
+  const products = productsRaw.map((product) => {
+    const { reviews, ...rest } = product;
+    const reviewCount = reviews ? reviews.length : 0;
+    const avgRating =
+      reviewCount > 0
+        ? Number((reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviewCount).toFixed(1))
+        : 0;
+
+    return {
+      ...rest,
+      rating: avgRating,
+      reviewCount,
+    };
+  });
 
   return {
     products,

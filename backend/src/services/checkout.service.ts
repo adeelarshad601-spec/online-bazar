@@ -223,12 +223,14 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
       })
     );
 
+    const isPaid = paymentMethod === "STRIPE" || paymentMethod === "CARD";
+
     const order = await tx.order.create({
       data: {
         orderNumber,
         userId,
         totalAmount,
-        paymentStatus: "PENDING",
+        paymentStatus: isPaid ? "COMPLETED" : "PENDING",
         status: "PENDING",
         shippingAddress: shippingAddress as any,
         couponId,
@@ -283,8 +285,8 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     await tx.payment.create({
       data: {
         orderId: order.id,
-        method: "COD",
-        status: "PENDING",
+        method: isPaid ? "CARD" : "COD",
+        status: isPaid ? "COMPLETED" : "PENDING",
         amount: totalAmount,
       },
     });

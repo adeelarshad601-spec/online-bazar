@@ -11,7 +11,7 @@ export const shippingAddressSchema = z.object({
 
 export const checkoutSchema = z.object({
   shippingAddress: shippingAddressSchema,
-  paymentMethod: z.enum(["COD"]),
+  paymentMethod: z.enum(["COD", "STRIPE", "CARD"]),
   couponCode: z.string().trim().min(1, "Coupon code must not be empty").nullable().optional(),
   buyNowItem: z
     .object({

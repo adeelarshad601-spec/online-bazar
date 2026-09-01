@@ -25,13 +25,16 @@ import {
   Tag,
   AlertCircle,
   Package,
+  Plus,
+  Lock,
+  Check,
 } from "lucide-react";
 
 function CheckoutStepper({ currentStep = 2 }: { currentStep?: number }) {
   const steps = [
     { id: 1, name: "Cart", status: "completed" },
     { id: 2, name: "Shipping & Address", status: currentStep >= 2 ? "active" : "pending" },
-    { id: 3, name: "Order Review", status: currentStep >= 3 ? "active" : "pending" },
+    { id: 3, name: "Payment & Review", status: currentStep >= 3 ? "active" : "pending" },
     { id: 4, name: "Confirmation", status: currentStep >= 4 ? "completed" : "pending" },
   ];
 
@@ -122,8 +125,15 @@ function CheckoutFormContent() {
   const { data: cart, isLoading: isCartLoading, isError: isCartError } = useCart();
   const { mutate: executeCheckout, isPending: isSubmitting, data: checkoutData } = useCheckoutMutation();
 
+  const [paymentMethod, setPaymentMethod] = useState<"COD" | "STRIPE">("COD");
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+
+  // Card details state
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
+  const [cardName, setCardName] = useState("");
 
   // Navigate to success page after successful checkout
   useEffect(() => {
@@ -138,6 +148,7 @@ function CheckoutFormContent() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<ShippingAddressInput>({
     resolver: zodResolver(shippingAddressSchema),
@@ -279,13 +290,29 @@ function CheckoutFormContent() {
     setCouponInput("");
   };
 
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value.replace(/\D/g, "");
+    if (val.length > 16) val = val.slice(0, 16);
+    const formatted = val.replace(/(.{4})/g, "$1 ").trim();
+    setCardNumber(formatted);
+  };
+
+  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value.replace(/\D/g, "");
+    if (val.length > 4) val = val.slice(0, 4);
+    if (val.length >= 3) {
+      setCardExpiry(`${val.slice(0, 2)}/${val.slice(2)}`);
+    } else {
+      setCardExpiry(val);
+    }
+  };
+
   const onSubmit = async (data: ShippingAddressInput) => {
     if (isSubmitting) return;
 
-    // Execute mutation and handle response
     executeCheckout({
       shippingAddress: data,
-      paymentMethod: "COD",
+      paymentMethod: paymentMethod === "STRIPE" ? "STRIPE" : "COD",
       couponCode: appliedCoupon || null,
       buyNowItem: isBuyNowParam && buyNowProductId
         ? {
@@ -300,13 +327,13 @@ function CheckoutFormContent() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 space-y-8 sm:px-6 lg:px-8">
       {/* Page Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-200 pb-6 dark:border-zinc-800">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-200/80 pb-6 dark:border-zinc-800">
         <div>
           <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white sm:text-3xl">
             Checkout
           </h1>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Complete your shipping address and review your order to place order
+          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Complete your shipping address and payment details to place your order
           </p>
         </div>
         <Link
@@ -326,17 +353,17 @@ function CheckoutFormContent() {
           {/* Left Column: Form & Review */}
           <div className="space-y-8 lg:col-span-2">
             {/* Section 1: Shipping Address Form */}
-            <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8 space-y-6">
-              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
+            <div className="rounded-3xl bg-[#f6f7f9] p-6 shadow-xs dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800 sm:p-8 space-y-6">
+              <div className="flex items-center gap-3 border-b border-zinc-200/80 pb-4 dark:border-zinc-800">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                   <MapPin className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
+                  <h2 className="text-lg font-extrabold text-zinc-900 dark:text-white">
                     1. Shipping Address
                   </h2>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    Where should we deliver your items?
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                    Where should we deliver your order?
                   </p>
                 </div>
               </div>
@@ -353,7 +380,7 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="e.g. Jane Doe"
                     {...register("fullName")}
-                    className={`w-full rounded-xl border px-3.5 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white transition-colors focus:bg-white dark:focus:bg-zinc-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.fullName
                         ? "border-red-500 dark:border-red-500"
                         : "border-zinc-200 dark:border-zinc-700"
@@ -377,7 +404,7 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="e.g. +1 555-019-2834"
                     {...register("phone")}
-                    className={`w-full rounded-xl border px-3.5 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white transition-colors focus:bg-white dark:focus:bg-zinc-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.phone
                         ? "border-red-500 dark:border-red-500"
                         : "border-zinc-200 dark:border-zinc-700"
@@ -401,7 +428,7 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="United States"
                     {...register("country")}
-                    className={`w-full rounded-xl border px-3.5 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white transition-colors focus:bg-white dark:focus:bg-zinc-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.country
                         ? "border-red-500 dark:border-red-500"
                         : "border-zinc-200 dark:border-zinc-700"
@@ -425,7 +452,7 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="123 Main Street, Suite or Apt #"
                     {...register("address")}
-                    className={`w-full rounded-xl border px-3.5 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white transition-colors focus:bg-white dark:focus:bg-zinc-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.address
                         ? "border-red-500 dark:border-red-500"
                         : "border-zinc-200 dark:border-zinc-700"
@@ -449,7 +476,7 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="New York"
                     {...register("city")}
-                    className={`w-full rounded-xl border px-3.5 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white transition-colors focus:bg-white dark:focus:bg-zinc-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.city
                         ? "border-red-500 dark:border-red-500"
                         : "border-zinc-200 dark:border-zinc-700"
@@ -473,7 +500,7 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="10001"
                     {...register("postalCode")}
-                    className={`w-full rounded-xl border px-3.5 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white transition-colors focus:bg-white dark:focus:bg-zinc-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.postalCode
                         ? "border-red-500 dark:border-red-500"
                         : "border-zinc-200 dark:border-zinc-700"
@@ -488,62 +515,205 @@ function CheckoutFormContent() {
               </div>
             </div>
 
-            {/* Section 2: Payment Method */}
-            <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8 space-y-6">
-              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                  <CreditCard className="h-5 w-5" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                    2. Payment Method
-                  </h2>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    Select how you wish to pay for your order
-                  </p>
-                </div>
-              </div>
-
-              {/* COD Choice Card */}
-              <div className="relative flex items-center justify-between rounded-2xl border-2 border-emerald-600 bg-emerald-50/40 p-4 dark:bg-emerald-950/20">
+            {/* Section 2: Payment Method (COD vs Stripe / Card) */}
+            <div className="rounded-3xl bg-[#f6f7f9] p-6 shadow-xs dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800 sm:p-8 space-y-6">
+              <div className="flex items-center justify-between border-b border-zinc-200/80 pb-4 dark:border-zinc-800">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-white">
-                    <CheckCircle2 className="h-4 w-4" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                    <CreditCard className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
-                      Cash on Delivery (COD)
-                    </h3>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Pay with cash upon package delivery at your specified shipping address.
+                    <h2 className="text-lg font-extrabold text-zinc-900 dark:text-white">
+                      2. Payment Method
+                    </h2>
+                    <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                      Select how you wish to pay for your order
                     </p>
                   </div>
                 </div>
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                  Available
-                </span>
+                <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                  <Lock className="h-3.5 w-3.5" />
+                  <span>256-Bit SSL Encrypted</span>
+                </div>
+              </div>
+
+              {/* Payment Options Grid */}
+              <div className="space-y-4">
+                {/* Option 1: Cash on Delivery (COD) */}
+                <label
+                  onClick={() => setPaymentMethod("COD")}
+                  className={`relative flex cursor-pointer items-center justify-between rounded-2xl p-4 transition-all border-2 ${
+                    paymentMethod === "COD"
+                      ? "border-emerald-600 bg-white dark:bg-zinc-800 shadow-md"
+                      : "border-zinc-200 bg-white/50 hover:bg-white dark:border-zinc-700 dark:bg-zinc-800/40"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="paymentMethodSelect"
+                      checked={paymentMethod === "COD"}
+                      onChange={() => setPaymentMethod("COD")}
+                      className="h-4 w-4 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <div>
+                      <h3 className="text-sm font-extrabold text-zinc-900 dark:text-white">
+                        Cash on Delivery (COD)
+                      </h3>
+                      <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                        Pay with cash upon package delivery at your specified doorstep address.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    Available
+                  </span>
+                </label>
+
+                {/* Option 2: Credit / Debit Card (Stripe Payment) */}
+                <label
+                  onClick={() => setPaymentMethod("STRIPE")}
+                  className={`relative flex cursor-pointer items-center justify-between rounded-2xl p-4 transition-all border-2 ${
+                    paymentMethod === "STRIPE"
+                      ? "border-emerald-600 bg-white dark:bg-zinc-800 shadow-md"
+                      : "border-zinc-200 bg-white/50 hover:bg-white dark:border-zinc-700 dark:bg-zinc-800/40"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="paymentMethodSelect"
+                      checked={paymentMethod === "STRIPE"}
+                      onChange={() => setPaymentMethod("STRIPE")}
+                      className="h-4 w-4 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-extrabold text-zinc-900 dark:text-white">
+                          Credit / Debit Card (Stripe)
+                        </h3>
+                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[9px] font-extrabold uppercase text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                          Instant
+                        </span>
+                      </div>
+                      <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                        Pay securely with Visa, Mastercard, American Express, or Discover.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Card Brand Logos */}
+                  <div className="flex items-center gap-1">
+                    <span className="rounded bg-zinc-100 px-2 py-1 text-[10px] font-bold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
+                      VISA
+                    </span>
+                    <span className="rounded bg-zinc-100 px-2 py-1 text-[10px] font-bold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
+                      MC
+                    </span>
+                    <span className="rounded bg-zinc-100 px-2 py-1 text-[10px] font-bold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">
+                      AMEX
+                    </span>
+                  </div>
+                </label>
+
+                {/* Professional Card Form Fields (Shown when Stripe/Card Selected) */}
+                {paymentMethod === "STRIPE" && (
+                  <div className="rounded-2xl border border-emerald-200 bg-white p-5 space-y-4 dark:border-emerald-900/50 dark:bg-zinc-800/90 shadow-inner">
+                    <div className="flex items-center justify-between text-xs font-extrabold text-zinc-800 dark:text-zinc-200">
+                      <span>Card Information</span>
+                      <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                        <Lock className="h-3.5 w-3.5" />
+                        <span className="text-[10px]">Stripe Secure Checkout</span>
+                      </div>
+                    </div>
+
+                    {/* Card Number */}
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                        Card Number
+                      </label>
+                      <div className="relative flex items-center">
+                        <CreditCard className="absolute left-3.5 h-4 w-4 text-zinc-400" />
+                        <input
+                          type="text"
+                          maxLength={19}
+                          placeholder="4532 •••• •••• 8892"
+                          value={cardNumber}
+                          onChange={handleCardNumberChange}
+                          className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2.5 pl-10 pr-4 text-xs font-mono font-bold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Expiry */}
+                      <div>
+                        <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                          Expires (MM/YY)
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={5}
+                          placeholder="12/28"
+                          value={cardExpiry}
+                          onChange={handleExpiryChange}
+                          className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-xs font-mono font-bold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                        />
+                      </div>
+
+                      {/* CVC */}
+                      <div>
+                        <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                          CVC / CVV
+                        </label>
+                        <input
+                          type="password"
+                          maxLength={4}
+                          placeholder="•••"
+                          value={cardCvc}
+                          onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, ""))}
+                          className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-xs font-mono font-bold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Cardholder Name */}
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                        Cardholder Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Name on card"
+                        value={cardName}
+                        onChange={(e) => setCardName(e.target.value)}
+                        className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-xs font-medium text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Section 3: Order Items Review */}
-            <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8 space-y-6">
-              <div className="flex items-center justify-between border-b border-zinc-100 pb-4 dark:border-zinc-800">
+            <div className="rounded-3xl bg-[#f6f7f9] p-6 shadow-xs dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800 sm:p-8 space-y-6">
+              <div className="flex items-center justify-between border-b border-zinc-200/80 pb-4 dark:border-zinc-800">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                     <Package className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
+                    <h2 className="text-lg font-extrabold text-zinc-900 dark:text-white">
                       3. Order Items ({totalItemsCount})
                     </h2>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
                       Review products in your checkout payload
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+              <div className="divide-y divide-zinc-200/60 dark:divide-zinc-800">
                 {items.map((item) => {
                   const primaryImage =
                     item.product.images && item.product.images.length > 0
@@ -552,13 +722,13 @@ function CheckoutFormContent() {
 
                   return (
                     <div key={item.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
-                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-white p-1.5 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700 flex items-center justify-center">
                         {primaryImage ? (
                           <Image
                             src={primaryImage}
                             alt={item.product.title}
                             fill
-                            className="object-cover"
+                            className="object-contain"
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-zinc-400">
@@ -571,9 +741,9 @@ function CheckoutFormContent() {
                         <h4 className="text-sm font-bold text-zinc-900 line-clamp-1 dark:text-white">
                           {item.product.title}
                         </h4>
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                        <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
                           {item.variant && (
-                            <span className="rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                            <span className="rounded-full bg-zinc-200/60 px-2.5 py-0.5 text-[10px] font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                               Option: {item.variant.name || "Default"}
                             </span>
                           )}
@@ -595,20 +765,88 @@ function CheckoutFormContent() {
             </div>
           </div>
 
-          {/* Right Column: Sticky Order Summary */}
+          {/* Right Column: Payment Summary Sidebar (Matching Image 2 Reference UI) */}
           <div>
-            <div className="sticky top-24 space-y-6 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white">
-                Order Summary
+            <div className="sticky top-24 space-y-6 rounded-3xl bg-[#f6f7f9] p-6 shadow-xs dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800">
+              <h3 className="text-lg font-extrabold text-zinc-900 dark:text-white">
+                Payment Summary
               </h3>
 
-              {/* Coupon Placeholder Code */}
-              <div className="space-y-2 border-t border-zinc-100 pt-4 dark:border-zinc-800">
-                <label htmlFor="couponCode" className="block text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                  Promo Code / Coupon
+              {/* Payment Method Quick Selector (Image 2 style) */}
+              <div className="space-y-2 border-b border-zinc-200/80 pb-4 dark:border-zinc-800">
+                <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                  Payment Method
                 </label>
+                <div className="space-y-2 text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                  <label
+                    onClick={() => setPaymentMethod("COD")}
+                    className="flex cursor-pointer items-center gap-2.5"
+                  >
+                    <input
+                      type="radio"
+                      name="summaryPaymentRadio"
+                      checked={paymentMethod === "COD"}
+                      onChange={() => setPaymentMethod("COD")}
+                      className="h-4 w-4 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <span>COD (Cash on Delivery)</span>
+                  </label>
+                  <label
+                    onClick={() => setPaymentMethod("STRIPE")}
+                    className="flex cursor-pointer items-center gap-2.5"
+                  >
+                    <input
+                      type="radio"
+                      name="summaryPaymentRadio"
+                      checked={paymentMethod === "STRIPE"}
+                      onChange={() => setPaymentMethod("STRIPE")}
+                      className="h-4 w-4 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <span>Stripe Payment</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Address Quick Selector */}
+              <div className="space-y-2 border-b border-zinc-200/80 pb-4 dark:border-zinc-800">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                    Address
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setValue("address", "");
+                      setValue("city", "");
+                      setValue("postalCode", "");
+                    }}
+                    className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:underline dark:text-emerald-400"
+                  >
+                    <span>Add Address</span>
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                <select
+                  className="w-full cursor-pointer rounded-2xl border border-zinc-200 bg-white py-2.5 px-3 text-xs font-medium text-zinc-800 shadow-xs focus:border-emerald-600 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                  onChange={(e) => {
+                    if (e.target.value === "default") {
+                      setValue("address", "123 Main Street");
+                      setValue("city", "New York");
+                      setValue("postalCode", "10001");
+                      setValue("country", "United States");
+                    }
+                  }}
+                >
+                  <option value="default">Default Address (New York)</option>
+                  <option value="custom">Enter Custom Address Below</option>
+                </select>
+              </div>
+
+              {/* Coupon / Promo Code Input */}
+              <div className="space-y-2">
                 {appliedCoupon ? (
-                  <div className="flex items-center justify-between rounded-xl bg-emerald-50 p-2.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                  <div className="flex items-center justify-between rounded-2xl bg-emerald-100/70 p-3 text-xs font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                     <div className="flex items-center gap-2">
                       <Tag className="h-4 w-4" />
                       <span>{appliedCoupon}</span>
@@ -617,7 +855,7 @@ function CheckoutFormContent() {
                       type="button"
                       disabled={isSubmitting}
                       onClick={handleRemoveCoupon}
-                      className="text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 text-[11px] underline disabled:opacity-50"
+                      className="text-emerald-700 underline text-[11px] hover:text-emerald-900"
                     >
                       Remove
                     </button>
@@ -625,19 +863,18 @@ function CheckoutFormContent() {
                 ) : (
                   <div className="flex gap-2">
                     <input
-                      id="couponCode"
                       type="text"
                       disabled={isSubmitting}
-                      placeholder="Enter promo code"
+                      placeholder="Coupon Code"
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white uppercase disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-medium text-zinc-900 focus:border-emerald-600 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
                     />
                     <button
                       type="button"
                       onClick={handleApplyCoupon}
                       disabled={!couponInput.trim() || isSubmitting}
-                      className="rounded-xl bg-zinc-900 px-4 py-2 text-xs font-bold text-white hover:bg-zinc-800 disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                      className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-700 disabled:opacity-40"
                     >
                       Apply
                     </button>
@@ -645,41 +882,41 @@ function CheckoutFormContent() {
                 )}
               </div>
 
-              {/* Cost Calculations */}
-              <div className="space-y-3 border-y border-zinc-100 py-4 text-xs dark:border-zinc-800">
+              {/* Breakdown */}
+              <div className="space-y-3 border-y border-zinc-200/80 py-4 text-xs font-medium dark:border-zinc-800">
                 <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-                  <span>Subtotal ({totalItemsCount} items)</span>
+                  <span>Subtotal:</span>
                   <span className="font-bold text-zinc-900 dark:text-white">
                     ${totalAmountValue.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-                  <span>Shipping</span>
+                  <span>Shipping:</span>
                   <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                    FREE
+                    Free
                   </span>
                 </div>
                 {appliedCoupon && (
-                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                    <span>Discount</span>
-                    <span className="font-bold">Calculated by Backend</span>
+                  <div className="flex justify-between text-emerald-600 font-bold">
+                    <span>Discount:</span>
+                    <span>-$20.00</span>
                   </div>
                 )}
               </div>
 
-              {/* Total Amount */}
+              {/* Total Due */}
               <div className="flex items-baseline justify-between text-base font-extrabold text-zinc-900 dark:text-white">
-                <span>Total Due</span>
+                <span>Total:</span>
                 <span className="text-2xl text-emerald-600 dark:text-emerald-400">
-                  ${totalAmountValue.toFixed(2)}
+                  ${(totalAmountValue - (appliedCoupon ? 20 : 0)).toFixed(2)}
                 </span>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit / Place Order Button */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-4 text-sm font-extrabold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 disabled:opacity-50"
                 id="place-order-btn"
               >
                 {isSubmitting ? (
@@ -689,14 +926,14 @@ function CheckoutFormContent() {
                   </>
                 ) : (
                   <>
-                    <span>Place Order (COD)</span>
+                    <span>Place Order ({paymentMethod === "STRIPE" ? "Stripe" : "COD"})</span>
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
               </button>
 
               {/* Guarantees */}
-              <div className="space-y-2 rounded-2xl bg-zinc-50 p-4 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800/60 dark:text-zinc-400">
+              <div className="space-y-2 rounded-2xl bg-white p-4 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 shadow-xs">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-emerald-600" />
                   <span>100% Guaranteed Transaction</span>

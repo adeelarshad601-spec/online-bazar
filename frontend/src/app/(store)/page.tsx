@@ -1,95 +1,189 @@
+"use client";
+
 import Link from "next/link";
-import CategoryGrid from "@/components/product/CategoryGrid";
-import FeaturedProductsSection from "@/components/product/FeaturedProductsSection";
-import { ArrowRight, ShoppingBag, Store, ShieldCheck, Sparkles, Flame, Tag } from "lucide-react";
+import CategoryPillBar from "@/components/product/CategoryPillBar";
+import ProductCard from "@/components/product/ProductCard";
+import ProductSkeleton from "@/components/product/ProductSkeleton";
+import SpecificationsSection from "@/components/home/SpecificationsSection";
+import { useProducts } from "@/features/products/queries";
+import { ArrowRight, ChevronRight, Store } from "lucide-react";
 
 export default function StorefrontHomePage() {
+  const { data: products, isLoading } = useProducts();
+
+  const latestProducts = products ? products.slice(0, 4) : [];
+  const bestSellingProducts = products ? products.slice(0, 8) : [];
+  const totalCount = products?.length || 12;
+
   return (
-    <div className="space-y-16 pb-16">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-900 to-zinc-950 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent" />
-        
-        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-            <div className="space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-300 backdrop-blur-md">
-                <Sparkles className="h-4 w-4 text-emerald-400" />
-                <span>Next-Gen Multi-Vendor Marketplace</span>
+    <div className="space-y-12 pb-16">
+      {/* 1. Bento Grid Hero Section (GoCart Inspired Layout, Online-Bazar Emerald Theme) */}
+      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {/* Main Hero Banner (Spans 2 columns on desktop) */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-100 via-teal-50 to-emerald-200/50 p-8 sm:p-12 lg:col-span-2 flex flex-col justify-between dark:from-emerald-950/60 dark:via-zinc-900 dark:to-emerald-900/40 border border-emerald-200/50 dark:border-emerald-800/30">
+            <div className="max-w-md space-y-4 z-10">
+              {/* Pill Badge */}
+              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">
+                  NEWS
+                </span>
+                <span>Free Shipping on Orders Above $50!</span>
+                <ChevronRight className="h-3.5 w-3.5" />
               </div>
 
-              <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-                Discover Local & Global <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Sellers</span> in One Place
+              {/* Slogan */}
+              <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-4xl lg:text-5xl leading-tight">
+                Gadgets you'll love. <br />
+                <span className="text-emerald-700 dark:text-emerald-400">Prices you'll trust.</span>
               </h1>
 
-              <p className="max-w-xl text-base text-zinc-300 sm:text-lg">
-                Shop thousands of unique items, fashion, tech, home goods, and more directly from verified independent vendors on Online-Bazar.
+              {/* Subtext */}
+              <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-300">
+                Starts from <span className="text-lg font-extrabold text-emerald-700 dark:text-emerald-400">$4.90</span>
               </p>
+            </div>
 
-              <div className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
-                <Link
-                  href="/products"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 transition-all hover:bg-emerald-500 hover:shadow-emerald-500/40"
-                  id="hero-explore-products-btn"
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  Explore Products
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+            {/* Product Graphic Cutout / Illustration */}
+            <div className="mt-8 flex items-end justify-between z-10">
+              <Link
+                href="/products"
+                className="inline-flex items-center gap-2 rounded-2xl bg-zinc-900 px-6 py-3.5 text-xs font-bold text-white shadow-lg transition-all hover:bg-zinc-800 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+              >
+                <span>Shop Marketplace</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
 
+              <div className="hidden sm:flex items-center gap-2 rounded-2xl bg-white/80 p-2.5 shadow-sm backdrop-blur-md dark:bg-zinc-900/80">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                  <Store className="h-5 w-5" />
+                </div>
+                <div className="text-xs">
+                  <p className="font-bold text-zinc-900 dark:text-white">Verified Vendors</p>
+                  <p className="text-[10px] text-zinc-500">100% Quality Guaranteed</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side 2 Stacked Cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            {/* Top Promo Card (Warm Peach) */}
+            <div className="relative overflow-hidden rounded-3xl bg-amber-100/70 p-6 flex items-center justify-between dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-900/30">
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
+                  Best products
+                </h3>
                 <Link
-                  href="/seller/apply"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/60 px-6 py-3.5 text-sm font-semibold text-zinc-200 backdrop-blur-md transition-all hover:bg-zinc-800 hover:text-white"
-                  id="hero-become-seller-btn"
+                  href="/products?sort=popular"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-700 hover:text-emerald-700 dark:text-zinc-300 dark:hover:text-emerald-400"
                 >
-                  <Store className="h-4 w-4 text-teal-400" />
-                  Become a Seller
+                  <span>View more</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
+              </div>
+
+              {/* Decorative Audio/Tech Icon Graphic */}
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-amber-200/60 text-amber-800 shadow-inner dark:bg-amber-900/50 dark:text-amber-300 text-3xl font-black">
+                🎧
               </div>
             </div>
 
-            {/* Feature Cards Showcase */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-transform hover:-translate-y-1">
-                  <Flame className="h-8 w-8 text-amber-400" />
-                  <h3 className="mt-3 text-base font-bold text-white">Daily Deals</h3>
-                  <p className="mt-1 text-xs text-zinc-400">Up to 50% off on top trending categories.</p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-transform hover:-translate-y-1">
-                  <ShieldCheck className="h-8 w-8 text-emerald-400" />
-                  <h3 className="mt-3 text-base font-bold text-white">Verified Shops</h3>
-                  <p className="mt-1 text-xs text-zinc-400">All sellers are thoroughly vetted for quality.</p>
-                </div>
+            {/* Bottom Promo Card (Soft Blue) */}
+            <div className="relative overflow-hidden rounded-3xl bg-sky-100/70 p-6 flex items-center justify-between dark:bg-sky-950/40 border border-sky-200/50 dark:border-sky-900/30">
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
+                  20% discounts
+                </h3>
+                <Link
+                  href="/products?featured=true"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-700 hover:text-emerald-700 dark:text-zinc-300 dark:hover:text-emerald-400"
+                >
+                  <span>View more</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
-              <div className="space-y-4 pt-6">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-transform hover:-translate-y-1">
-                  <Tag className="h-8 w-8 text-teal-400" />
-                  <h3 className="mt-3 text-base font-bold text-white">Best Pricing</h3>
-                  <p className="mt-1 text-xs text-zinc-400">Direct vendor pricing with zero middleman markup.</p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-transform hover:-translate-y-1">
-                  <ShoppingBag className="h-8 w-8 text-indigo-400" />
-                  <h3 className="mt-3 text-base font-bold text-white">Seamless Cart</h3>
-                  <p className="mt-1 text-xs text-zinc-400">Multi-seller checkout in one single order.</p>
-                </div>
+
+              {/* Decorative Watch/Tech Icon Graphic */}
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-sky-200/60 text-sky-800 shadow-inner dark:bg-sky-900/50 dark:text-sky-300 text-3xl font-black">
+                ⌚
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Dynamic Category Grid Section */}
+      {/* 2. Category Pill Bar */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <CategoryGrid title="Top Marketplace Categories" subtitle="Find top-rated products by browsing independent seller categories" />
+        <CategoryPillBar />
       </section>
 
-      {/* Featured Products Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <FeaturedProductsSection />
+      {/* 3. Latest Products Section */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6" id="latest-products-section">
+        <div className="text-center space-y-1">
+          <h2 className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
+            Latest Products
+          </h2>
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+            <span>Showing {latestProducts.length} of {totalCount} products</span>
+            <span>•</span>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-1 text-emerald-600 hover:underline dark:text-emerald-400 font-bold"
+            >
+              <span>View more</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <ProductSkeleton count={4} />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+            {latestProducts.map((product, idx) => (
+              <ProductCard key={product.id} product={product} priority={idx < 4} />
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* Seller Application Callout Banner */}
+      {/* 4. Best Selling Section */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6" id="best-selling-section">
+        <div className="text-center space-y-1">
+          <h2 className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
+            Best Selling
+          </h2>
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+            <span>Showing {bestSellingProducts.length} of {totalCount} products</span>
+            <span>•</span>
+            <Link
+              href="/products?sort=popular"
+              className="inline-flex items-center gap-1 text-emerald-600 hover:underline dark:text-emerald-400 font-bold"
+            >
+              <span>View more</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <ProductSkeleton count={8} />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+            {bestSellingProducts.map((product, idx) => (
+              <ProductCard key={product.id} product={product} priority={idx < 4} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 5. Our Specifications Section */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <SpecificationsSection />
+      </section>
+
+      {/* 6. Become a Seller Callout Banner (Restored as requested) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-10 text-white shadow-xl sm:px-12 sm:py-12">
           <div className="relative z-10 max-w-2xl space-y-4">
@@ -104,11 +198,11 @@ export default function StorefrontHomePage() {
             </p>
             <Link
               href="/seller/apply"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-xs font-bold text-emerald-700 shadow-md transition-colors hover:bg-emerald-50"
+              className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-xs font-bold text-emerald-700 shadow-md transition-all hover:bg-emerald-50 hover:shadow-lg"
               id="banner-apply-seller-btn"
             >
               <Store className="h-4 w-4" />
-              Apply as a Seller
+              <span>Apply as a Seller</span>
             </Link>
           </div>
         </div>

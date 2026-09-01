@@ -114,7 +114,7 @@ export const getAdminProducts = async () => {
 
 // Get all products
 export const getProducts = async () => {
-  return await prisma.product.findMany({
+  const products = await prisma.product.findMany({
     where: {
       status: "APPROVED",
       isActive: true,
@@ -143,11 +143,32 @@ export const getProducts = async () => {
           sortOrder: "asc",
         },
       },
+
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
     },
 
     orderBy: {
       createdAt: "desc",
     },
+  });
+
+  return products.map((product) => {
+    const { reviews, ...rest } = product;
+    const reviewCount = reviews.length;
+    const avgRating =
+      reviewCount > 0
+        ? Number((reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1))
+        : 0;
+
+    return {
+      ...rest,
+      rating: avgRating,
+      reviewCount,
+    };
   });
 };
 
@@ -170,6 +191,11 @@ export const getProductById = async (productId: string) => {
         },
       },
       variants: true,
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
     },
   });
 
@@ -177,7 +203,18 @@ export const getProductById = async (productId: string) => {
     throw new Error("Product not found");
   }
 
-  return product;
+  const { reviews, ...rest } = product;
+  const reviewCount = reviews.length;
+  const avgRating =
+    reviewCount > 0
+      ? Number((reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1))
+      : 0;
+
+  return {
+    ...rest,
+    rating: avgRating,
+    reviewCount,
+  };
 };
 
 // Update product
