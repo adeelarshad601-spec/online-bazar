@@ -180,35 +180,39 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Row 2: Analytics Trio - Orders Bar Chart, Customers Line, Conversion Funnel */}
+      {/* Row 2: Analytics Trio - Orders Bar Chart, Customers Line, Catalog & Funnel */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Orders Bar Chart */}
         <div className="rounded-3xl bg-white border border-zinc-200 text-zinc-900 shadow-lg dark:bg-zinc-900/90 dark:border-zinc-800 dark:text-white dark:shadow-xl p-6 space-y-4 transition-colors">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
-                Orders
+                Total Orders
               </span>
               <div className="flex items-baseline gap-2 mt-0.5">
-                <span className="text-2xl font-black text-zinc-900 dark:text-white">1,284</span>
-                <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">+8.2%</span>
+                <span className="text-2xl font-black text-zinc-900 dark:text-white">
+                  {stats?.orders?.total ?? 0}
+                </span>
+                <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                  {stats?.orders?.pending ?? 0} pending
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Legend */}
+          {/* Status Breakdown Legend */}
           <div className="flex flex-wrap gap-2 text-[10px] font-bold">
             <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Completed
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Completed: {stats?.orders?.completed ?? 0}
             </span>
             <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-400" /> Processing
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-400" /> Processing: {stats?.orders?.processing ?? 0}
             </span>
             <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Pending
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Pending: {stats?.orders?.pending ?? 0}
             </span>
             <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-400" /> Cancelled
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-400" /> Cancelled: {stats?.orders?.cancelled ?? 0}
             </span>
           </div>
 
@@ -235,30 +239,31 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Customers Growth Line Chart */}
+        {/* User Accounts & Customer Metrics */}
         <div className="rounded-3xl bg-white border border-zinc-200 text-zinc-900 shadow-lg dark:bg-zinc-900/90 dark:border-zinc-800 dark:text-white dark:shadow-xl p-6 space-y-4 transition-colors">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
-                Customers
+                User Accounts
               </span>
               <div className="flex items-baseline gap-2 mt-0.5">
-                <span className="text-2xl font-black text-zinc-900 dark:text-white">892</span>
-                <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">+5.1%</span>
+                <span className="text-2xl font-black text-zinc-900 dark:text-white">
+                  {stats?.users?.total ?? 0} Accounts
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Legend */}
+          {/* Role Legend */}
           <div className="flex flex-wrap gap-2 text-[10px] font-bold">
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Returning
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <Users className="h-3 w-3" /> Customers: {stats?.users?.customers ?? Math.max(0, (stats?.users?.total || 0) - (stats?.users?.sellers || 0))}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-400" /> New
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+              <Store className="h-3 w-3" /> Sellers: {stats?.users?.sellers ?? 0}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Inactive
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <Clock className="h-3 w-3" /> KYC Pending: {stats?.users?.pendingSellers ?? 0}
             </span>
           </div>
 
@@ -283,25 +288,29 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Conversion Funnel Widget */}
+        {/* Product Catalog & Platform Funnel */}
         <div className="rounded-3xl bg-white border border-zinc-200 text-zinc-900 shadow-lg dark:bg-zinc-900/90 dark:border-zinc-800 dark:text-white dark:shadow-xl p-6 space-y-4 transition-colors">
           <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80 pb-3">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 block">
-                Conversion Funnel
+                Products Catalog
               </span>
-              <span className="text-2xl font-black text-zinc-900 dark:text-white mt-0.5 block">6.45%</span>
+              <span className="text-2xl font-black text-zinc-900 dark:text-white mt-0.5 block">
+                {stats?.products?.total ?? 0} Products
+              </span>
             </div>
-            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">This month</span>
+            <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              {stats?.products?.approved ?? stats?.products?.total ?? 0} Approved
+            </span>
           </div>
 
-          {/* Funnel Progress Bars */}
+          {/* Catalog Progress Bars */}
           <div className="space-y-3">
             {[
-              { label: "Visitors", count: "10,000", pct: "100%", color: "bg-emerald-500" },
-              { label: "Leads", count: "2,400", pct: "75%", color: "bg-teal-500" },
-              { label: "Customers", count: "892", pct: "50%", color: "bg-cyan-500" },
-              { label: "Paying", count: "645", pct: "35%", color: "bg-indigo-500" },
+              { label: "Total Platform Products", count: String(stats?.products?.total ?? 0), pct: "100%", color: "bg-emerald-500" },
+              { label: "Approved Active Products", count: String(stats?.products?.approved ?? stats?.products?.total ?? 0), pct: "85%", color: "bg-teal-500" },
+              { label: "Pending Admin Review", count: String(stats?.products?.pending ?? 0), pct: "25%", color: "bg-amber-500" },
+              { label: "Completed Payouts", count: String(stats?.payouts?.completed ?? 0), pct: "40%", color: "bg-indigo-500" },
             ].map((step) => (
               <div key={step.label} className="space-y-1">
                 <div className="flex justify-between text-[11px] font-bold text-zinc-700 dark:text-zinc-300">
@@ -320,12 +329,13 @@ export default function AdminDashboardPage() {
 
           {/* Step Conversion Ratios */}
           <div className="pt-2 flex justify-between border-t border-zinc-100 dark:border-zinc-800/80 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-            <span>Visit→Lead <strong className="text-zinc-900 dark:text-white">24%</strong></span>
-            <span>Lead→Cust <strong className="text-zinc-900 dark:text-white">37%</strong></span>
-            <span>Cust→Pay <strong className="text-zinc-900 dark:text-white">72%</strong></span>
+            <span>Sellers <strong className="text-zinc-900 dark:text-white">{stats?.users?.sellers ?? 0}</strong></span>
+            <span>Customers <strong className="text-zinc-900 dark:text-white">{stats?.users?.customers ?? 0}</strong></span>
+            <span>Payouts <strong className="text-zinc-900 dark:text-white">{stats?.payouts?.pending ?? 0} Pending</strong></span>
           </div>
         </div>
       </div>
+
 
       {/* Row 3: Action Tables - Pending Seller Applications & Recent Platform Orders */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

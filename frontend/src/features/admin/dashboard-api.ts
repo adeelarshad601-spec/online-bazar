@@ -4,14 +4,22 @@ import { ApiResponse } from "@/types/auth";
 export interface AdminStatsData {
   users: {
     total: number;
+    customers?: number;
     sellers: number;
+    admins?: number;
     pendingSellers: number;
   };
   products: {
     total: number;
+    approved?: number;
+    pending?: number;
   };
   orders: {
     total: number;
+    completed?: number;
+    processing?: number;
+    pending?: number;
+    cancelled?: number;
   };
   payouts: {
     pending: number;
@@ -21,6 +29,7 @@ export interface AdminStatsData {
     total: number | string;
   };
 }
+
 
 export async function getAdminStatsApi(): Promise<AdminStatsData> {
   const response = await apiClient.get<ApiResponse<AdminStatsData>>("/admin/stats");
