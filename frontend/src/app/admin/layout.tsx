@@ -77,16 +77,18 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
   // Initialize dark mode after hydration
   useEffect(() => {
     setIsMounted(true);
-    const savedTheme = localStorage.getItem("admin-theme");
-    if (savedTheme) {
-      const isDark = savedTheme === "dark";
-      setDarkMode(isDark);
-      document.documentElement.classList.toggle("dark", isDark);
-      document.documentElement.style.colorScheme = isDark ? "dark" : "light";
-    } else {
+    const savedTheme = localStorage.getItem("theme") || localStorage.getItem("admin-theme");
+    if (savedTheme === "dark") {
+      setDarkMode(true);
+      document.documentElement.classList.add("dark");
+      document.documentElement.style.colorScheme = "dark";
+    } else if (savedTheme === "light") {
       setDarkMode(false);
       document.documentElement.classList.remove("dark");
       document.documentElement.style.colorScheme = "light";
+    } else {
+      const isDark = document.documentElement.classList.contains("dark");
+      setDarkMode(isDark);
     }
   }, []);
 
@@ -94,8 +96,10 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
     if (!isMounted) return;
     document.documentElement.classList.toggle("dark", darkMode);
     document.documentElement.style.colorScheme = darkMode ? "dark" : "light";
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
     localStorage.setItem("admin-theme", darkMode ? "dark" : "light");
   }, [darkMode, isMounted]);
+
 
   // Role Protection Guard
   if (user && user.role !== "ADMIN") {
