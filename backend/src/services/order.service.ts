@@ -315,6 +315,48 @@ export const updateVendorOrderStatus = async (
     },
   });
 
+  // Sync parent Order status and Payment status when seller updates VendorOrder status
+  try {
+    const allVendorOrders = await prisma.vendorOrder.findMany({
+      where: { orderId: updated.orderId },
+    });
+
+    const isAllDelivered = allVendorOrders.every((vo) => vo.status === "DELIVERED");
+    const isAnyShipped = allVendorOrders.some((vo) => vo.status === "SHIPPED");
+    const isAnyProcessing = allVendorOrders.some((vo) => vo.status === "PROCESSING");
+
+    let newOrderStatus: any = updated.order.status;
+    if (isAllDelivered || input.status === "DELIVERED") {
+      newOrderStatus = "DELIVERED";
+    } else if (isAnyShipped || input.status === "SHIPPED") {
+      newOrderStatus = "SHIPPED";
+    } else if (isAnyProcessing || input.status === "PROCESSING") {
+      newOrderStatus = "PROCESSING";
+    }
+
+    const isDelivered = newOrderStatus === "DELIVERED" || input.status === "DELIVERED";
+
+    await prisma.order.update({
+      where: { id: updated.orderId },
+      data: {
+        status: newOrderStatus,
+        paymentStatus: isDelivered ? "COMPLETED" : updated.order.paymentStatus,
+      },
+    });
+
+    if (isDelivered) {
+      await prisma.payment.updateMany({
+        where: { orderId: updated.orderId },
+        data: {
+          status: "COMPLETED",
+          paidAt: new Date(),
+        },
+      });
+    }
+  } catch (err) {
+    console.error("Failed to sync parent order status", err);
+  }
+
   // create order status history for vendor order
   try {
     await prisma.orderStatusHistory.create({
@@ -341,6 +383,7 @@ export const updateVendorOrderStatus = async (
   } catch (err) {
     console.error("Failed to create notification for vendor order status change", err);
   }
+
 
   return {
     id: updated.id,

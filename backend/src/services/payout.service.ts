@@ -35,9 +35,10 @@ const calculateSellerBalance = async (shopId: string) => {
       status: {
         in: ["PROCESSING", "SHIPPED", "DELIVERED"],
       },
-      order: {
-        paymentStatus: "COMPLETED",
-      },
+      OR: [
+        { status: "DELIVERED" },
+        { order: { paymentStatus: "COMPLETED" } },
+      ],
     },
     _sum: {
       subTotal: true,
@@ -66,6 +67,37 @@ export const getSellerPayoutDashboard = async (sellerId: string) => {
   const shop = await prisma.shop.findUnique({ where: { sellerId } });
   if (!shop) throw new Error("Seller shop not found");
 
+  // Auto-sync any existing delivered vendor orders in the DB so parent Order & Payment status reflect COMPLETED/DELIVERED
+  try {
+    const deliveredVendorOrders = await prisma.vendorOrder.findMany({
+      where: {
+        shopId: shop.id,
+        status: "DELIVERED",
+      },
+      select: { orderId: true },
+    });
+
+    if (deliveredVendorOrders.length > 0) {
+      const orderIds = Array.from(new Set(deliveredVendorOrders.map((vo) => vo.orderId)));
+      await prisma.order.updateMany({
+        where: { id: { in: orderIds } },
+        data: {
+          status: "DELIVERED",
+          paymentStatus: "COMPLETED",
+        },
+      });
+      await prisma.payment.updateMany({
+        where: { orderId: { in: orderIds } },
+        data: {
+          status: "COMPLETED",
+          paidAt: new Date(),
+        },
+      });
+    }
+  } catch (err) {
+    console.error("Failed to auto-sync delivered orders in payout dashboard", err);
+  }
+
   const balance = await calculateSellerBalance(shop.id);
 
   const totalEarnings = await prisma.vendorOrder.aggregate({
@@ -74,9 +106,10 @@ export const getSellerPayoutDashboard = async (sellerId: string) => {
       status: {
         in: ["PROCESSING", "SHIPPED", "DELIVERED"],
       },
-      order: {
-        paymentStatus: "COMPLETED",
-      },
+      OR: [
+        { status: "DELIVERED" },
+        { order: { paymentStatus: "COMPLETED" } },
+      ],
     },
     _sum: { subTotal: true },
   });
@@ -91,6 +124,7 @@ export const getSellerPayoutDashboard = async (sellerId: string) => {
     payoutRequests: payoutCount,
   };
 };
+
 
 export const getSellerPayouts = async (sellerId: string, query: PayoutQuery) => {
   const shop = await prisma.shop.findUnique({ where: { sellerId } });
