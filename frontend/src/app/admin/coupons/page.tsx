@@ -43,10 +43,17 @@ const couponSchema = z.object({
 type CouponFormData = z.infer<typeof couponSchema>;
 
 export default function AdminCouponsPage() {
-  const { data: coupons = [], isLoading } = useCoupons();
+  const { data: couponsData, isLoading } = useCoupons();
+  const coupons: CouponItem[] = Array.isArray(couponsData)
+    ? couponsData
+    : Array.isArray((couponsData as any)?.coupons)
+    ? (couponsData as any).coupons
+    : [];
+
   const { mutate: createCoupon, isPending: isCreating } = useCreateCouponMutation();
   const { mutate: updateCoupon, isPending: isUpdating } = useUpdateCouponMutation();
   const { mutate: deleteCoupon, isPending: isDeleting } = useDeleteCouponMutation();
+
 
   const [editingCoupon, setEditingCoupon] = useState<CouponItem | null>(null);
   const [showForm, setShowForm] = useState(false);

@@ -39,9 +39,17 @@ export interface UpdateCouponPayload {
 }
 
 export async function getCouponsApi(): Promise<CouponItem[]> {
-  const response = await apiClient.get<ApiResponse<CouponItem[]>>("/coupons");
-  return response.data.data || [];
+  const response = await apiClient.get<ApiResponse<any>>("/coupons");
+  const data = response.data.data;
+  if (Array.isArray(data)) {
+    return data;
+  }
+  if (data && Array.isArray(data.coupons)) {
+    return data.coupons;
+  }
+  return [];
 }
+
 
 export async function createCouponApi(payload: CreateCouponPayload): Promise<CouponItem> {
   const response = await apiClient.post<ApiResponse<CouponItem>>("/coupons", payload);
