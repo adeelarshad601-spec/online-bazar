@@ -5,8 +5,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
 import Logo from "@/components/ui/logo";
-import { Mail, ArrowRight, ArrowLeft, KeyRound, CheckCircle2 } from "lucide-react";
+import { Mail, ArrowRight, ArrowLeft, KeyRound, CheckCircle2, X } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const forgotPasswordSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
@@ -14,8 +15,9 @@ const forgotPasswordSchema = z.object({
 
 type ForgotPasswordSchemaType = z.infer<typeof forgotPasswordSchema>;
 
-export default function ForgotPasswordForm() {
+export default function ForgotPasswordForm({ onClose }: { onClose?: () => void }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -57,6 +59,23 @@ export default function ForgotPasswordForm() {
 
       {/* Main Form Card */}
       <div className="relative w-full space-y-6 rounded-3xl border border-zinc-200/80 bg-white/95 p-8 shadow-2xl shadow-zinc-950/5 backdrop-blur-2xl dark:border-zinc-800/80 dark:bg-zinc-900/95">
+        {/* Top Right Close Cross Button */}
+        <button
+          type="button"
+          onClick={() => {
+            if (onClose) {
+              onClose();
+            } else {
+              router.push("/");
+            }
+          }}
+          className="absolute top-4 right-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 hover:scale-105 active:scale-95 transition-all duration-200 shadow-md shadow-red-500/30"
+          aria-label="Close"
+          title="Close form"
+        >
+          <X className="h-4 w-4 stroke-[2.5]" />
+        </button>
+
         <div className="space-y-4 text-center">
           <div className="flex justify-center">
             <Logo size="lg" showSubtitle />

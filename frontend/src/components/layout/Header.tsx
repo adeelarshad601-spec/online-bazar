@@ -30,6 +30,8 @@ import {
   Check,
 } from "lucide-react";
 
+import AuthModal from "@/components/auth/AuthModal";
+
 export default function Header() {
   const router = useRouter();
   const { data: user, isLoading: isUserLoading } = useCurrentUser();
@@ -48,6 +50,25 @@ export default function Header() {
 
   const [darkMode, setDarkMode] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  const [authModalState, setAuthModalState] = useState<{ isOpen: boolean; mode: "login" | "register" }>({
+    isOpen: false,
+    mode: "login",
+  });
+
+  // Listen for global custom event to trigger auth modal anywhere in the app
+  useEffect(() => {
+    const handleOpenAuthModal = (e: Event) => {
+      const customEvent = e as CustomEvent<{ mode?: "login" | "register" }>;
+      const mode = customEvent.detail?.mode || "login";
+      setAuthModalState({ isOpen: true, mode });
+    };
+
+    window.addEventListener("open-auth-modal", handleOpenAuthModal);
+    return () => {
+      window.removeEventListener("open-auth-modal", handleOpenAuthModal);
+    };
+  }, []);
 
   // Initialize theme on hydration
   useEffect(() => {
@@ -461,20 +482,22 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link
-                  href="/login"
-                  className="rounded-full px-4 py-2 text-xs font-bold text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                <button
+                  type="button"
+                  onClick={() => setAuthModalState({ isOpen: true, mode: "login" })}
+                  className="rounded-full px-4 py-2 text-xs font-bold text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900 cursor-pointer transition-colors"
                   id="header-login-btn"
                 >
                   Sign In
-                </Link>
-                <Link
-                  href="/register"
-                  className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAuthModalState({ isOpen: true, mode: "register" })}
+                  className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700 cursor-pointer"
                   id="header-register-btn"
                 >
                   Register
-                </Link>
+                </button>
               </div>
             )}
           </div>
@@ -704,6 +727,13 @@ export default function Header() {
           </div>
         </div>
       )}
+
+      {/* Interactive Auth Modal (Popup over current page with backdrop blur) */}
+      <AuthModal
+        isOpen={authModalState.isOpen}
+        onClose={() => setAuthModalState((prev) => ({ ...prev, isOpen: false }))}
+        initialMode={authModalState.mode}
+      />
     </header>
   );
 }

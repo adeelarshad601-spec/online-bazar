@@ -15,12 +15,16 @@ import {
   Lock,
   Mail,
   ArrowRight,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
-interface LoginFormProps {}
+interface LoginFormProps {
+  onClose?: () => void;
+  onSwitchToRegister?: () => void;
+}
 
-export default function LoginForm({}: LoginFormProps) {
+export default function LoginForm({ onClose, onSwitchToRegister }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [fieldsUnlocked, setFieldsUnlocked] = useState(false);
 
@@ -66,10 +70,6 @@ export default function LoginForm({}: LoginFormProps) {
 
   /*
    * Prevent browser/password-manager autofill on initial page load.
-   *
-   * The fields start as readOnly so Chrome cannot immediately inject
-   * previously saved credentials. They become editable when the user
-   * intentionally interacts with them.
    */
   useEffect(() => {
     clearForm();
@@ -116,6 +116,10 @@ export default function LoginForm({}: LoginFormProps) {
           return;
         }
 
+        if (onClose) {
+          onClose();
+        }
+
         // For sellers, redirect to status page to check approval
         if (user.role === "SELLER") {
           router.replace("/seller/status");
@@ -144,6 +148,23 @@ export default function LoginForm({}: LoginFormProps) {
 
       {/* Main Form Card */}
       <div className="relative w-full space-y-6 rounded-3xl border border-zinc-200/80 bg-white/95 p-8 shadow-2xl shadow-zinc-950/5 backdrop-blur-2xl dark:border-zinc-800/80 dark:bg-zinc-900/95">
+        {/* Top Right Close Cross Button */}
+        <button
+          type="button"
+          onClick={() => {
+            if (onClose) {
+              onClose();
+            } else {
+              router.push("/");
+            }
+          }}
+          className="absolute top-4 right-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 hover:scale-105 active:scale-95 transition-all duration-200 shadow-md shadow-red-500/30"
+          aria-label="Close"
+          title="Close form"
+        >
+          <X className="h-4 w-4 stroke-[2.5]" />
+        </button>
+
         {/* Header */}
         <div className="space-y-4 text-center">
           <div className="flex justify-center">
@@ -303,12 +324,22 @@ export default function LoginForm({}: LoginFormProps) {
         {/* Footer */}
         <div className="border-t border-zinc-100 pt-2 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
           Don&apos;t have an account?{" "}
-          <Link
-            href="/register"
-            className="font-semibold text-emerald-600 underline-offset-4 transition-colors hover:text-emerald-500 hover:underline dark:text-emerald-400"
-          >
-            Create account
-          </Link>
+          {onSwitchToRegister ? (
+            <button
+              type="button"
+              onClick={onSwitchToRegister}
+              className="font-semibold text-emerald-600 underline-offset-4 transition-colors hover:text-emerald-500 hover:underline dark:text-emerald-400"
+            >
+              Create account
+            </button>
+          ) : (
+            <Link
+              href="/register"
+              className="font-semibold text-emerald-600 underline-offset-4 transition-colors hover:text-emerald-500 hover:underline dark:text-emerald-400"
+            >
+              Create account
+            </Link>
+          )}
         </div>
       </div>
     </div>
