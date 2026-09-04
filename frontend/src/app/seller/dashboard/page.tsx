@@ -212,38 +212,46 @@ export default function SellerDashboardPage() {
           </div>
 
           {/* Radial Circular Ring Gauge */}
-          <div className="relative my-2 flex items-center justify-center">
-            <svg className="w-40 h-40 transform -rotate-90">
-              <circle
-                cx="80"
-                cy="80"
-                r="62"
-                stroke="currentColor"
-                strokeWidth="12"
-                className="text-zinc-200 dark:text-zinc-800"
-                fill="transparent"
-              />
-              <circle
-                cx="80"
-                cy="80"
-                r="62"
-                stroke="currentColor"
-                strokeWidth="12"
-                strokeDasharray={389}
-                strokeDashoffset={389 - (389 * 68) / 100}
-                strokeLinecap="round"
-                className="text-emerald-500 transition-all duration-1000 ease-out"
-                fill="transparent"
-              />
-            </svg>
-            <div className="absolute text-center">
-              <span className="text-3xl font-black text-zinc-900 dark:text-white block">68%</span>
-            </div>
-          </div>
+          {(() => {
+            const sellerTarget = 18000;
+            const sellerTargetPct = Math.min(100, Math.round((totalEarnings / sellerTarget) * 100));
+            return (
+              <>
+                <div className="relative my-2 flex items-center justify-center">
+                  <svg className="w-40 h-40 transform -rotate-90">
+                    <circle
+                      cx="80"
+                      cy="80"
+                      r="62"
+                      stroke="currentColor"
+                      strokeWidth="12"
+                      className="text-zinc-200 dark:text-zinc-800"
+                      fill="transparent"
+                    />
+                    <circle
+                      cx="80"
+                      cy="80"
+                      r="62"
+                      stroke="currentColor"
+                      strokeWidth="12"
+                      strokeDasharray={389}
+                      strokeDashoffset={389 - (389 * sellerTargetPct) / 100}
+                      strokeLinecap="round"
+                      className="text-emerald-500 transition-all duration-1000 ease-out"
+                      fill="transparent"
+                    />
+                  </svg>
+                  <div className="absolute text-center">
+                    <span className="text-3xl font-black text-zinc-900 dark:text-white block">{sellerTargetPct}%</span>
+                  </div>
+                </div>
 
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium mt-2">
-            <span className="font-bold text-zinc-900 dark:text-white">${totalEarnings.toFixed(0)}</span> of $18K target
-          </p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium mt-2">
+                  <span className="font-bold text-zinc-900 dark:text-white">${totalEarnings.toLocaleString("en-US", { maximumFractionDigits: 0 })}</span> of ${(sellerTarget / 1000).toFixed(0)}K target
+                </p>
+              </>
+            );
+          })()}
         </div>
       </div>
 
@@ -264,37 +272,59 @@ export default function SellerDashboardPage() {
           </div>
 
           {/* Status Legend */}
-          <div className="flex flex-wrap gap-2 text-[10px] font-bold">
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Processing
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-400" /> Shipped
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Pending
-            </span>
-          </div>
+          {(() => {
+            const completedCount = vendorOrders.filter((o) => o.status === "DELIVERED" || o.status === "COMPLETED").length;
+            const processingCount = vendorOrders.filter((o) => o.status === "PROCESSING" || o.status === "SHIPPED").length;
+            const pendingCount = vendorOrders.filter((o) => o.status === "PENDING").length;
+            const cancelledCount = vendorOrders.filter((o) => o.status === "CANCELLED").length;
+            const maxCount = Math.max(completedCount, processingCount, pendingCount, cancelledCount, 1);
 
-          {/* Bar Columns Visual */}
-          <div className="h-36 flex items-end justify-between gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800/80">
-            {[
-              { height: "70%", color: "bg-emerald-500" },
-              { height: "90%", color: "bg-emerald-500" },
-              { height: "50%", color: "bg-blue-500" },
-              { height: "80%", color: "bg-emerald-500" },
-              { height: "60%", color: "bg-amber-500" },
-            ].map((bar, idx) => (
-              <div key={idx} className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-t-lg h-28 flex items-end overflow-hidden">
-                  <div
-                    className={`w-full ${bar.color} rounded-t-lg transition-all duration-500`}
-                    style={{ height: bar.height }}
-                  />
+            const sellerBars = [
+              { label: "Completed", count: completedCount, color: "bg-emerald-500", text: "text-emerald-500" },
+              { label: "Processing", count: processingCount, color: "bg-blue-500", text: "text-blue-500" },
+              { label: "Pending", count: pendingCount, color: "bg-amber-500", text: "text-amber-500" },
+              { label: "Cancelled", count: cancelledCount, color: "bg-rose-500", text: "text-rose-500" },
+            ];
+
+            return (
+              <>
+                <div className="flex flex-wrap gap-2 text-[10px] font-bold">
+                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Completed: {completedCount}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-400" /> Processing: {processingCount}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Pending: {pendingCount}
+                  </span>
                 </div>
-              </div>
-            ))}
-          </div>
+
+                {/* Bar Columns Visual - Dynamic heights based on actual vendor order data */}
+                <div className="h-36 flex items-end justify-between gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800/80">
+                  {sellerBars.map((bar) => {
+                    const heightPct = bar.count > 0 ? Math.max(12, Math.round((bar.count / maxCount) * 100)) : 0;
+                    return (
+                      <div key={bar.label} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                        <span className={`text-[11px] font-extrabold ${bar.count > 0 ? bar.text : "text-zinc-400"}`}>
+                          {bar.count}
+                        </span>
+                        <div className="w-full bg-zinc-100 dark:bg-zinc-800/80 rounded-t-lg h-24 flex items-end overflow-hidden p-0.5">
+                          <div
+                            className={`w-full ${bar.color} rounded-t-md transition-all duration-700 ease-out shadow-sm`}
+                            style={{ height: `${heightPct}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 truncate w-full text-center mt-1">
+                          {bar.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            );
+          })()}
         </div>
 
         {/* Catalog Health & Product Approval */}
