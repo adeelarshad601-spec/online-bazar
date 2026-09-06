@@ -4,11 +4,13 @@ import {
   paymentIdParamSchema,
   paymentOrderIdParamSchema,
   updatePaymentStatusSchema,
+  processTestPaymentSchema,
 } from "../validators/payment.validator.js";
 import {
   getPaymentById,
   getPaymentByOrderId,
   updatePaymentStatus,
+  processTestPayment,
 } from "../services/payment.service.js";
 
 export const getPaymentForOrder = async (req: AuthRequest, res: Response) => {
@@ -154,3 +156,67 @@ export const updatePaymentStatusController = async (
     });
   }
 };
+
+export const processTestPaymentController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const paramsResult = paymentIdParamSchema.safeParse(req.params);
+    const bodyResult = processTestPaymentSchema.safeParse(req.body);
+
+    if (!paramsResult.success || !bodyResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: [
+          ...(paramsResult.success ? [] : paramsResult.error.issues),
+          ...(bodyResult.success ? [] : bodyResult.error.issues),
+        ],
+      });
+    }
+
+    const payment = await processTestPayment(
+      req.user!.userId,
+      req.user!.role,
+      paramsResult.data.id,
+      bodyResult.data.action
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Test payment processed: ${bodyResult.data.action}`,
+      data: payment,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "Payment not found") {
+        return res.status(404).json({
+          success: false,
+          message: error.message,
+        });
+      }
+
+      if (error.message === "Access denied") {
+        return res.status(403).json({
+          success: false,
+          message: error.message,
+        });
+      }
+
+      if (error.message.includes("already been processed")) {
+        return res.status(400).json({
+          success: false,
+          message: error.message,
+        });
+      }
+    }
+
+    console.error("Process test payment error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+

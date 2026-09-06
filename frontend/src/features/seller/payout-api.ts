@@ -5,7 +5,11 @@ export interface SellerPayoutDashboardData {
   shopId: string;
   shopName: string;
   totalEarnings: number | string;
+  pendingEarnings?: number | string;
+  availableBalance?: number | string;
   balance: number | string;
+  paidOutAmount?: number | string;
+  grossSales?: number | string;
   payoutRequests: number;
 }
 

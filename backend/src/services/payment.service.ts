@@ -70,3 +70,58 @@ export const updatePaymentStatus = async (paymentId: string, input: PaymentStatu
 
   return updated;
 };
+
+export const processTestPayment = async (
+  userId: string,
+  role: string,
+  paymentId: string,
+  action: "SUCCESS" | "FAILED"
+) => {
+  const payment = await prisma.payment.findUnique({
+    where: { id: paymentId },
+    include: { order: true },
+  });
+
+  if (!payment) {
+    throw new Error("Payment not found");
+  }
+
+  if (role !== "ADMIN" && payment.order.userId !== userId) {
+    throw new Error("Access denied");
+  }
+
+  if (payment.status !== "PENDING") {
+    throw new Error(`Payment has already been processed with status ${payment.status}`);
+  }
+
+  const transactionId = `TEST-TXN-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const isSuccess = action === "SUCCESS";
+    const paymentStatus = isSuccess ? "COMPLETED" : "FAILED";
+
+    const paymentUpdate = await tx.payment.update({
+      where: { id: paymentId },
+      data: {
+        status: paymentStatus,
+        transactionId: isSuccess ? transactionId : null,
+        paidAt: isSuccess ? new Date() : null,
+      },
+    });
+
+    const orderUpdate = await tx.order.update({
+      where: { id: payment.orderId },
+      data: {
+        paymentStatus: paymentStatus,
+      },
+    });
+
+    return {
+      ...paymentUpdate,
+      order: orderUpdate,
+    };
+  });
+
+  return updated;
+};
+

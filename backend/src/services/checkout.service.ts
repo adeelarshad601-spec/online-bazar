@@ -223,14 +223,14 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
       })
     );
 
-    const isPaid = paymentMethod === "STRIPE" || paymentMethod === "CARD";
+    const isCardMethod = paymentMethod === "STRIPE" || paymentMethod === "CARD";
 
     const order = await tx.order.create({
       data: {
         orderNumber,
         userId,
         totalAmount,
-        paymentStatus: isPaid ? "COMPLETED" : "PENDING",
+        paymentStatus: "PENDING",
         status: "PENDING",
         shippingAddress: shippingAddress as any,
         couponId,
@@ -282,11 +282,11 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
       })
     );
 
-    await tx.payment.create({
+    const createdPayment = await tx.payment.create({
       data: {
         orderId: order.id,
-        method: isPaid ? "CARD" : "COD",
-        status: isPaid ? "COMPLETED" : "PENDING",
+        method: isCardMethod ? "CARD" : "COD",
+        status: "PENDING",
         amount: totalAmount,
       },
     });
@@ -341,9 +341,10 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
       vendorOrders: vendorOrderRecords.map(mapVendorOrder),
       orderItems: vendorOrderRecords.flatMap((vendorOrder) => vendorOrder.items.map(mapOrderItem)),
       payment: {
-        method: "COD",
-        status: "PENDING",
-        amount: totalAmount,
+        id: createdPayment.id,
+        method: createdPayment.method,
+        status: createdPayment.status,
+        amount: createdPayment.amount,
       },
       couponId,
       createdAt: order.createdAt,

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { processCheckoutApi } from "./api";
+import { processCheckoutApi, processTestPaymentApi } from "./api";
 import { CheckoutInput, CheckoutApiResponse } from "./schemas";
 import { CART_QUERY_KEY } from "@/features/cart/queries";
 import { ORDERS_QUERY_KEY } from "@/features/orders/queries";
@@ -38,3 +38,22 @@ export function useCheckoutMutation() {
     },
   });
 }
+
+export function useProcessTestPaymentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ paymentId, action }: { paymentId: string; action: "SUCCESS" | "FAILED" }) =>
+      processTestPaymentApi(paymentId, action),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ORDERS_QUERY_KEY });
+      toast.success(data.message || "Payment status updated!");
+    },
+    onError: (error: any) => {
+      const message =
+        error.response?.data?.message || "Failed to process test payment simulation.";
+      toast.error(message);
+    },
+  });
+}
+

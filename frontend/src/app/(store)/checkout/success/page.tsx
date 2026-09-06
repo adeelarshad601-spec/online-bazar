@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { useOrderDetails } from "@/features/orders/queries";
+import { useProcessTestPaymentMutation } from "@/features/checkout/queries";
 import {
   CheckCircle2,
   ShoppingBag,
@@ -21,6 +22,8 @@ import {
   Clock,
   ShieldCheck,
   Truck,
+  Loader2,
+  XCircle,
 } from "lucide-react";
 
 function ConfirmationStepper() {
@@ -78,6 +81,8 @@ function SuccessContentInner() {
     isError,
     refetch,
   } = useOrderDetails(orderId);
+
+  const { mutate: processTestPayment, isPending: isSimulating } = useProcessTestPaymentMutation();
 
   if (!orderId) {
     return (
@@ -156,6 +161,21 @@ function SuccessContentInner() {
 
   const paymentMethodName = order.payment?.method === "COD" ? "Cash on Delivery (COD)" : order.payment?.method || "Cash on Delivery (COD)";
 
+  const handleTestPayment = (action: "SUCCESS" | "FAILED") => {
+    if (!order.payment?.id) return;
+    processTestPayment(
+      { paymentId: order.payment.id, action },
+      {
+        onSuccess: () => {
+          refetch();
+        },
+      }
+    );
+  };
+
+  const isPendingPayment = (order.paymentStatus || order.payment?.status) === "PENDING";
+  const isCompletedPayment = (order.paymentStatus || order.payment?.status) === "COMPLETED";
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 space-y-8 sm:px-6 lg:px-8">
       {/* Confirmation Progress Stepper */}
@@ -169,7 +189,7 @@ function SuccessContentInner() {
 
         <div className="mt-6 space-y-2">
           <span className="inline-block rounded-full bg-emerald-100 px-3.5 py-1 text-xs font-extrabold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 uppercase tracking-wider">
-            Order Placed Successfully
+            Order Registered Successfully
           </span>
           <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white sm:text-3xl">
             Thank You For Your Order!
@@ -223,7 +243,15 @@ function SuccessContentInner() {
             </div>
             <div className="flex justify-between items-center py-1">
               <span className="text-zinc-500 dark:text-zinc-400">Payment Status</span>
-              <span className="rounded-md bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+              <span
+                className={`rounded-md px-2.5 py-0.5 text-[11px] font-bold ${
+                  isCompletedPayment
+                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                    : order.paymentStatus === "FAILED"
+                    ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
+                    : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                }`}
+              >
                 {order.paymentStatus || order.payment?.status || "PENDING"}
               </span>
             </div>
@@ -235,17 +263,61 @@ function SuccessContentInner() {
             </div>
           </div>
 
-          {/* COD Special Instructions Box */}
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3.5 text-xs text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-200 space-y-1">
-            <div className="flex items-center gap-1.5 font-bold">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" />
-              <span>Cash on Delivery Required</span>
+          {/* TEST PAYMENT SIMULATOR BOX */}
+          {isPendingPayment && order.payment?.id && (
+            <div className="rounded-2xl border border-indigo-200 bg-indigo-50/70 p-4 dark:border-indigo-900/50 dark:bg-indigo-950/40 space-y-3">
+              <div className="flex items-center gap-2 font-bold text-indigo-900 dark:text-indigo-200 text-xs">
+                <CreditCard className="h-4 w-4 text-indigo-600" />
+                <span>Test Payment Gateway Simulation Mode</span>
+              </div>
+              <p className="text-[11px] text-indigo-800 dark:text-indigo-300 leading-relaxed">
+                Simulate a payment gateway response for testing financial accounting, commission calculation, and seller earnings:
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                <button
+                  type="button"
+                  disabled={isSimulating}
+                  onClick={() => handleTestPayment("SUCCESS")}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-60 transition-colors shadow-sm"
+                >
+                  {isSimulating ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  )}
+                  <span>Simulate Payment Success</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={isSimulating}
+                  onClick={() => handleTestPayment("FAILED")}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-60 transition-colors shadow-sm"
+                >
+                  {isSimulating ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <XCircle className="h-3.5 w-3.5" />
+                  )}
+                  <span>Simulate Payment Failure</span>
+                </button>
+              </div>
             </div>
-            <p className="text-[11px] text-emerald-800 dark:text-emerald-300 leading-relaxed">
-              No online payment is required now. Please prepare <strong>${order.totalAmount.toFixed(2)}</strong> in cash to hand over to the courier upon parcel delivery.
-            </p>
-          </div>
+          )}
+
+          {/* COD Instructions Box */}
+          {!isPendingPayment && order.payment?.method === "COD" && (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3.5 text-xs text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-200 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold">
+                <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                <span>Cash on Delivery Required</span>
+              </div>
+              <p className="text-[11px] text-emerald-800 dark:text-emerald-300 leading-relaxed">
+                Please prepare <strong>${order.totalAmount.toFixed(2)}</strong> in cash to hand over to the courier upon parcel delivery.
+              </p>
+            </div>
+          )}
         </div>
+
 
         {/* Shipping Address Card */}
         <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 space-y-4">

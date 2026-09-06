@@ -28,24 +28,25 @@ const getSellerCommissionRate = async (sellerId: string): Promise<Decimal> => {
   return new Decimal(10); // 10% default
 };
 
-const calculateSellerBalance = async (shopId: string) => {
-  const vendorOrderTotals = await prisma.vendorOrder.aggregate({
+const calculateSellerBalance = async (shopId: string, sellerId?: string) => {
+  const commissionRate = sellerId ? await getSellerCommissionRate(sellerId) : new Decimal(10);
+  const sellerShareRate = new Decimal(100).sub(commissionRate).div(new Decimal(100)); // e.g. 0.90 for 10% commission
+
+  const deliveredVendorOrders = await prisma.vendorOrder.aggregate({
     where: {
       shopId,
-      status: {
-        in: ["PROCESSING", "SHIPPED", "DELIVERED"],
+      status: "DELIVERED",
+      order: {
+        paymentStatus: "COMPLETED",
+        status: { not: "CANCELLED" },
       },
-      OR: [
-        { status: "DELIVERED" },
-        { order: { paymentStatus: "COMPLETED" } },
-      ],
     },
     _sum: {
       subTotal: true,
     },
   });
 
-  const completedPayouts = await prisma.sellerPayout.aggregate({
+  const requestedPayouts = await prisma.sellerPayout.aggregate({
     where: {
       shopId,
       status: {
@@ -57,15 +58,20 @@ const calculateSellerBalance = async (shopId: string) => {
     },
   });
 
-  const totalPaid = completedPayouts._sum.payoutAmount ?? new Decimal(0);
-  const totalRevenue = vendorOrderTotals._sum.subTotal ?? new Decimal(0);
+  const deliveredSubTotal = deliveredVendorOrders._sum.subTotal ?? new Decimal(0);
+  const deliveredNetEarnings = deliveredSubTotal.mul(sellerShareRate);
+  const totalPaidOrRequested = requestedPayouts._sum.payoutAmount ?? new Decimal(0);
 
-  return totalRevenue.sub(totalPaid);
+  const balance = deliveredNetEarnings.sub(totalPaidOrRequested);
+  return balance.lt(new Decimal(0)) ? new Decimal(0) : balance;
 };
 
 export const getSellerPayoutDashboard = async (sellerId: string) => {
   const shop = await prisma.shop.findUnique({ where: { sellerId } });
   if (!shop) throw new Error("Seller shop not found");
+
+  const commissionRate = await getSellerCommissionRate(sellerId);
+  const sellerShareRate = new Decimal(100).sub(commissionRate).div(new Decimal(100)); // e.g. 0.90
 
   // Auto-sync any existing delivered vendor orders in the DB so parent Order & Payment status reflect COMPLETED/DELIVERED
   try {
@@ -98,33 +104,91 @@ export const getSellerPayoutDashboard = async (sellerId: string) => {
     console.error("Failed to auto-sync delivered orders in payout dashboard", err);
   }
 
-  const balance = await calculateSellerBalance(shop.id);
-
-  const totalEarnings = await prisma.vendorOrder.aggregate({
+  // All successful paid orders for this shop
+  const allPaidOrders = await prisma.vendorOrder.aggregate({
     where: {
       shopId: shop.id,
-      status: {
-        in: ["PROCESSING", "SHIPPED", "DELIVERED"],
+      order: {
+        paymentStatus: "COMPLETED",
+        status: { not: "CANCELLED" },
       },
-      OR: [
-        { status: "DELIVERED" },
-        { order: { paymentStatus: "COMPLETED" } },
-      ],
     },
     _sum: { subTotal: true },
   });
+
+  // Pending delivery paid orders for this shop
+  const pendingDeliveryOrders = await prisma.vendorOrder.aggregate({
+    where: {
+      shopId: shop.id,
+      status: { not: "DELIVERED" },
+      order: {
+        paymentStatus: "COMPLETED",
+        status: { not: "CANCELLED" },
+      },
+    },
+    _sum: { subTotal: true },
+  });
+
+  // Delivered paid orders for this shop
+  const deliveredOrders = await prisma.vendorOrder.aggregate({
+    where: {
+      shopId: shop.id,
+      status: "DELIVERED",
+      order: {
+        paymentStatus: "COMPLETED",
+        status: { not: "CANCELLED" },
+      },
+    },
+    _sum: { subTotal: true },
+  });
+
+  // Payout aggregations
+  const completedPayoutsAggregate = await prisma.sellerPayout.aggregate({
+    where: {
+      shopId: shop.id,
+      status: "COMPLETED",
+    },
+    _sum: { payoutAmount: true },
+  });
+
+  const totalRequestedPayoutsAggregate = await prisma.sellerPayout.aggregate({
+    where: {
+      shopId: shop.id,
+      status: { in: ["PENDING", "PROCESSING", "COMPLETED"] },
+    },
+    _sum: { payoutAmount: true },
+  });
+
+  const grossSales = allPaidOrders._sum.subTotal ?? new Decimal(0);
+  const totalEarnings = grossSales.mul(sellerShareRate);
+
+  const pendingSales = pendingDeliveryOrders._sum.subTotal ?? new Decimal(0);
+  const pendingEarnings = pendingSales.mul(sellerShareRate);
+
+  const deliveredSales = deliveredOrders._sum.subTotal ?? new Decimal(0);
+  const deliveredEarnings = deliveredSales.mul(sellerShareRate);
+
+  const paidOutAmount = completedPayoutsAggregate._sum.payoutAmount ?? new Decimal(0);
+  const totalRequestedPayouts = totalRequestedPayoutsAggregate._sum.payoutAmount ?? new Decimal(0);
+
+  const availableBalanceCalc = deliveredEarnings.sub(totalRequestedPayouts);
+  const availableBalance = availableBalanceCalc.lt(new Decimal(0)) ? new Decimal(0) : availableBalanceCalc;
 
   const payoutCount = await prisma.sellerPayout.count({ where: { shopId: shop.id } });
 
   return {
     shopId: shop.id,
     shopName: shop.name,
-    totalEarnings: totalEarnings._sum.subTotal ?? new Decimal(0),
-    balance,
+    grossSales,
+    totalEarnings,
+    pendingEarnings,
+    availableBalance,
+    balance: availableBalance,
+    paidOutAmount,
     payoutRequests: payoutCount,
+    commissionRate: commissionRate.toNumber(),
   };
 };
-
 
 export const getSellerPayouts = async (sellerId: string, query: PayoutQuery) => {
   const shop = await prisma.shop.findUnique({ where: { sellerId } });
@@ -168,60 +232,52 @@ export const requestSellerPayout = async (sellerId: string, input: PayoutRequest
   const shop = await prisma.shop.findUnique({ where: { sellerId } });
   if (!shop) throw new Error("Seller shop not found");
 
-  // Get the seller's commission rate from active subscription
-  const commissionRate = await getSellerCommissionRate(sellerId);
+  const requestAmount = new Decimal(input.amount);
+  if (requestAmount.lte(new Decimal(0))) {
+    throw new Error("Payout amount must be greater than 0");
+  }
 
-  // Use a transaction to ensure atomicity of balance check and payout creation
-  // This prevents race conditions where two concurrent requests could exceed available balance
+  const commissionRate = await getSellerCommissionRate(sellerId);
+  const sellerShareRate = new Decimal(100).sub(commissionRate).div(new Decimal(100)); // e.g. 0.90
+
+  // Atomic transaction for balance verification & request creation
   const payout = await prisma.$transaction(async (tx) => {
-    // Get current balance within the transaction
-    const vendorOrderTotals = await tx.vendorOrder.aggregate({
+    const deliveredVendorOrders = await tx.vendorOrder.aggregate({
       where: {
         shopId: shop.id,
-        status: {
-          in: ["PROCESSING", "SHIPPED", "DELIVERED"],
-        },
+        status: "DELIVERED",
         order: {
           paymentStatus: "COMPLETED",
+          status: { not: "CANCELLED" },
         },
       },
-      _sum: {
-        subTotal: true,
-      },
+      _sum: { subTotal: true },
     });
 
-    const completedPayouts = await tx.sellerPayout.aggregate({
+    const requestedPayouts = await tx.sellerPayout.aggregate({
       where: {
         shopId: shop.id,
-        status: {
-          in: ["PENDING", "PROCESSING", "COMPLETED"],
-        },
+        status: { in: ["PENDING", "PROCESSING", "COMPLETED"] },
       },
-      _sum: {
-        payoutAmount: true,
-      },
+      _sum: { payoutAmount: true },
     });
 
-    const totalPaid = completedPayouts._sum.payoutAmount ?? new Decimal(0);
-    const totalRevenue = vendorOrderTotals._sum.subTotal ?? new Decimal(0);
-    const currentBalance = totalRevenue.sub(totalPaid);
+    const deliveredSubTotal = deliveredVendorOrders._sum.subTotal ?? new Decimal(0);
+    const deliveredNetEarnings = deliveredSubTotal.mul(sellerShareRate);
+    const totalPaidOrRequested = requestedPayouts._sum.payoutAmount ?? new Decimal(0);
 
-    // Verify balance within transaction (prevents race condition)
-    if (new Decimal(input.amount).gt(currentBalance)) {
+    const currentAvailableBalance = deliveredNetEarnings.sub(totalPaidOrRequested);
+
+    if (requestAmount.gt(currentAvailableBalance)) {
       throw new Error("Requested payout exceeds available balance");
     }
 
-    // Calculate commission and payout amount using the seller's commission rate
-    const commission = new Decimal(input.amount).mul(commissionRate).div(new Decimal(100));
-    const payoutAmount = new Decimal(input.amount).sub(commission);
-
-    // Create payout within the transaction
     return tx.sellerPayout.create({
       data: {
         shopId: shop.id,
-        amount: new Decimal(input.amount),
-        commission,
-        payoutAmount,
+        amount: requestAmount,
+        commission: new Decimal(0),
+        payoutAmount: requestAmount,
         status: "PENDING",
       },
     });

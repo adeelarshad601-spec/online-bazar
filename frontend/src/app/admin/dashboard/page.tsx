@@ -42,6 +42,10 @@ export default function AdminDashboardPage() {
   const pendingSellers = pendingSellersData || [];
   const recentOrders = recentOrdersData?.orders || [];
   const totalSales = Number(stats?.sales?.total || 0);
+  const platformCommission = Number(stats?.sales?.platformCommission || (totalSales * 0.10));
+  const sellerEarnings = Number(stats?.sales?.sellerEarnings || (totalSales * 0.90));
+  const pendingPayoutsAmount = Number(stats?.payouts?.pendingAmount || 0);
+  const completedPayoutsAmount = Number(stats?.payouts?.completedAmount || 0);
   const adminName = user?.name || "Admin";
 
   // Data calculations for dynamic graphs
@@ -63,7 +67,7 @@ export default function AdminDashboardPage() {
 
   // Monthly Goal calculations ($50k target)
   const monthlyGoalTarget = 50000;
-  const goalPercentage = Math.min(100, Math.round((totalSales / monthlyGoalTarget) * 100));
+  const goalPercentage = Math.min(100, Math.round((platformCommission / monthlyGoalTarget) * 100));
 
   // Product Catalog calculations
   const totalProducts = stats?.products?.total ?? 0;
@@ -109,7 +113,7 @@ export default function AdminDashboardPage() {
               Welcome back, {adminName}
             </h2>
             <p className="text-sm text-emerald-200/90 font-medium leading-relaxed">
-              You have <span className="font-bold text-white underline decoration-emerald-400">{pendingSellers.length > 0 ? `${pendingSellers.length} pending seller requests` : `${stats?.orders?.total ?? 0} total orders`}</span> and <span className="font-bold text-white">${(totalSales / 1000).toFixed(1)}K revenue</span> today
+              Marketplace GMV: <span className="font-bold text-white">${totalSales.toFixed(2)}</span> | Platform Commission (10%): <span className="font-bold text-white underline decoration-emerald-400">${platformCommission.toFixed(2)}</span>
             </p>
           </div>
 
@@ -125,97 +129,58 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Row 1: Total Revenue Sparkline Card & Monthly Goal Radial Ring */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Total Revenue Card (2 Columns) */}
-        <div className="lg:col-span-2 rounded-3xl bg-white border border-zinc-200 text-zinc-900 shadow-lg dark:bg-zinc-900/90 dark:border-zinc-800 dark:text-white dark:shadow-xl p-6 flex flex-col justify-between relative overflow-hidden transition-colors">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                Total Revenue
-              </span>
-              <div className="flex items-baseline gap-3">
-                <h3 className="text-3xl font-black text-zinc-900 dark:text-white">
-                  ${totalSales.toLocaleString("en-US", { minimumFractionDigits: 0 })}
-                </h3>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-500/10 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                  <TrendingUp className="h-3 w-3" />
-                  Total Platform Revenue
-                </span>
-              </div>
-            </div>
-
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-md">
-              <DollarSign className="h-6 w-6" />
-            </div>
-          </div>
-
-          {/* SVG Wave Sparkline Chart */}
-          <div className="mt-8 h-32 w-full">
-            <svg className="w-full h-full" viewBox="0 0 600 120" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="revenue-area" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M 0 80 Q 75 90 150 70 T 300 65 T 450 45 T 600 30 L 600 120 L 0 120 Z"
-                fill="url(#revenue-area)"
-              />
-              <path
-                d="M 0 80 Q 75 90 150 70 T 300 65 T 450 45 T 600 30"
-                fill="none"
-                stroke="#10b981"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
+      {/* Row 1: Financial Overview Breakdown Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Card 1: Gross Sales / GMV */}
+        <div className="rounded-3xl bg-white border border-zinc-200 text-zinc-900 shadow-md dark:bg-zinc-900/90 dark:border-zinc-800 dark:text-white p-6 space-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            Total Marketplace GMV
+          </span>
+          <h3 className="text-2xl font-black text-zinc-900 dark:text-white">
+            ${totalSales.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          </h3>
+          <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 block">
+            Total customer payments processed
+          </span>
         </div>
 
-        {/* Monthly Goal Radial Ring Chart (1 Column) */}
-        <div className="rounded-3xl bg-white border border-zinc-200 text-zinc-900 shadow-lg dark:bg-zinc-900/90 dark:border-zinc-800 dark:text-white dark:shadow-xl p-6 flex flex-col items-center justify-center text-center relative transition-colors">
-          <div className="w-full flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800/80 mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-              Monthly Goal
-            </span>
-            <Zap className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          </div>
+        {/* Card 2: Platform Commission (10%) */}
+        <div className="rounded-3xl bg-emerald-50/70 border border-emerald-200 text-emerald-950 shadow-md dark:bg-emerald-950/30 dark:border-emerald-900/40 dark:text-emerald-100 p-6 space-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+            Platform Commission (10%)
+          </span>
+          <h3 className="text-2xl font-black text-emerald-900 dark:text-emerald-200">
+            ${platformCommission.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          </h3>
+          <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 block">
+            Net admin platform revenue earned
+          </span>
+        </div>
 
-          {/* Radial Circular Ring Gauge */}
-          <div className="relative my-2 flex items-center justify-center">
-            <svg className="w-40 h-40 transform -rotate-90">
-              <circle
-                cx="80"
-                cy="80"
-                r="62"
-                stroke="currentColor"
-                strokeWidth="12"
-                className="text-zinc-200 dark:text-zinc-800"
-                fill="transparent"
-              />
-              <circle
-                cx="80"
-                cy="80"
-                r="62"
-                stroke="currentColor"
-                strokeWidth="12"
-                strokeDasharray={389}
-                strokeDashoffset={389 - (389 * goalPercentage) / 100}
-                strokeLinecap="round"
-                className="text-emerald-500 transition-all duration-1000 ease-out"
-                fill="transparent"
-              />
-            </svg>
-            <div className="absolute text-center">
-              <span className="text-3xl font-black text-zinc-900 dark:text-white block">{goalPercentage}%</span>
-            </div>
-          </div>
+        {/* Card 3: Seller Net Earnings (90%) */}
+        <div className="rounded-3xl bg-blue-50/70 border border-blue-200 text-blue-950 shadow-md dark:bg-blue-950/30 dark:border-blue-900/40 dark:text-blue-100 p-6 space-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-300">
+            Seller Net Earnings (90%)
+          </span>
+          <h3 className="text-2xl font-black text-blue-900 dark:text-blue-200">
+            ${sellerEarnings.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          </h3>
+          <span className="text-[10px] font-semibold text-blue-700 dark:text-blue-400 block">
+            Total vendor share allocated
+          </span>
+        </div>
 
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium mt-2">
-            <span className="font-bold text-zinc-900 dark:text-white">${(totalSales / 1000).toFixed(1)}K</span> of ${(monthlyGoalTarget / 1000).toFixed(0)}K target
-          </p>
+        {/* Card 4: Pending Seller Payouts */}
+        <div className="rounded-3xl bg-amber-50/70 border border-amber-200 text-amber-950 shadow-md dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-100 p-6 space-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+            Pending Seller Payouts
+          </span>
+          <h3 className="text-2xl font-black text-amber-900 dark:text-amber-200">
+            ${pendingPayoutsAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          </h3>
+          <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 block">
+            {pendingPayouts} request(s) awaiting processing
+          </span>
         </div>
       </div>
 

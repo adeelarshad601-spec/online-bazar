@@ -24,9 +24,14 @@ export interface AdminStatsData {
   payouts: {
     pending: number;
     completed: number;
+    pendingAmount?: number | string;
+    completedAmount?: number | string;
   };
   sales: {
     total: number | string;
+    gmv?: number | string;
+    platformCommission?: number | string;
+    sellerEarnings?: number | string;
   };
 }
 

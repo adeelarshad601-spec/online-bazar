@@ -20,6 +20,8 @@ export const getAdminStats = async () => {
     pendingPayouts,
     completedPayouts,
     totalSalesData,
+    pendingPayoutsAmountData,
+    completedPayoutsAmountData,
   ] = await Promise.all([
     // Total users count
     prisma.user.count(),
@@ -100,29 +102,58 @@ export const getAdminStats = async () => {
       },
     }),
 
-    // Pending payouts
+    // Pending payouts count
     prisma.sellerPayout.count({
       where: {
-        status: "PENDING",
+        status: { in: ["PENDING", "PROCESSING"] },
       },
     }),
 
-    // Completed payouts
+    // Completed payouts count
     prisma.sellerPayout.count({
       where: {
         status: "COMPLETED",
       },
     }),
 
-    // Total sales (sum of order amounts)
+    // Total sales (sum of order amounts for COMPLETED payment status)
     prisma.order.aggregate({
+      where: {
+        paymentStatus: "COMPLETED",
+        status: { not: "CANCELLED" },
+      },
       _sum: {
         totalAmount: true,
+      },
+    }),
+
+    // Pending payouts amount
+    prisma.sellerPayout.aggregate({
+      where: {
+        status: { in: ["PENDING", "PROCESSING"] },
+      },
+      _sum: {
+        payoutAmount: true,
+      },
+    }),
+
+    // Completed payouts amount
+    prisma.sellerPayout.aggregate({
+      where: {
+        status: "COMPLETED",
+      },
+      _sum: {
+        payoutAmount: true,
       },
     }),
   ]);
 
   const totalSales = totalSalesData._sum.totalAmount ?? new Decimal(0);
+  const platformCommission = totalSales.mul(new Decimal("0.10"));
+  const sellerEarnings = totalSales.sub(platformCommission);
+
+  const pendingPayoutsAmount = pendingPayoutsAmountData._sum.payoutAmount ?? new Decimal(0);
+  const completedPayoutsAmount = completedPayoutsAmountData._sum.payoutAmount ?? new Decimal(0);
 
   return {
     users: {
@@ -147,10 +178,16 @@ export const getAdminStats = async () => {
     payouts: {
       pending: pendingPayouts,
       completed: completedPayouts,
+      pendingAmount: pendingPayoutsAmount,
+      completedAmount: completedPayoutsAmount,
     },
     sales: {
       total: totalSales,
+      gmv: totalSales,
+      platformCommission,
+      sellerEarnings,
     },
   };
 };
+
 

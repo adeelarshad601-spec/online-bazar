@@ -93,12 +93,20 @@ export default function SellerPayoutsPage() {
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 space-y-2">
-          <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Lifetime Earnings</span>
+          <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Net Earnings (90%)</span>
           <p className="text-2xl font-black text-zinc-900 dark:text-white">
             ${Number(dashboard?.totalEarnings || 0).toFixed(2)}
           </p>
+        </div>
+
+        <div className="rounded-3xl border border-amber-200 bg-amber-50/50 p-6 shadow-xs dark:border-amber-900/40 dark:bg-amber-950/20 space-y-2">
+          <span className="text-xs font-semibold text-amber-800 dark:text-amber-300">Pending Earnings</span>
+          <p className="text-2xl font-black text-amber-900 dark:text-amber-200">
+            ${Number(dashboard?.pendingEarnings || 0).toFixed(2)}
+          </p>
+          <span className="text-[10px] text-amber-700 dark:text-amber-400 block font-medium">Awaiting order delivery</span>
         </div>
 
         <div className="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-6 shadow-xs dark:border-emerald-900/40 dark:bg-emerald-950/20 space-y-2">
@@ -106,13 +114,15 @@ export default function SellerPayoutsPage() {
           <p className="text-2xl font-black text-emerald-900 dark:text-emerald-200">
             ${availableBalance.toFixed(2)}
           </p>
+          <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block font-medium">Ready for payout</span>
         </div>
 
         <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 space-y-2">
-          <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Payout Requests Count</span>
+          <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Paid Out Amount</span>
           <p className="text-2xl font-black text-zinc-900 dark:text-white">
-            {dashboard?.payoutRequests || 0}
+            ${Number(dashboard?.paidOutAmount || 0).toFixed(2)}
           </p>
+          <span className="text-[10px] text-zinc-500 block font-medium">{dashboard?.payoutRequests || 0} payout request(s)</span>
         </div>
       </div>
 

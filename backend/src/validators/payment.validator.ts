@@ -14,4 +14,10 @@ export const updatePaymentStatusSchema = z.object({
   status: paymentStatusEnum,
 });
 
+export const processTestPaymentSchema = z.object({
+  action: z.enum(["SUCCESS", "FAILED"]),
+});
+
 export type PaymentStatusUpdateInput = z.infer<typeof updatePaymentStatusSchema>;
+export type ProcessTestPaymentInput = z.infer<typeof processTestPaymentSchema>;
+
