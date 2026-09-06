@@ -22,6 +22,7 @@ export const getAdminStats = async () => {
     totalSalesData,
     pendingPayoutsAmountData,
     completedPayoutsAmountData,
+    completedVendorOrders,
   ] = await Promise.all([
     // Total users count
     prisma.user.count(),
@@ -146,11 +147,58 @@ export const getAdminStats = async () => {
         payoutAmount: true,
       },
     }),
+
+    // Completed vendor orders with active seller plan commission rates
+    prisma.vendorOrder.findMany({
+      where: {
+        order: {
+          paymentStatus: "COMPLETED",
+          status: { not: "CANCELLED" },
+        },
+      },
+      select: {
+        subTotal: true,
+        shop: {
+          select: {
+            sellerId: true,
+            seller: {
+              select: {
+                sellerSubscriptions: {
+                  where: {
+                    isActive: true,
+                    expiresAt: { gt: new Date() },
+                  },
+                  include: { plan: true },
+                  take: 1,
+                  orderBy: { startedAt: "desc" },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
   ]);
 
   const totalSales = totalSalesData._sum.totalAmount ?? new Decimal(0);
-  const platformCommission = totalSales.mul(new Decimal("0.10"));
-  const sellerEarnings = totalSales.sub(platformCommission);
+
+  let platformCommission = new Decimal(0);
+  let sellerEarnings = new Decimal(0);
+
+  if (completedVendorOrders.length > 0) {
+    for (const vo of completedVendorOrders) {
+      const activeSub = vo.shop?.seller?.sellerSubscriptions?.[0];
+      const rate = activeSub?.plan?.commissionRate ?? new Decimal(10);
+      const comm = vo.subTotal.mul(rate).div(new Decimal(100));
+      const sellerEarn = vo.subTotal.sub(comm);
+
+      platformCommission = platformCommission.add(comm);
+      sellerEarnings = sellerEarnings.add(sellerEarn);
+    }
+  } else {
+    platformCommission = totalSales.mul(new Decimal("0.10"));
+    sellerEarnings = totalSales.sub(platformCommission);
+  }
 
   const pendingPayoutsAmount = pendingPayoutsAmountData._sum.payoutAmount ?? new Decimal(0);
   const completedPayoutsAmount = completedPayoutsAmountData._sum.payoutAmount ?? new Decimal(0);
