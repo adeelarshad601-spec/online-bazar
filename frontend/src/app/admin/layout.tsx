@@ -62,17 +62,41 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
-    sellers: true,
-  });
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+
+  const isMenuItemActive = (href: string) => {
+    const [itemPath, itemQuery = ""] = href.split("?");
+    const currentTab = searchParams.get("tab");
+    const itemSearchParams = new URLSearchParams(itemQuery);
+    const itemTab = itemSearchParams.get("tab");
+
+    if (itemTab) {
+      return pathname === itemPath && currentTab === itemTab;
+    }
+
+    if (currentTab && pathname === itemPath) {
+      return false;
+    }
+
+    if (pathname === itemPath) {
+      return true;
+    }
+
+    const genericParents = [
+      "/admin/dashboard",
+      "/admin/settings",
+      "/admin/orders",
+      "/admin/categories",
+      "/admin/sellers",
+    ];
+    if (!genericParents.includes(itemPath) && pathname.startsWith(`${itemPath}/`)) {
+      return true;
+    }
+
+    return false;
+  };
 
   const notificationCount = unreadData?.unreadCount ?? 4;
-
-  const isNavLinkActive = (href: string) => {
-    const [hrefPath, hrefQuery = ""] = href.split("?");
-    const expectedParams = new URLSearchParams(hrefQuery);
-    return pathname === hrefPath && expectedParams.toString() === searchParams.toString();
-  };
 
   // Initialize dark mode after hydration
   useEffect(() => {
@@ -236,11 +260,8 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
 
               {group.items.map((item) => {
                 const Icon = item.icon;
-                const [itemPath, itemQuery = ""] = item.href.split("?");
-                const isActive = itemQuery
-                  ? isNavLinkActive(item.href)
-                  : pathname === itemPath || (itemPath !== "/admin/dashboard" && pathname.startsWith(`${itemPath}/`));
-                const isExpanded = item.children ? expandedItems[item.id] ?? true : false;
+                const isActive = isMenuItemActive(item.href);
+                const isExpanded = item.children ? expandedItems[item.id] ?? false : false;
 
                 return (
                   <div key={item.id} className="space-y-1">
@@ -251,7 +272,7 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
                           event.preventDefault();
                           setExpandedItems((prev) => ({
                             ...prev,
-                            [item.id]: !(prev[item.id] ?? true),
+                            [item.id]: !(prev[item.id] ?? false),
                           }));
                         } else {
                           setMobileSidebarOpen(false);
@@ -275,7 +296,7 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
                     {item.children && isExpanded && (
                       <div className="ml-7 space-y-1 border-l border-zinc-200 dark:border-zinc-800/80 pl-3">
                         {item.children.map((child) => {
-                          const isChildActive = isNavLinkActive(child.href);
+                          const isChildActive = isMenuItemActive(child.href);
 
                           return (
                             <Link

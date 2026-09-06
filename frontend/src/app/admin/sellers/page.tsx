@@ -7,6 +7,10 @@ import {
   useSuspendSellerMutation,
   useReactivateSellerMutation,
 } from "@/features/admin/sellers-queries";
+import {
+  useAdminPayouts,
+  useUpdateAdminPayoutStatusMutation,
+} from "@/features/admin/payouts-queries";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
@@ -18,12 +22,231 @@ import {
   Loader2,
   Search,
   Filter,
-  ShieldAlert,
+  CreditCard,
+  Clock,
+  ArrowRight,
 } from "lucide-react";
 import StatusFilter from "@/components/ui/StatusFilter";
 
+function AdminPayoutsView() {
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const { data, isLoading } = useAdminPayouts(selectedStatus || undefined);
+  const { mutate: updateStatus, isPending: isUpdating } = useUpdateAdminPayoutStatusMutation();
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const payouts = data?.payouts || [];
+
+  const handleUpdate = (
+    id: string,
+    status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | "CANCELLED"
+  ) => {
+    setActiveId(id);
+    updateStatus(
+      { id, status },
+      {
+        onSettled: () => setActiveId(null),
+      }
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white flex items-center gap-2">
+            <CreditCard className="h-7 w-7 text-emerald-500" />
+            <span>Seller Payouts & Commissions</span>
+          </h1>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+            Review and process withdrawal requests submitted by sellers across the marketplace
+          </p>
+        </div>
+
+        {/* Filter */}
+        <div className="flex items-center gap-3 min-w-0">
+          <StatusFilter
+            value={selectedStatus}
+            onChange={(value) => setSelectedStatus(value)}
+            options={[
+              { value: "", label: "All Statuses" },
+              { value: "PENDING", label: "PENDING" },
+              { value: "PROCESSING", label: "PROCESSING" },
+              { value: "COMPLETED", label: "COMPLETED" },
+              { value: "FAILED", label: "FAILED" },
+            ]}
+            icon={<Filter className="h-4 w-4" />}
+          />
+        </div>
+      </div>
+
+      {/* Payouts Table */}
+      <div className="rounded-3xl border border-zinc-200 bg-white shadow-xs dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden">
+        {payouts.length === 0 ? (
+          <div className="p-12 text-center space-y-3">
+            <CreditCard className="mx-auto h-12 w-12 text-zinc-300 dark:text-zinc-700" />
+            <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
+              No Payout Requests Found
+            </h3>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
+              No seller withdrawal requests match the selected status "{selectedStatus || "All"}".
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-100 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="py-3.5 px-6">Seller & Shop</th>
+                  <th className="py-3.5 px-4">Amount</th>
+                  <th className="py-3.5 px-4">Net Payout</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4">Date</th>
+                  <th className="py-3.5 px-6 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                {payouts.map((payout) => {
+                  const isThisMutating = activeId === payout.id && isUpdating;
+                  const shopName = payout.shop?.name || "Unlinked Shop";
+                  const sellerName = payout.shop?.seller?.name || "Unknown Merchant";
+                  const sellerEmail = payout.shop?.seller?.email || "";
+
+                  return (
+                    <tr key={payout.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30">
+                      <td className="py-4 px-6">
+                        <p className="font-bold text-zinc-900 dark:text-white">{shopName}</p>
+                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                          {sellerName} {sellerEmail && `(${sellerEmail})`}
+                        </p>
+                      </td>
+                      <td className="py-4 px-4 font-extrabold text-zinc-900 dark:text-white">
+                        ${Number(payout.amount).toFixed(2)}
+                      </td>
+                      <td className="py-4 px-4 font-extrabold text-emerald-600 dark:text-emerald-400">
+                        ${Number(payout.payoutAmount).toFixed(2)}
+                      </td>
+                      <td className="py-4 px-4">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            payout.status === "COMPLETED"
+                              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300"
+                              : payout.status === "PROCESSING"
+                              ? "bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300"
+                              : payout.status === "PENDING"
+                              ? "bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300"
+                              : "bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300"
+                          }`}
+                        >
+                          {payout.status === "PENDING" && <Clock className="h-3 w-3" />}
+                          {payout.status === "COMPLETED" && <CheckCircle2 className="h-3 w-3" />}
+                          {payout.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-zinc-500 dark:text-zinc-400 text-[11px]">
+                        {new Date(payout.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {payout.status === "PENDING" && (
+                            <>
+                              <button
+                                type="button"
+                                disabled={isThisMutating}
+                                onClick={() => handleUpdate(payout.id, "PROCESSING")}
+                                className="inline-flex items-center gap-1 rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50 transition"
+                              >
+                                {isThisMutating ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <ArrowRight className="h-3 w-3" />
+                                )}
+                                <span>Process</span>
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isThisMutating}
+                                onClick={() => handleUpdate(payout.id, "FAILED")}
+                                className="inline-flex items-center gap-1 rounded-xl bg-red-600/80 px-2.5 py-1.5 text-xs font-bold text-white hover:bg-red-700 disabled:opacity-50 transition"
+                              >
+                                {isThisMutating ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <XCircle className="h-3 w-3" />
+                                )}
+                                <span>Reject</span>
+                              </button>
+                            </>
+                          )}
+
+                          {payout.status === "PROCESSING" && (
+                            <>
+                              <button
+                                type="button"
+                                disabled={isThisMutating}
+                                onClick={() => handleUpdate(payout.id, "COMPLETED")}
+                                className="inline-flex items-center gap-1 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50 transition"
+                              >
+                                {isThisMutating ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <CheckCircle2 className="h-3 w-3" />
+                                )}
+                                <span>Mark Completed</span>
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isThisMutating}
+                                onClick={() => handleUpdate(payout.id, "FAILED")}
+                                className="inline-flex items-center gap-1 rounded-xl bg-red-600/80 px-2.5 py-1.5 text-xs font-bold text-white hover:bg-red-700 disabled:opacity-50 transition"
+                              >
+                                {isThisMutating ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <XCircle className="h-3 w-3" />
+                                )}
+                                <span>Reject</span>
+                              </button>
+                            </>
+                          )}
+
+                          {payout.status === "COMPLETED" && (
+                            <span className="text-[11px] font-semibold text-emerald-500 flex items-center gap-1">
+                              <CheckCircle2 className="h-3.5 w-3.5" /> Paid Out
+                            </span>
+                          )}
+
+                          {payout.status === "FAILED" && (
+                            <span className="text-[11px] font-semibold text-red-500">
+                              Rejected / Failed
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminSellersPage() {
   const searchParams = useSearchParams();
+  const tab = searchParams.get("tab");
+
   const [selectedStatus, setSelectedStatus] = useState<string>(
     () => searchParams.get("status") || ""
   );
@@ -38,6 +261,10 @@ export default function AdminSellersPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const isMutating = isApproving || isRejecting || isSuspending || isReactivating;
+
+  if (tab === "payouts") {
+    return <AdminPayoutsView />;
+  }
 
   if (isLoading) {
     return (
