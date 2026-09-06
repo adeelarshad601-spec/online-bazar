@@ -11,6 +11,7 @@ import {
   useAdminPayouts,
   useUpdateAdminPayoutStatusMutation,
 } from "@/features/admin/payouts-queries";
+import { useAdminStats } from "@/features/admin/dashboard-queries";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
@@ -25,16 +26,26 @@ import {
   CreditCard,
   Clock,
   ArrowRight,
+  TrendingUp,
+  DollarSign,
+  BadgeDollarSign,
+  Wallet,
 } from "lucide-react";
 import StatusFilter from "@/components/ui/StatusFilter";
 
 function AdminPayoutsView() {
   const [selectedStatus, setSelectedStatus] = useState<string>("");
-  const { data, isLoading } = useAdminPayouts(selectedStatus || undefined);
+  const { data: payoutData, isLoading } = useAdminPayouts(selectedStatus || undefined);
+  const { data: stats } = useAdminStats();
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateAdminPayoutStatusMutation();
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const payouts = data?.payouts || [];
+  const payouts = payoutData?.payouts || [];
+
+  const platformCommission = Number(stats?.sales?.platformCommission ?? 0).toFixed(2);
+  const sellerEarnings = Number(stats?.sales?.sellerEarnings ?? 0).toFixed(2);
+  const pendingPayoutAmount = Number(stats?.payouts?.pendingAmount ?? 0).toFixed(2);
+  const completedPayoutAmount = Number(stats?.payouts?.completedAmount ?? 0).toFixed(2);
 
   const handleUpdate = (
     id: string,
@@ -85,6 +96,81 @@ function AdminPayoutsView() {
             ]}
             icon={<Filter className="h-4 w-4" />}
           />
+        </div>
+      </div>
+
+      {/* Financial Summary Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Platform Commission */}
+        <div className="rounded-3xl border border-emerald-500/30 bg-emerald-50/50 p-5 shadow-xs dark:border-emerald-900/40 dark:bg-emerald-950/20 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+              Platform Commission (10%)
+            </span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              <BadgeDollarSign className="h-4 w-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-300">
+            ${platformCommission}
+          </p>
+          <p className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 font-medium">
+            Net admin platform revenue earned
+          </p>
+        </div>
+
+        {/* Card 2: Seller Net Share */}
+        <div className="rounded-3xl border border-blue-500/30 bg-blue-50/50 p-5 shadow-xs dark:border-blue-900/40 dark:bg-blue-950/20 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-700 dark:text-blue-400">
+              Seller Net Share (90%)
+            </span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+              <TrendingUp className="h-4 w-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-extrabold text-blue-700 dark:text-blue-300">
+            ${sellerEarnings}
+          </p>
+          <p className="text-[10px] text-blue-600/80 dark:text-blue-400/80 font-medium">
+            Total vendor share allocated
+          </p>
+        </div>
+
+        {/* Card 3: Pending Payouts */}
+        <div className="rounded-3xl border border-amber-500/30 bg-amber-50/50 p-5 shadow-xs dark:border-amber-900/40 dark:bg-amber-950/20 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+              Pending Payout Requests
+            </span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <Clock className="h-4 w-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-extrabold text-amber-700 dark:text-amber-300">
+            ${pendingPayoutAmount}
+          </p>
+          <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80 font-medium">
+            {stats?.payouts?.pending || 0} request(s) awaiting processing
+          </p>
+        </div>
+
+        {/* Card 4: Paid Out Amount */}
+        <div className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+              Paid Out Amount
+            </span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+              <Wallet className="h-4 w-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-extrabold text-zinc-900 dark:text-white">
+            ${completedPayoutAmount}
+          </p>
+          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
+            {stats?.payouts?.completed || 0} payout(s) completed
+          </p>
         </div>
       </div>
 
