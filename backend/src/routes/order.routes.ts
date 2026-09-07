@@ -10,6 +10,7 @@ import {
   updateAdminOrderStatus,
   updateVendorOrderStatus,
   getOrderTracking,
+  processOrderRefundHandler,
 } from "../controllers/order.controller.js";
 
 const router = Router();
@@ -28,6 +29,12 @@ router.patch(
   authenticate,
   authorize("ADMIN"),
   updateAdminOrderStatus
+);
+router.post(
+  "/:id/refund",
+  authenticate,
+  authorize("ADMIN"),
+  processOrderRefundHandler
 );
 // Admin route accessible at /api/orders/:id/status for updating order status
 router.patch(

@@ -23,3 +23,9 @@ export async function updateAdminOrderStatusApi(id: string, status: "PENDING" | 
   const response = await apiClient.patch<ApiResponse<OrderDetails>>(`/orders/admin/${id}/status`, { status });
   return response.data.data!;
 }
+
+export async function processAdminOrderRefundApi(id: string, data: { reason?: string; deductShipping?: boolean }): Promise<{ order: OrderDetails; refundSummary: any }> {
+  const response = await apiClient.post<ApiResponse<any>>(`/orders/${id}/refund`, data);
+  return response.data.data!;
+}
+

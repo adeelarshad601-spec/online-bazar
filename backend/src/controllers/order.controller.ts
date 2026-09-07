@@ -50,6 +50,7 @@ import {
   getSellerVendorOrders,
   updateAdminOrderStatus as updateAdminOrderStatusService,
   updateVendorOrderStatus as updateVendorOrderStatusService,
+  processOrderRefund as processOrderRefundService,
 } from "../services/order.service.js";
 
 export const getOrders = async (req: AuthRequest, res: Response) => {
@@ -300,6 +301,31 @@ export const updateAdminOrderStatus = async (req: AuthRequest, res: Response) =>
     return res.status(500).json({
       success: false,
       message: "Something went wrong",
+    });
+  }
+};
+
+export const processOrderRefundHandler = async (req: AuthRequest, res: Response) => {
+  try {
+    const orderId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const { reason, deductShipping = true } = req.body;
+
+    const data = await processOrderRefundService(orderId, {
+      reason,
+      deductShipping: Boolean(deductShipping),
+      actionById: req.user?.userId,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Order return and refund processed successfully",
+      data,
+    });
+  } catch (error: any) {
+    console.error("Process order refund error:", error);
+    return res.status(400).json({
+      success: false,
+      message: error.message || "Failed to process order refund",
     });
   }
 };

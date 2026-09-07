@@ -538,3 +538,152 @@ export const updateAdminOrderStatus = async (
     user: updated.user,
   };
 };
+
+export const processOrderRefund = async (
+  orderId: string,
+  input: { reason?: string; deductShipping?: boolean; actionById?: string }
+) => {
+  const { reason = "Customer return request", deductShipping = true, actionById } = input;
+
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      user: true,
+      payment: true,
+      vendorOrders: {
+        include: {
+          items: {
+            include: {
+              product: true,
+              variant: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  if (order.paymentStatus === "REFUNDED") {
+    throw new Error("Order has already been refunded");
+  }
+
+  const orderTotal = order.totalAmount;
+  const shippingAmount = order.shippingAmount;
+  const nonRefundableShipping = deductShipping ? shippingAmount : new Decimal(0);
+  const refundAmount = orderTotal.sub(nonRefundableShipping);
+  const finalRefundAmount = refundAmount.lt(new Decimal(0)) ? new Decimal(0) : refundAmount;
+
+  return await prisma.$transaction(async (tx) => {
+    // 1. Cancel vendor orders
+    await Promise.all(
+      order.vendorOrders.map((vo: any) =>
+        tx.vendorOrder.update({
+          where: { id: vo.id },
+          data: { status: "CANCELLED" },
+        })
+      )
+    );
+
+    // 2. Restock inventory for all items
+    await Promise.all(
+      order.vendorOrders.flatMap((vo: any) =>
+        vo.items.map((item: any) => {
+          if (item.variant) {
+            return tx.productVariant.update({
+              where: { id: item.variant.id },
+              data: {
+                stock: item.variant.stock + item.quantity,
+              },
+            });
+          }
+          return tx.product.update({
+            where: { id: item.product.id },
+            data: {
+              stock: item.product.stock + item.quantity,
+            },
+          });
+        })
+      )
+    );
+
+    // 3. Update payment status to REFUNDED
+    await tx.payment.update({
+      where: { orderId: order.id },
+      data: {
+        status: "REFUNDED",
+      },
+    });
+
+    // 4. Update order status to CANCELLED and paymentStatus to REFUNDED
+    const refundedOrder = await tx.order.update({
+      where: { id: order.id },
+      data: {
+        status: "CANCELLED",
+        paymentStatus: "REFUNDED",
+      },
+      include: {
+        user: true,
+        payment: true,
+        vendorOrders: {
+          include: {
+            shop: true,
+            items: {
+              include: {
+                product: true,
+                variant: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // 5. Create order status history
+    try {
+      await tx.orderStatusHistory.create({
+        data: {
+          orderId: order.id,
+          previousStatus: order.status,
+          newStatus: "CANCELLED",
+          changedById: actionById || null,
+        },
+      });
+    } catch (err) {
+      console.error("Failed to create order status history for refund", err);
+    }
+
+    // 6. Send notification to customer
+    try {
+      const shippingDeductionNote = deductShipping && shippingAmount.gt(new Decimal(0))
+        ? ` ($${shippingAmount.toFixed(2)} delivery charge deducted as per return policy)`
+        : "";
+
+      await createNotification({
+        userId: order.userId,
+        type: "PAYMENT",
+        title: `Refund Processed for Order #${order.orderNumber}`,
+        message: `Your refund of $${finalRefundAmount.toFixed(2)} has been processed${shippingDeductionNote}. Reason: ${reason}`,
+      });
+    } catch (err) {
+      console.error("Failed to create refund notification", err);
+    }
+
+    return {
+      ...mapOrder(refundedOrder),
+      user: refundedOrder.user,
+      refundSummary: {
+        subtotal: order.subtotal.toNumber(),
+        discount: order.discount.toNumber(),
+        shippingAmount: order.shippingAmount.toNumber(),
+        nonRefundableShippingDeducted: nonRefundableShipping.toNumber(),
+        refundAmount: finalRefundAmount.toNumber(),
+        reason,
+      },
+    };
+  });
+};
+
