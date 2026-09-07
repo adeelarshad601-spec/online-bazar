@@ -45,11 +45,30 @@ import {
   Wand2,
   BadgeDollarSign,
   Sparkles,
+  Truck,
 } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 interface AdminLayoutContentProps {
   children: ReactNode;
+}
+
+interface NavChild {
+  name: string;
+  href: string;
+}
+
+interface NavItem {
+  id: string;
+  name: string;
+  href: string;
+  icon: any;
+  children?: NavChild[];
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
 }
 
 function AdminLayoutContent({ children }: AdminLayoutContentProps) {
@@ -150,7 +169,7 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
     );
   }
 
-  const navGroups = [
+  const navGroups: NavGroup[] = [
     {
       label: "WEBSITE",
       items: [
@@ -195,6 +214,7 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
       items: [
         { id: "profile", name: "Profile", href: "/account/settings", icon: Users },
         { id: "general-settings", name: "General Settings", href: "/admin/settings", icon: Settings },
+        { id: "shipping-settings", name: "Shipping Settings", href: "/admin/settings/shipping", icon: Truck },
         { id: "payment-gateways", name: "Payment Gateways", href: "/admin/settings/payments", icon: CreditCard },
         { id: "roles-permissions", name: "Roles & Permissions", href: "/admin/settings/roles", icon: Shield },
       ],
@@ -258,7 +278,7 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
                 {group.label}
               </p>
 
-              {group.items.map((item) => {
+              {group.items.map((item: NavItem) => {
                 const Icon = item.icon;
                 const isActive = isMenuItemActive(item.href);
                 const isExpanded = item.children ? expandedItems[item.id] ?? false : false;
@@ -295,7 +315,7 @@ function AdminLayoutContent({ children }: AdminLayoutContentProps) {
 
                     {item.children && isExpanded && (
                       <div className="ml-7 space-y-1 border-l border-zinc-200 dark:border-zinc-800/80 pl-3">
-                        {item.children.map((child) => {
+                        {item.children.map((child: NavChild) => {
                           const isChildActive = isMenuItemActive(child.href);
 
                           return (

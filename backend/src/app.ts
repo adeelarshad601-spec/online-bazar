@@ -23,6 +23,9 @@ import searchRoutes from "./routes/search.routes.js";
 import sellerPlanRoutes from "./routes/seller-plan.routes.js";
 import adminStatsRoutes from "./routes/admin-stats.routes.js";
 
+import shippingRoutes from "./routes/shipping.routes.js";
+import addressRoutes from "./routes/address.routes.js";
+
 const app = express();
 app.use(cookieParser());
 app.use(helmet());
@@ -49,12 +52,14 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/user/addresses", addressRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/shops", shopRoutes);
 app.use("/api/sellers", sellerRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
+app.use("/api/shipping", shippingRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);

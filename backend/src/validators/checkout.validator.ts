@@ -1,12 +1,14 @@
 import { z } from "zod";
 
 export const shippingAddressSchema = z.object({
-  fullName: z.string().min(1, "Full name is required"),
-  phone: z.string().min(5, "Phone number is required"),
-  address: z.string().min(1, "Address is required"),
-  city: z.string().min(1, "City is required"),
-  postalCode: z.string().min(1, "Postal code is required"),
-  country: z.string().min(1, "Country is required"),
+  fullName: z.string().trim().min(1, "Full name is required"),
+  phone: z.string().trim().min(5, "Phone number is required (at least 5 digits)"),
+  address: z.string().trim().min(1, "Street address is required"),
+  unit: z.string().trim().optional().nullable(),
+  city: z.string().trim().min(1, "City is required"),
+  state: z.string().trim().optional().nullable(),
+  postalCode: z.string().trim().min(1, "Postal code is required"),
+  country: z.string().trim().min(1, "Country is required"),
 });
 
 export const checkoutSchema = z.object({

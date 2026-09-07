@@ -156,3 +156,8 @@ export type OrderStatusHistory = Prisma.OrderStatusHistoryModel
  * 
  */
 export type SellerPayout = Prisma.SellerPayoutModel
+/**
+ * Model ShippingZone
+ * 
+ */
+export type ShippingZone = Prisma.ShippingZoneModel

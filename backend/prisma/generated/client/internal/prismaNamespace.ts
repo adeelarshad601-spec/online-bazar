@@ -419,7 +419,8 @@ export const ModelName = {
   CouponUsage: 'CouponUsage',
   Notification: 'Notification',
   OrderStatusHistory: 'OrderStatusHistory',
-  SellerPayout: 'SellerPayout'
+  SellerPayout: 'SellerPayout',
+  ShippingZone: 'ShippingZone'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -435,7 +436,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "address" | "shop" | "sellerPlan" | "sellerSubscription" | "category" | "product" | "productImage" | "productVariant" | "cart" | "cartItem" | "wishlist" | "wishlistItem" | "order" | "vendorOrder" | "orderItem" | "payment" | "review" | "coupon" | "couponUsage" | "notification" | "orderStatusHistory" | "sellerPayout"
+    modelProps: "user" | "address" | "shop" | "sellerPlan" | "sellerSubscription" | "category" | "product" | "productImage" | "productVariant" | "cart" | "cartItem" | "wishlist" | "wishlistItem" | "order" | "vendorOrder" | "orderItem" | "payment" | "review" | "coupon" | "couponUsage" | "notification" | "orderStatusHistory" | "sellerPayout" | "shippingZone"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2141,6 +2142,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ShippingZone: {
+      payload: Prisma.$ShippingZonePayload<ExtArgs>
+      fields: Prisma.ShippingZoneFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingZoneFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingZoneFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingZoneFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingZoneFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        findMany: {
+          args: Prisma.ShippingZoneFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>[]
+        }
+        create: {
+          args: Prisma.ShippingZoneCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        createMany: {
+          args: Prisma.ShippingZoneCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingZoneCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingZoneDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        update: {
+          args: Prisma.ShippingZoneUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingZoneDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingZoneUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingZoneUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingZoneUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingZonePayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingZoneAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingZone>
+        }
+        groupBy: {
+          args: Prisma.ShippingZoneGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingZoneGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingZoneCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingZoneCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2202,7 +2277,9 @@ export const AddressScalarFieldEnum = {
   fullName: 'fullName',
   phone: 'phone',
   address: 'address',
+  unit: 'unit',
   city: 'city',
+  state: 'state',
   postalCode: 'postalCode',
   country: 'country',
   isDefault: 'isDefault',
@@ -2366,7 +2443,12 @@ export const OrderScalarFieldEnum = {
   id: 'id',
   orderNumber: 'orderNumber',
   userId: 'userId',
+  subtotal: 'subtotal',
+  discount: 'discount',
+  shippingAmount: 'shippingAmount',
   totalAmount: 'totalAmount',
+  shippingZone: 'shippingZone',
+  shippingMethod: 'shippingMethod',
   paymentStatus: 'paymentStatus',
   status: 'status',
   shippingAddress: 'shippingAddress',
@@ -2384,6 +2466,7 @@ export const VendorOrderScalarFieldEnum = {
   shopId: 'shopId',
   status: 'status',
   subTotal: 'subTotal',
+  shippingAmount: 'shippingAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2502,6 +2585,25 @@ export const SellerPayoutScalarFieldEnum = {
 } as const
 
 export type SellerPayoutScalarFieldEnum = (typeof SellerPayoutScalarFieldEnum)[keyof typeof SellerPayoutScalarFieldEnum]
+
+
+export const ShippingZoneScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  countries: 'countries',
+  states: 'states',
+  cities: 'cities',
+  postalCodes: 'postalCodes',
+  shippingCharge: 'shippingCharge',
+  isFreeShipping: 'isFreeShipping',
+  freeShippingMinAmount: 'freeShippingMinAmount',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShippingZoneScalarFieldEnum = (typeof ShippingZoneScalarFieldEnum)[keyof typeof ShippingZoneScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2940,6 +3042,7 @@ export type GlobalOmitConfig = {
   notification?: Prisma.NotificationOmit
   orderStatusHistory?: Prisma.OrderStatusHistoryOmit
   sellerPayout?: Prisma.SellerPayoutOmit
+  shippingZone?: Prisma.ShippingZoneOmit
 }
 
 /* Types for Logging */

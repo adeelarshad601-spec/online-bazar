@@ -2,6 +2,7 @@ import { Decimal } from "@prisma/client/runtime/client";
 import prisma from "../config/database.js";
 import { CheckoutInput } from "../validators/checkout.validator.js";
 import { createNotification } from "./notification.service.js";
+import { calculateShippingQuote } from "./shipping.service.js";
 
 const mapOrderItem = (item: any) => ({
   id: item.id,
@@ -17,15 +18,15 @@ const mapVendorOrder = (vendorOrder: any) => ({
   shopId: vendorOrder.shopId,
   status: vendorOrder.status,
   subTotal: vendorOrder.subTotal,
+  shippingAmount: vendorOrder.shippingAmount,
   createdAt: vendorOrder.createdAt,
-  items: vendorOrder.items.map(mapOrderItem),
+  items: vendorOrder.items ? vendorOrder.items.map(mapOrderItem) : [],
 });
 
 export const processCheckout = async (userId: string, input: CheckoutInput) => {
   const { shippingAddress, paymentMethod, couponCode, buyNowItem } = input;
 
   let rawItems: Array<{ productId: string; variantId?: string | null; quantity: number }> = [];
-
   let lockedCartId: string | null = null;
 
   if (buyNowItem) {
@@ -166,7 +167,37 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     }
   }
 
-  const totalAmount = orderSubTotal.sub(discountAmount);
+  // Calculate Shipping Authoritatively on Backend
+  const vendorSubtotalsMap: Record<string, Decimal> = {};
+  for (const item of checkedItems) {
+    const shopId = item.product.shopId;
+    if (!vendorSubtotalsMap[shopId]) {
+      vendorSubtotalsMap[shopId] = new Decimal(0);
+    }
+    vendorSubtotalsMap[shopId] = vendorSubtotalsMap[shopId].add(item.subtotal);
+  }
+
+  const vendorSubtotalsList = Object.entries(vendorSubtotalsMap).map(([shopId, subtotal]) => ({
+    shopId,
+    subtotal,
+  }));
+
+  const shippingResult = await calculateShippingQuote(
+    {
+      country: shippingAddress.country,
+      state: shippingAddress.state || null,
+      city: shippingAddress.city,
+      postalCode: shippingAddress.postalCode || null,
+    },
+    vendorSubtotalsList
+  );
+
+  if (!shippingResult.isDeliverable) {
+    throw new Error(shippingResult.message || "Sorry, we currently don't deliver to this location.");
+  }
+
+  const shippingAmount = shippingResult.totalShippingAmount;
+  const totalAmount = orderSubTotal.sub(discountAmount).add(shippingAmount);
 
   const orderNumber = `OB-${Date.now()}-${Math.random()
     .toString(36)
@@ -229,7 +260,12 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
       data: {
         orderNumber,
         userId,
+        subtotal: orderSubTotal,
+        discount: discountAmount,
+        shippingAmount,
         totalAmount,
+        shippingZone: shippingResult.matchedZone?.name || "Standard",
+        shippingMethod: "Standard",
         paymentStatus: "PENDING",
         status: "PENDING",
         shippingAddress: shippingAddress as any,
@@ -253,11 +289,13 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
 
     const vendorOrderRecords = await Promise.all(
       Object.values(vendorGroups).map(async (group) => {
+        const vendorShipping = shippingResult.vendorShippingMap[group.shopId] || new Decimal(0);
         const vendorOrder = await tx.vendorOrder.create({
           data: {
             orderId: order.id,
             shopId: group.shopId,
             subTotal: group.subTotal,
+            shippingAmount: vendorShipping,
           },
         });
 
@@ -335,6 +373,9 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     return {
       id: order.id,
       orderNumber: order.orderNumber,
+      subtotal: order.subtotal,
+      discount: order.discount,
+      shippingAmount: order.shippingAmount,
       totalAmount: order.totalAmount,
       paymentStatus: order.paymentStatus,
       shippingAddress: order.shippingAddress,
@@ -370,4 +411,3 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
 
   return completedOrder;
 };
-

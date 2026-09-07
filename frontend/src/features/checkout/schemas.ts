@@ -2,9 +2,11 @@ import { z } from "zod";
 
 export const shippingAddressSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required"),
-  phone: z.string().trim().min(5, "Phone number is required (at least 5 characters)"),
+  phone: z.string().trim().min(5, "Phone number is required (at least 5 digits)"),
   address: z.string().trim().min(1, "Street address is required"),
+  unit: z.string().trim().optional().nullable(),
   city: z.string().trim().min(1, "City is required"),
+  state: z.string().trim().optional().nullable(),
   postalCode: z.string().trim().min(1, "Postal code is required"),
   country: z.string().trim().min(1, "Country is required"),
 });
@@ -29,6 +31,9 @@ export type CheckoutInput = z.infer<typeof checkoutSchema>;
 export interface CheckoutResponseData {
   id: string;
   orderNumber: string;
+  subtotal?: number;
+  discount?: number;
+  shippingAmount?: number;
   totalAmount: number;
   paymentStatus: string;
   shippingAddress: ShippingAddressInput;
