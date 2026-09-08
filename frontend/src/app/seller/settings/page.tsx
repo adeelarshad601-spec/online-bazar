@@ -81,6 +81,50 @@ function SellerSettingsContent() {
   const [emailMarketing, setEmailMarketing] = useState(false);
   const [browserAlerts, setBrowserAlerts] = useState(true);
 
+  // Sync saved theme and preferences on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const savedTheme = localStorage.getItem("theme") || localStorage.getItem("admin-theme");
+    if (savedTheme === "dark") {
+      setThemeMode("dark");
+    } else if (savedTheme === "light") {
+      setThemeMode("light");
+    } else {
+      setThemeMode("system");
+    }
+
+    const savedAccent = localStorage.getItem("seller-accent-color");
+    if (savedAccent) setAccentColor(savedAccent);
+
+    const savedCompact = localStorage.getItem("seller-compact-mode");
+    if (savedCompact !== null) setCompactMode(savedCompact === "true");
+
+    const savedAutoSave = localStorage.getItem("seller-autosave-drafts");
+    if (savedAutoSave !== null) setAutoSaveDrafts(savedAutoSave === "true");
+  }, []);
+
+  const handleApplyTheme = (mode: "light" | "dark" | "system") => {
+    setThemeMode(mode);
+    if (mode === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.style.colorScheme = "dark";
+      localStorage.setItem("theme", "dark");
+      localStorage.setItem("admin-theme", "dark");
+    } else if (mode === "light") {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.style.colorScheme = "light";
+      localStorage.setItem("theme", "light");
+      localStorage.setItem("admin-theme", "light");
+    } else {
+      localStorage.removeItem("theme");
+      localStorage.removeItem("admin-theme");
+      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", systemDark);
+      document.documentElement.style.colorScheme = systemDark ? "dark" : "light";
+    }
+  };
+
   useEffect(() => {
     if (user) {
       setName(user.name || "");
@@ -353,7 +397,7 @@ function SellerSettingsContent() {
                         <button
                           key={mode.id}
                           type="button"
-                          onClick={() => setThemeMode(mode.id as any)}
+                          onClick={() => handleApplyTheme(mode.id as any)}
                           className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-4 transition ${
                             isSelected
                               ? "border-teal-600 bg-teal-50 text-teal-800 font-bold dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-300 ring-2 ring-teal-500/20"
@@ -438,7 +482,11 @@ function SellerSettingsContent() {
                   <button
                     type="button"
                     onClick={() => {
-                      setSaveSuccess("Personalization preferences saved!");
+                      handleApplyTheme(themeMode);
+                      localStorage.setItem("seller-accent-color", accentColor);
+                      localStorage.setItem("seller-compact-mode", compactMode ? "true" : "false");
+                      localStorage.setItem("seller-autosave-drafts", autoSaveDrafts ? "true" : "false");
+                      setSaveSuccess("Personalization preferences applied successfully!");
                       setTimeout(() => setSaveSuccess(null), 3000);
                     }}
                     className="inline-flex items-center gap-2 rounded-2xl bg-teal-600 px-6 py-2.5 text-xs font-bold text-white transition hover:bg-teal-700"

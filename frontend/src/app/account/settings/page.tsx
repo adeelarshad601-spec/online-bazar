@@ -28,6 +28,7 @@ import {
   Shield,
   Sun,
   Moon,
+  Monitor,
   Sparkles,
   CheckCircle2,
 } from "lucide-react";
@@ -84,6 +85,38 @@ function AccountSettingsContent() {
       }
     }
   }, [searchParams]);
+
+  const [accountTheme, setAccountTheme] = useState<"light" | "dark" | "system">("system");
+  const [personalizationSuccess, setPersonalizationSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const savedTheme = localStorage.getItem("theme") || localStorage.getItem("admin-theme");
+    if (savedTheme === "dark") setAccountTheme("dark");
+    else if (savedTheme === "light") setAccountTheme("light");
+    else setAccountTheme("system");
+  }, []);
+
+  const handleApplyAccountTheme = (mode: "light" | "dark" | "system") => {
+    setAccountTheme(mode);
+    if (mode === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.style.colorScheme = "dark";
+      localStorage.setItem("theme", "dark");
+      localStorage.setItem("admin-theme", "dark");
+    } else if (mode === "light") {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.style.colorScheme = "light";
+      localStorage.setItem("theme", "light");
+      localStorage.setItem("admin-theme", "light");
+    } else {
+      localStorage.removeItem("theme");
+      localStorage.removeItem("admin-theme");
+      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", systemDark);
+      document.documentElement.style.colorScheme = systemDark ? "dark" : "light";
+    }
+  };
 
   const { mutate: updateProfile, isPending: isUpdatingProfile } = useUpdateProfileMutation();
   const { mutate: changePassword, isPending: isChangingPassword } = useChangePasswordMutation();
@@ -254,123 +287,167 @@ function AccountSettingsContent() {
             })}
           </div>
 
-          <form id="profile" onSubmit={handleSubmitProfile(onProfileSubmit)} className="mx-auto max-w-md space-y-5">
-          <div className="relative flex flex-col items-center justify-center pt-2">
-            <button
-              type="button"
-              onClick={handleAvatarClick}
-              disabled={isUpdatingProfile}
-              className="group relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-[6px] border-zinc-100 bg-zinc-100 shadow-md ring-1 ring-zinc-200 transition hover:scale-[1.01] dark:border-zinc-800 dark:bg-zinc-800 dark:ring-zinc-700"
-              aria-label="Open profile picture actions"
-            >
-              {avatarPreview ? (
-                <img src={avatarPreview} alt="Profile preview" className="h-full w-full object-cover" />
-              ) : (
-                <UserIcon className="h-12 w-12 text-zinc-400" />
-              )}
+          {/* Profile Tab */}
+          {(activeTab === "profile" || !activeTab) && (
+            <form id="profile" onSubmit={handleSubmitProfile(onProfileSubmit)} className="mx-auto max-w-md space-y-5">
+              <div className="relative flex flex-col items-center justify-center pt-2">
+                <button
+                  type="button"
+                  onClick={handleAvatarClick}
+                  disabled={isUpdatingProfile}
+                  className="group relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-[6px] border-zinc-100 bg-zinc-100 shadow-md ring-1 ring-zinc-200 transition hover:scale-[1.01] dark:border-zinc-800 dark:bg-zinc-800 dark:ring-zinc-700"
+                  aria-label="Open profile picture actions"
+                >
+                  {avatarPreview ? (
+                    <img src={avatarPreview} alt="Profile preview" className="h-full w-full object-cover" />
+                  ) : (
+                    <UserIcon className="h-12 w-12 text-zinc-400" />
+                  )}
 
-              <span className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition group-hover:opacity-100">
-                <Camera className="h-6 w-6 text-white" />
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleAvatarClick}
-              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-emerald-500 bg-emerald-50 px-4 py-2 text-[12px] font-bold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300"
-            >
-              <ImageUp className="h-3.5 w-3.5" />
-              Change Photo
-            </button>
-
-            {avatarMenuOpen && (
-              <div className="absolute top-36 z-20 mt-2 w-52 rounded-2xl border border-zinc-200 bg-white p-2 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
-                {avatarPreview && (
-                  <button
-                    type="button"
-                    onClick={handleViewAvatar}
-                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
-                  >
-                    <Camera className="h-3.5 w-3.5" />
-                    View picture
-                  </button>
-                )}
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition group-hover:opacity-100">
+                    <Camera className="h-6 w-6 text-white" />
+                  </span>
+                </button>
 
                 <button
                   type="button"
-                  onClick={() => triggerAvatarInput("choose")}
-                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                  onClick={handleAvatarClick}
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-emerald-500 bg-emerald-50 px-4 py-2 text-[12px] font-bold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300"
                 >
                   <ImageUp className="h-3.5 w-3.5" />
-                  Upload picture
+                  Change Photo
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => triggerAvatarInput("camera")}
-                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
-                >
-                  <Camera className="h-3.5 w-3.5" />
-                  Take picture
-                </button>
+                {avatarMenuOpen && (
+                  <div className="absolute top-36 z-20 mt-2 w-52 rounded-2xl border border-zinc-200 bg-white p-2 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
+                    {avatarPreview && (
+                      <button
+                        type="button"
+                        onClick={handleViewAvatar}
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                      >
+                        <Camera className="h-3.5 w-3.5" />
+                        View picture
+                      </button>
+                    )}
 
-                {avatarPreview && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveAvatar}
-                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
-                  >
-                    <span className="text-base leading-none">×</span>
-                    Remove
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => triggerAvatarInput("choose")}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                    >
+                      <ImageUp className="h-3.5 w-3.5" />
+                      Upload picture
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => triggerAvatarInput("camera")}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                    >
+                      <Camera className="h-3.5 w-3.5" />
+                      Take picture
+                    </button>
+
+                    {avatarPreview && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveAvatar}
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                      >
+                        <span className="text-base leading-none">×</span>
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  disabled={isUpdatingProfile}
+                  onChange={handleAvatarFileChange}
+                  className="hidden"
+                />
+              </div>
+
+              {profileErrors.avatar && (
+                <p className="text-center text-[11px] text-red-500">{profileErrors.avatar.message}</p>
+              )}
+
+              <div className="pt-2">
+                <label className="mb-2 block text-[15px] font-semibold text-zinc-800 dark:text-zinc-200">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  disabled={isUpdatingProfile}
+                  {...registerProfile("name")}
+                  className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm transition focus:border-emerald-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                />
+                {profileErrors.name && (
+                  <p className="mt-1 text-[11px] text-red-500">{profileErrors.name.message}</p>
                 )}
               </div>
-            )}
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              disabled={isUpdatingProfile}
-              onChange={handleAvatarFileChange}
-              className="hidden"
-            />
-          </div>
-
-          {profileErrors.avatar && (
-            <p className="text-center text-[11px] text-red-500">{profileErrors.avatar.message}</p>
+              <button
+                type="submit"
+                disabled={isUpdatingProfile}
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
+              >
+                {isUpdatingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                <span>Save Profile</span>
+              </button>
+            </form>
           )}
 
-          <div className="pt-2">
-            <label className="mb-2 block text-[15px] font-semibold text-zinc-800 dark:text-zinc-200">
-              Full Name
-            </label>
-            <input
-              type="text"
-              disabled={isUpdatingProfile}
-              {...registerProfile("name")}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm transition focus:border-emerald-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-            />
-            {profileErrors.name && (
-              <p className="mt-1 text-[11px] text-red-500">{profileErrors.name.message}</p>
-            )}
-          </div>
+          {/* Personalization Tab */}
+          {activeTab === "personalization" && (
+            <div className="mx-auto max-w-md space-y-6">
+              <div className="border-b border-zinc-100 dark:border-zinc-800 pb-3">
+                <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <Palette className="h-4 w-4 text-teal-600" />
+                  <span>Appearance & Theme Mode</span>
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Switch between Light Mode, Dark Mode, or match your system settings.
+                </p>
+              </div>
 
-          <button
-            type="submit"
-            disabled={isUpdatingProfile}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
-          >
-            {isUpdatingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            <span>Save Profile</span>
-          </button>
-        </form>
-        </div>
-      </div>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { id: "light", label: "Light Mode", icon: Sun },
+                  { id: "dark", label: "Dark Mode", icon: Moon },
+                  { id: "system", label: "System", icon: Monitor },
+                ].map((mode) => {
+                  const Icon = mode.icon;
+                  const isSelected = accountTheme === mode.id;
+                  return (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => handleApplyAccountTheme(mode.id as any)}
+                      className={`flex flex-col items-center justify-center gap-2 rounded-2xl border p-4 transition ${
+                        isSelected
+                          ? "border-teal-600 bg-teal-50 text-teal-800 font-bold dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-300 ring-2 ring-teal-500/20"
+                          : "border-zinc-200 bg-zinc-50/50 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-800/40 dark:text-zinc-400"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span className="text-xs">{mode.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-      {/* Password Card */}
-      <div id="security" className="rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 space-y-6">
-        <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+          {/* Security Tab */}
+          {activeTab === "security" && (
+            <>
+              <div id="security" className="space-y-6 max-w-xl mx-auto">
+              <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800 pb-4">
           <Lock className="h-5 w-5 text-emerald-600" />
           <h2 className="text-base font-bold text-zinc-900 dark:text-white">
             Security & Password
@@ -586,7 +663,11 @@ function AccountSettingsContent() {
           </div>
         )}
       </div>
-    </div>
+    </>
+  )}
+</div>
+</div>
+</div>
   );
 }
 
