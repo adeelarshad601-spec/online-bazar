@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useEffect, useRef } from "react";
 import { useCurrentUser, useLogout } from "@/features/auth/queries";
 import { useSellerStatus } from "@/features/seller/queries";
+import { useUnreadCount } from "@/features/notifications/queries";
 import { useRouter } from "next/navigation";
 import {
   User,
@@ -14,6 +15,7 @@ import {
   Settings2,
   HelpCircle,
   Palette,
+  Bell,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -24,6 +26,7 @@ export default function SellerProfileCard() {
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const { data: unreadData } = useUnreadCount();
 
   // Handle click outside
   useEffect(() => {
@@ -48,6 +51,7 @@ export default function SellerProfileCard() {
   };
 
   const userInitial = user?.name?.charAt(0)?.toUpperCase() || "S";
+  const unreadCount = unreadData?.unreadCount || 0;
 
   const menuItems = [
     {
@@ -64,6 +68,11 @@ export default function SellerProfileCard() {
       icon: Settings2,
       label: "Settings",
       href: "/account/settings#security",
+    },
+    {
+      icon: Bell,
+      label: "Notifications",
+      href: "/account/notifications",
     },
     {
       icon: HelpCircle,
@@ -110,11 +119,18 @@ export default function SellerProfileCard() {
             </div>
           </div>
 
-          <ChevronUp
-            className={`h-5 w-5 text-zinc-400 dark:text-zinc-500 transition-transform flex-shrink-0 ${
-              isProfileOpen ? "" : "rotate-180"
-            }`}
-          />
+          <div className="flex items-center gap-2">
+            {!isProfileOpen && unreadCount > 0 && (
+              <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-[10px] font-black text-white shadow-sm">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+            <ChevronUp
+              className={`h-5 w-5 text-zinc-400 dark:text-zinc-500 transition-transform flex-shrink-0 ${
+                isProfileOpen ? "" : "rotate-180"
+              }`}
+            />
+          </div>
         </button>
 
         {/* Expanded Menu - Slides down from button */}
@@ -136,6 +152,11 @@ export default function SellerProfileCard() {
                   >
                     <Icon className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                     <span>{item.label}</span>
+                    {item.label === "Notifications" && unreadCount > 0 && (
+                      <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-[10px] font-black text-white">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
                   </Link>
                 );
               })}

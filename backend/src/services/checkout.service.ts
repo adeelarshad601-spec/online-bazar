@@ -405,6 +405,7 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
         type: "ORDER",
         title: "New order received",
         message: `A new order has been placed for products from ${shop.name}.`,
+        actionUrl: "/seller/orders",
       })
     )
   );
