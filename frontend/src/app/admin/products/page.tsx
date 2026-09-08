@@ -34,6 +34,7 @@ export default function AdminProductsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [quickMenuId, setQuickMenuId] = useState<string | null>(null);
+  const [quickMenuPosition, setQuickMenuPosition] = useState({ top: 12, left: 12 });
   const [revisionProductId, setRevisionProductId] = useState<string | null>(null);
   const [revisionNote, setRevisionNote] = useState("");
 
@@ -349,25 +350,61 @@ export default function AdminProductsPage() {
                         <div className="relative flex items-center justify-end">
                           <button
                             type="button"
-                            onClick={() => setQuickMenuId((prev) => (prev === product.id ? null : product.id))}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                            onClick={(event) => {
+                              if (quickMenuId === product.id) {
+                                setQuickMenuId(null);
+                                return;
+                              }
+
+                              const buttonRect = event.currentTarget.getBoundingClientRect();
+                              const menuHeight = 270;
+                              const menuWidth = 256;
+                              const spaceAbove = buttonRect.top - 12;
+                              const top =
+                                spaceAbove >= menuHeight
+                                  ? buttonRect.top - menuHeight
+                                  : Math.min(window.innerHeight - menuHeight - 12, buttonRect.bottom + 8);
+
+                              setQuickMenuPosition({
+                                top: Math.max(12, top),
+                                left: Math.min(window.innerWidth - menuWidth - 12, Math.max(12, buttonRect.right - menuWidth)),
+                              });
+                              setQuickMenuId(product.id);
+                            }}
+                            className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border transition ${
+                              quickMenuId === product.id
+                                ? "border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-300"
+                                : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                            }`}
                             aria-label={`Open quick actions for ${product.title}`}
+                            aria-expanded={quickMenuId === product.id}
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </button>
 
                           {quickMenuId === product.id && (
-                            <div className="absolute right-0 top-10 z-20 w-56 rounded-2xl border border-zinc-200 bg-white p-2 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
+                            <div
+                              style={{ top: quickMenuPosition.top, left: quickMenuPosition.left }}
+                              className="fixed z-[100] w-64 origin-bottom-right rounded-2xl border border-zinc-200 bg-white p-1.5 shadow-[0_14px_35px_-12px_rgba(0,0,0,0.35)] ring-1 ring-black/5 dark:border-zinc-700 dark:bg-zinc-900 dark:ring-white/5"
+                            >
+                              <div className="flex items-center justify-between border-b border-zinc-100 px-2.5 pb-2 pt-1 dark:border-zinc-800">
+                                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-zinc-400">Product actions</span>
+                                <span className="rounded-full bg-zinc-100 px-1.5 py-0.5 text-[9px] font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                                  {product.status || "APPROVED"}
+                                </span>
+                              </div>
                               <button
                                 type="button"
                                 onClick={() => {
                                   setQuickMenuId(null);
                                   window.open(`/products/${product.id}`, "_blank", "noopener,noreferrer");
                                 }}
-                                className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                                className="mt-1 flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[11px] font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
                               >
-                                <Eye className="h-3.5 w-3.5" />
-                                View / Preview Item
+                                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300">
+                                  <Eye className="h-3.5 w-3.5" />
+                                </span>
+                                <span>View / Preview Item</span>
                               </button>
 
                               <button
@@ -376,30 +413,38 @@ export default function AdminProductsPage() {
                                   setQuickMenuId(null);
                                   setRevisionProductId(product.id);
                                 }}
-                                className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                                className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[11px] font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
                               >
-                                <MessageSquareWarning className="h-3.5 w-3.5" />
-                                Request Revision with Feedback
+                                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-300">
+                                  <MessageSquareWarning className="h-3.5 w-3.5" />
+                                </span>
+                                <span>Request Revision with Feedback</span>
                               </button>
+
+                              <div className="my-1 border-t border-zinc-100 dark:border-zinc-800" />
 
                               <button
                                 type="button"
                                 onClick={() => handleStatusChange(product.id, "APPROVED")}
                                 disabled={isThisUpdating}
-                                className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-emerald-700 transition hover:bg-emerald-50 disabled:opacity-60 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                                className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-50 disabled:opacity-60 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
                               >
-                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                Approve
+                                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/50">
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                </span>
+                                <span>Approve product</span>
                               </button>
 
                               <button
                                 type="button"
                                 onClick={() => handleStatusChange(product.id, "REJECTED")}
                                 disabled={isThisUpdating}
-                                className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[11px] font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-60 dark:text-red-400 dark:hover:bg-red-950/40"
+                                className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[11px] font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-60 dark:text-red-400 dark:hover:bg-red-950/40"
                               >
-                                <XCircle className="h-3.5 w-3.5" />
-                                Reject
+                                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 dark:bg-red-950/50">
+                                  <XCircle className="h-3.5 w-3.5" />
+                                </span>
+                                <span>Reject product</span>
                               </button>
                             </div>
                           )}
