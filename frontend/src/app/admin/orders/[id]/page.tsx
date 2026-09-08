@@ -156,9 +156,9 @@ function AdminOrderDetailContent({ orderId }: { orderId: string }) {
             <div className="text-xs space-y-1 text-zinc-600 dark:text-zinc-300 leading-relaxed">
               <p className="font-bold text-zinc-900 dark:text-white">{address.fullName}</p>
               <p>{address.phone}</p>
-              <p>{address.address} {address.unit ? `(${address.unit})` : ""}</p>
+              <p>{address.address} {(address as any).unit ? `(${(address as any).unit})` : ""}</p>
               <p>
-                {address.city} {address.state ? `, ${address.state}` : ""} {address.postalCode}
+                {address.city} {(address as any).state ? `, ${(address as any).state}` : ""} {address.postalCode}
               </p>
               {address.country && <p className="font-semibold">{address.country}</p>}
             </div>

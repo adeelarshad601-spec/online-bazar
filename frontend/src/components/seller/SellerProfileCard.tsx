@@ -57,17 +57,17 @@ export default function SellerProfileCard() {
     {
       icon: Palette,
       label: "Personalization",
-      href: "/account/settings#personalization",
+      href: "/seller/settings?tab=personalization",
     },
     {
       icon: User,
       label: "Profile",
-      href: "/account/settings#profile",
+      href: "/account/settings?tab=profile",
     },
     {
       icon: Settings2,
       label: "Settings",
-      href: "/account/settings#security",
+      href: "/seller/settings?tab=general",
     },
     {
       icon: Bell,
@@ -77,10 +77,7 @@ export default function SellerProfileCard() {
     {
       icon: HelpCircle,
       label: "Help",
-      href: "#",
-      onClick: (e: React.MouseEvent) => {
-        e.preventDefault();
-      },
+      href: "/seller/help",
     },
   ];
 
@@ -144,8 +141,7 @@ export default function SellerProfileCard() {
                   <Link
                     key={item.label}
                     href={item.href}
-                    onClick={(e) => {
-                      if (item.onClick) item.onClick(e as React.MouseEvent);
+                    onClick={() => {
                       setIsProfileOpen(false);
                     }}
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-emerald-50 dark:text-zinc-300 dark:hover:bg-zinc-700/50"

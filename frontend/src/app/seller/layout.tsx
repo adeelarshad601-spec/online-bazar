@@ -43,7 +43,9 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
     pathname.startsWith("/seller/shop") ||
     pathname.startsWith("/seller/products") ||
     pathname.startsWith("/seller/orders") ||
-    pathname.startsWith("/seller/payouts");
+    pathname.startsWith("/seller/payouts") ||
+    pathname.startsWith("/seller/settings") ||
+    pathname.startsWith("/seller/help");
 
   // Access check — only enforce SELLER role on actual portal pages
   if (user && user.role !== "SELLER" && isSellerPortalPath) {
