@@ -80,7 +80,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
       id={`product-card-${product.id}`}
     >
       {/* Top Image Container */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white dark:bg-zinc-800/80 flex items-center justify-center p-4">
+      <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white dark:bg-zinc-800/80">
         <Link href={`/products/${product.id}`} className="relative block h-full w-full">
           {primaryImage ? (
             <Image
@@ -89,7 +89,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               priority={priority}
-              className="object-contain transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-zinc-300 dark:text-zinc-600">
