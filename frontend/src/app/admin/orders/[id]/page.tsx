@@ -177,8 +177,8 @@ function AdminOrderDetailContent({ orderId }: { orderId: string }) {
           <div className="text-xs space-y-2">
             <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
               <span>Payment Status</span>
-              <span className={`font-bold ${isRefunded ? "text-red-600" : "text-emerald-600"}`}>
-                {order.paymentStatus || "COMPLETED"}
+              <span className={`font-bold ${isRefunded ? "text-red-600" : order.paymentStatus === "FAILED" ? "text-red-600" : "text-emerald-600"}`}>
+                {order.paymentStatus || "PENDING"}
               </span>
             </div>
 

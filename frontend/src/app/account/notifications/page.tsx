@@ -52,6 +52,8 @@ function NotificationsContent() {
       router.push("/admin/sellers?status=SUSPENDED");
     } else if (notification.title === "New product submitted for approval") {
       router.push("/admin/products?status=PENDING");
+    } else if (notification.title.toLowerCase().includes("order")) {
+      router.push("/orders");
     }
   };
 

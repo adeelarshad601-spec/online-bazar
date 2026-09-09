@@ -231,6 +231,20 @@ export const updateVendorOrderStatus = async (req: AuthRequest, res: Response) =
       });
     }
 
+    if (error instanceof Error && error.message.includes("Invalid order status transition")) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    if (error instanceof Error && error.message.includes("Cannot process this order because")) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
     console.error("Update vendor order status error:", error);
     return res.status(500).json({
       success: false,
@@ -292,6 +306,20 @@ export const updateAdminOrderStatus = async (req: AuthRequest, res: Response) =>
   } catch (error) {
     if (error instanceof Error && error.message === "Order not found") {
       return res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    if (error instanceof Error && error.message.includes("Invalid order status transition")) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    if (error instanceof Error && error.message.includes("Cannot process this order because")) {
+      return res.status(400).json({
         success: false,
         message: error.message,
       });

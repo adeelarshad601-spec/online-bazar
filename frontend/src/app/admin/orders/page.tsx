@@ -122,8 +122,16 @@ export default function AdminOrdersPage() {
                         ${Number(order.totalAmount).toFixed(2)}
                       </td>
                       <td className="py-4 px-4">
-                        <span className="inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                          {order.paymentStatus || "COMPLETED"}
+                        <span
+                          className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                            order.paymentStatus === "FAILED"
+                              ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
+                              : order.paymentStatus === "PENDING"
+                              ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                              : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                          }`}
+                        >
+                          {order.paymentStatus || "PENDING"}
                         </span>
                       </td>
                       <td className="py-4 px-4">

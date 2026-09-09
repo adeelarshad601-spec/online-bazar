@@ -65,7 +65,9 @@ function VendorOrderDetailContent({ vendorOrderId }: { vendorOrderId: string }) 
     }
   };
 
-  const nextStatuses = getAvailableNextStatuses(vendorOrder.status);
+  const paymentStatus = vendorOrder.order?.paymentStatus || "PENDING";
+  const canFulfill = paymentStatus === "COMPLETED";
+  const nextStatuses = canFulfill ? getAvailableNextStatuses(vendorOrder.status) : [];
 
   const handleStatusChange = (st: any) => {
     updateStatus({ id: vendorOrderId, status: st });
@@ -112,6 +114,19 @@ function VendorOrderDetailContent({ vendorOrderId }: { vendorOrderId: string }) 
       </div>
 
       {/* Next Status Action Banner */}
+      {paymentStatus === "FAILED" && (
+        <div className="rounded-3xl border border-red-200 bg-red-50/60 p-6 dark:border-red-900/40 dark:bg-red-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-sm font-bold text-red-900 dark:text-red-300">
+              Fulfillment blocked
+            </h3>
+            <p className="text-xs text-red-700 dark:text-red-400">
+              Payment status is <strong>{paymentStatus}</strong>, so this order cannot move to Processing, Shipped, or Delivered.
+            </p>
+          </div>
+        </div>
+      )}
+
       {nextStatuses.length > 0 && (
         <div className="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-6 dark:border-emerald-900/40 dark:bg-emerald-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -177,8 +192,8 @@ function VendorOrderDetailContent({ vendorOrderId }: { vendorOrderId: string }) 
             </div>
             <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
               <span>Payment Status</span>
-              <span className="font-semibold text-emerald-600">
-                {vendorOrder.order?.paymentStatus || "COMPLETED (COD)"}
+              <span className={`font-semibold ${vendorOrder.order?.paymentStatus === "FAILED" ? "text-red-600" : paymentStatus === "PENDING" ? "text-amber-600" : "text-emerald-600"}`}>
+                {paymentStatus}
               </span>
             </div>
           </div>

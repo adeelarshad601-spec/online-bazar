@@ -9,6 +9,7 @@ import { useCategories } from "@/features/products/queries";
 import { useCart } from "@/features/cart/queries";
 import { useWishlist } from "@/features/wishlist/queries";
 import { useCustomerOrders } from "@/features/orders/queries";
+import { useUnreadCount } from "@/features/notifications/queries";
 import {
   Search,
   ShoppingCart,
@@ -40,6 +41,7 @@ export default function Header() {
   const { data: cartData } = useCart();
   const { data: wishlistData } = useWishlist();
   const { data: customerOrdersData } = useCustomerOrders();
+  const { data: unreadData } = useUnreadCount();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -98,6 +100,7 @@ export default function Header() {
 
 
   const categories = categoriesData || [];
+  const unreadCount = unreadData?.unreadCount ?? 0;
 
   const selectedCatObj = categories.find((c) => c.id === selectedCategory);
   const selectedCatName = selectedCategory === "All" ? "All Categories" : selectedCatObj?.name || "All Categories";
@@ -251,6 +254,23 @@ export default function Header() {
               </span>
             </Link>
 
+            {/* Notifications Icon with Counter Badge */}
+            {user && (
+              <Link
+                href="/account/notifications"
+                className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-emerald-600 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-emerald-400"
+                aria-label="View Notifications"
+                id="header-notifications-link"
+              >
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 text-[10px] font-bold text-white shadow-xs">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+            )}
+
             {/* Storefront Dark / Light Mode Toggle Button next to Cart */}
             <button
               type="button"
@@ -334,7 +354,12 @@ export default function Header() {
                             className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                           >
                             <Bell className="h-4 w-4 text-amber-600" />
-                            Notifications
+                            <span>Notifications</span>
+                            {unreadCount > 0 && (
+                              <span className="ml-auto min-w-5 rounded-full bg-emerald-600 px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
+                                {unreadCount > 99 ? "99+" : unreadCount}
+                              </span>
+                            )}
                           </Link>
 
                           <Link
@@ -410,7 +435,12 @@ export default function Header() {
                             className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                           >
                             <Bell className="h-4 w-4 text-amber-600" />
-                            Notifications
+                            <span>Notifications</span>
+                            {unreadCount > 0 && (
+                              <span className="ml-auto min-w-5 rounded-full bg-emerald-600 px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
+                                {unreadCount > 99 ? "99+" : unreadCount}
+                              </span>
+                            )}
                           </Link>
 
                           <Link
@@ -450,7 +480,12 @@ export default function Header() {
                             className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
                           >
                             <Bell className="h-4 w-4 text-amber-600" />
-                            Notifications
+                            <span>Notifications</span>
+                            {unreadCount > 0 && (
+                              <span className="ml-auto min-w-5 rounded-full bg-emerald-600 px-1.5 py-0.5 text-center text-[10px] font-bold text-white">
+                                {unreadCount > 99 ? "99+" : unreadCount}
+                              </span>
+                            )}
                           </Link>
 
                           <Link

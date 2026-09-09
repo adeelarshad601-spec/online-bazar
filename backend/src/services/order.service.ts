@@ -38,6 +38,54 @@ const mapOrder = (order: any) => ({
   coupon: order.coupon,
 });
 
+const FULFILLMENT_STATUSES = new Set(["PROCESSING", "SHIPPED", "DELIVERED"]);
+
+const assertValidOrderStatusTransition = (currentStatus: string, nextStatus: string) => {
+  if (nextStatus === currentStatus) {
+    return;
+  }
+
+  const allowedTransitions: Record<string, string[]> = {
+    PENDING: ["PROCESSING", "CANCELLED"],
+    PROCESSING: ["SHIPPED", "CANCELLED"],
+    SHIPPED: ["DELIVERED", "CANCELLED"],
+    DELIVERED: [],
+    CANCELLED: [],
+  };
+
+  if (currentStatus === "CANCELLED") {
+    throw new Error(`Invalid order status transition from ${currentStatus} to ${nextStatus}.`);
+  }
+
+  if (nextStatus === "CANCELLED") {
+    if (["PENDING", "PROCESSING", "SHIPPED"].includes(currentStatus)) {
+      return;
+    }
+  }
+
+  const allowed = allowedTransitions[currentStatus] ?? [];
+  if (!allowed.includes(nextStatus)) {
+    throw new Error(`Invalid order status transition from ${currentStatus} to ${nextStatus}.`);
+  }
+};
+
+const assertPaymentAllowsOrderFulfillment = (
+  paymentStatus: string | null | undefined,
+  nextStatus: string
+) => {
+  if (!FULFILLMENT_STATUSES.has(nextStatus)) {
+    return;
+  }
+
+  if (paymentStatus === "FAILED") {
+    throw new Error("Cannot process this order because payment has failed.");
+  }
+
+  if (paymentStatus !== "COMPLETED") {
+    throw new Error("Cannot process this order because payment is not completed.");
+  }
+};
+
 export const getCustomerOrders = async (
   userId: string,
   query: PaginationQuery
@@ -289,6 +337,11 @@ export const updateVendorOrderStatus = async (
     where: { id: vendorOrderId },
     include: {
       shop: true,
+      order: {
+        include: {
+          payment: true,
+        },
+      },
     },
   });
 
@@ -299,6 +352,11 @@ export const updateVendorOrderStatus = async (
   if (vendorOrder.shop.sellerId !== sellerId) {
     throw new Error("Access denied");
   }
+
+  const currentPaymentStatus = vendorOrder.order.payment?.status ?? vendorOrder.order.paymentStatus;
+
+  assertValidOrderStatusTransition(vendorOrder.status, input.status);
+  assertPaymentAllowsOrderFulfillment(currentPaymentStatus, input.status);
 
   const updated = await prisma.vendorOrder.update({
     where: { id: vendorOrderId },
@@ -315,7 +373,7 @@ export const updateVendorOrderStatus = async (
     },
   });
 
-  // Sync parent Order status and Payment status when seller updates VendorOrder status
+  // Sync parent Order status while preserving the trusted persisted payment state
   try {
     const allVendorOrders = await prisma.vendorOrder.findMany({
       where: { orderId: updated.orderId },
@@ -334,25 +392,12 @@ export const updateVendorOrderStatus = async (
       newOrderStatus = "PROCESSING";
     }
 
-    const isDelivered = newOrderStatus === "DELIVERED" || input.status === "DELIVERED";
-
     await prisma.order.update({
       where: { id: updated.orderId },
       data: {
         status: newOrderStatus,
-        paymentStatus: isDelivered ? "COMPLETED" : updated.order.paymentStatus,
       },
     });
-
-    if (isDelivered) {
-      await prisma.payment.updateMany({
-        where: { orderId: updated.orderId },
-        data: {
-          status: "COMPLETED",
-          paidAt: new Date(),
-        },
-      });
-    }
   } catch (err) {
     console.error("Failed to sync parent order status", err);
   }
@@ -379,6 +424,7 @@ export const updateVendorOrderStatus = async (
       type: "ORDER",
       title: `Order ${updated.order.orderNumber} update`,
       message: `Items from shop ${updated.shop.name} are now ${updated.status}`,
+      actionUrl: `/orders/${updated.order.id}`,
     });
   } catch (err) {
     console.error("Failed to create notification for vendor order status change", err);
@@ -473,11 +519,19 @@ export const updateAdminOrderStatus = async (
 ) => {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
+    include: {
+      payment: true,
+    },
   });
 
   if (!order) {
     throw new Error("Order not found");
   }
+
+  const currentPaymentStatus = order.payment?.status ?? order.paymentStatus;
+
+  assertValidOrderStatusTransition(order.status, input.status);
+  assertPaymentAllowsOrderFulfillment(currentPaymentStatus, input.status);
 
   const updated = await prisma.order.update({
     where: { id: orderId },
@@ -528,6 +582,7 @@ export const updateAdminOrderStatus = async (
       type: "ORDER",
       title: `Order ${updated.orderNumber} status updated`,
       message: `Order status changed to ${updated.status}`,
+      actionUrl: `/orders/${updated.id}`,
     });
   } catch (err) {
     console.error("Failed to create notification for order status change", err);
@@ -667,6 +722,7 @@ export const processOrderRefund = async (
         type: "PAYMENT",
         title: `Refund Processed for Order #${order.orderNumber}`,
         message: `Your refund of $${finalRefundAmount.toFixed(2)} has been processed${shippingDeductionNote}. Reason: ${reason}`,
+        actionUrl: `/orders/${order.id}`,
       });
     } catch (err) {
       console.error("Failed to create refund notification", err);

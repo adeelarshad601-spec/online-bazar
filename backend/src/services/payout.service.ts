@@ -73,36 +73,8 @@ export const getSellerPayoutDashboard = async (sellerId: string) => {
   const commissionRate = await getSellerCommissionRate(sellerId);
   const sellerShareRate = new Decimal(100).sub(commissionRate).div(new Decimal(100)); // e.g. 0.90
 
-  // Auto-sync any existing delivered vendor orders in the DB so parent Order & Payment status reflect COMPLETED/DELIVERED
-  try {
-    const deliveredVendorOrders = await prisma.vendorOrder.findMany({
-      where: {
-        shopId: shop.id,
-        status: "DELIVERED",
-      },
-      select: { orderId: true },
-    });
-
-    if (deliveredVendorOrders.length > 0) {
-      const orderIds = Array.from(new Set(deliveredVendorOrders.map((vo) => vo.orderId)));
-      await prisma.order.updateMany({
-        where: { id: { in: orderIds } },
-        data: {
-          status: "DELIVERED",
-          paymentStatus: "COMPLETED",
-        },
-      });
-      await prisma.payment.updateMany({
-        where: { orderId: { in: orderIds } },
-        data: {
-          status: "COMPLETED",
-          paidAt: new Date(),
-        },
-      });
-    }
-  } catch (err) {
-    console.error("Failed to auto-sync delivered orders in payout dashboard", err);
-  }
+  // Do not auto-rewrite payment status here. The persisted payment state is the source of truth.
+  // A failed or unpaid order must never be promoted to COMPLETED by the payout dashboard.
 
   // All successful paid orders for this shop
   const allPaidOrders = await prisma.vendorOrder.aggregate({
