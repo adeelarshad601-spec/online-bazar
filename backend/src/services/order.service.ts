@@ -212,16 +212,23 @@ export const cancelCustomerOrder = async (userId: string, orderId: string) => {
       )
     );
 
+    const nextPaymentStatus =
+      order.payment?.status === "COMPLETED"
+        ? "REFUNDED"
+        : order.payment?.status === "PENDING"
+          ? "FAILED"
+          : order.payment?.status ?? order.paymentStatus;
+
     await tx.payment.update({
       where: { orderId: order.id },
       data: {
-        status: order.payment?.status === "PENDING" ? "FAILED" : order.payment?.status,
+        status: nextPaymentStatus,
       },
     });
 
     const cancelledOrder = await tx.order.update({
       where: { id: order.id },
-      data: { status: "CANCELLED" },
+      data: { status: "CANCELLED", paymentStatus: nextPaymentStatus },
       include: {
         vendorOrders: {
           include: {
@@ -264,6 +271,23 @@ export const cancelCustomerOrder = async (userId: string, orderId: string) => {
       });
     } catch (err) {
       console.error("Failed to create order status history on cancel", err);
+    }
+
+    try {
+      const refundNotice =
+        nextPaymentStatus === "REFUNDED"
+          ? `Your payment has been refunded and the order has been cancelled.`
+          : `Your order has been cancelled and no payment was captured.`;
+
+      await createNotification({
+        userId,
+        type: "PAYMENT",
+        title: `Order ${order.orderNumber} cancelled`,
+        message: refundNotice,
+        actionUrl: `/orders/${order.id}`,
+      });
+    } catch (err) {
+      console.error("Failed to create cancellation notification", err);
     }
 
     return mapOrder(cancelledOrder);
