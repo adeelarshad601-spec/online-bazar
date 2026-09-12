@@ -12,7 +12,7 @@ import {
 
 export const getShippingQuoteHandler = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { shippingAddress, buyNowItem } = req.body;
+    const { shippingAddress, buyNowItem, selectedCartItemIds } = req.body;
 
     if (!shippingAddress || !shippingAddress.city || !shippingAddress.country) {
       return res.status(400).json({
@@ -39,7 +39,12 @@ export const getShippingQuoteHandler = async (req: Request, res: Response): Prom
       });
 
       if (cart && cart.items.length > 0) {
-        rawItems = cart.items.map((item) => ({
+        const selectedIds = new Set((selectedCartItemIds || []).filter(Boolean));
+        const filteredItems = selectedIds.size > 0
+          ? cart.items.filter((item) => selectedIds.has(item.id))
+          : cart.items;
+
+        rawItems = filteredItems.map((item) => ({
           productId: item.productId,
           variantId: item.variantId,
           quantity: item.quantity,

@@ -23,6 +23,7 @@ export const checkoutSchema = z.object({
     })
     .optional()
     .nullable(),
+  selectedCartItemIds: z.array(z.string().min(1)).optional().nullable(),
 });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

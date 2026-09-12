@@ -24,9 +24,9 @@ const mapVendorOrder = (vendorOrder: any) => ({
 });
 
 export const processCheckout = async (userId: string, input: CheckoutInput) => {
-  const { shippingAddress, paymentMethod, couponCode, buyNowItem } = input;
+  const { shippingAddress, paymentMethod, couponCode, buyNowItem, selectedCartItemIds } = input;
 
-  let rawItems: Array<{ productId: string; variantId?: string | null; quantity: number }> = [];
+  let rawItems: Array<{ cartItemId?: string | null; productId: string; variantId?: string | null; quantity: number }> = [];
   let lockedCartId: string | null = null;
 
   if (buyNowItem) {
@@ -50,7 +50,18 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     }
 
     lockedCartId = cart.id;
-    rawItems = cart.items.map((item) => ({
+
+    const selectedIds = new Set((selectedCartItemIds || []).filter(Boolean));
+    const filteredItems = selectedIds.size > 0
+      ? cart.items.filter((item) => selectedIds.has(item.id))
+      : cart.items;
+
+    if (filteredItems.length === 0) {
+      throw new Error("No items selected for checkout");
+    }
+
+    rawItems = filteredItems.map((item) => ({
+      cartItemId: item.id,
       productId: item.productId,
       variantId: item.variantId,
       quantity: item.quantity,
@@ -349,9 +360,18 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     await Promise.all(stockUpdates);
 
     if (!buyNowItem && lockedCartId) {
-      await tx.cartItem.deleteMany({
-        where: { cartId: lockedCartId },
-      });
+      const idsToRemove = (selectedCartItemIds && selectedCartItemIds.length > 0)
+        ? selectedCartItemIds
+        : rawItems.map((item) => item.cartItemId).filter((id): id is string => Boolean(id));
+
+      if (idsToRemove.length > 0) {
+        await tx.cartItem.deleteMany({
+          where: {
+            cartId: lockedCartId,
+            id: { in: idsToRemove },
+          },
+        });
+      }
     }
 
     if (coupon) {

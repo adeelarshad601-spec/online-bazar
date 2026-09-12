@@ -121,6 +121,13 @@ function CheckoutFormContent() {
   const buyNowVariantId = searchParams.get("variantId");
   const buyNowQtyParam = parseInt(searchParams.get("quantity") || "1", 10);
   const buyNowQuantity = isNaN(buyNowQtyParam) || buyNowQtyParam < 1 ? 1 : buyNowQtyParam;
+  const selectedCartItemIdsParam = searchParams.get("selectedCartItemIds") || "";
+  const selectedCartItemIds = !isBuyNowParam
+    ? selectedCartItemIdsParam
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean)
+    : [];
 
   const { data: buyNowProduct, isLoading: isBuyNowProductLoading } = useProductDetails(
     isBuyNowParam && buyNowProductId ? buyNowProductId : ""
@@ -184,6 +191,7 @@ function CheckoutFormContent() {
       variantId: buyNowVariantId || null,
       quantity: buyNowQuantity,
     } : null,
+    selectedCartItemIds: isBuyNowParam ? null : selectedCartItemIds,
   };
 
   const { data: shippingQuote, isLoading: isShippingCalculating } = useShippingQuote(
@@ -321,7 +329,7 @@ function CheckoutFormContent() {
       ];
     }
   } else {
-    items = (cart?.items || []).map((item: any) => {
+    const allCartItems = (cart?.items || []).map((item: any) => {
       const rawPrice = item.price;
       const numericPrice = typeof rawPrice === "number" ? rawPrice : parseFloat(String(rawPrice || 0));
       return {
@@ -330,6 +338,10 @@ function CheckoutFormContent() {
         subtotal: numericPrice * item.quantity,
       };
     });
+
+    items = selectedCartItemIds.length > 0
+      ? allCartItems.filter((item) => selectedCartItemIds.includes(item.id))
+      : allCartItems;
   }
 
   const isCartEmpty = items.length === 0;
@@ -428,6 +440,7 @@ function CheckoutFormContent() {
             quantity: buyNowQuantity,
           }
         : null,
+      selectedCartItemIds: isBuyNowParam ? null : selectedCartItemIds,
     });
   };
 

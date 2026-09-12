@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -29,7 +29,15 @@ import {
   Check,
 } from "lucide-react";
 
-function CartItemRow({ item }: { item: CartItem }) {
+function CartItemRow({
+  item,
+  isSelected,
+  onToggleSelect,
+}: {
+  item: CartItem;
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
+}) {
   const { mutate: updateQuantity, isPending: isUpdating } = useUpdateCartItem();
   const { mutate: removeItem, isPending: isRemoving } = useRemoveCartItem();
 
@@ -55,46 +63,53 @@ function CartItemRow({ item }: { item: CartItem }) {
       className="flex flex-col gap-4 rounded-3xl bg-[#f6f7f9] p-4 transition-all dark:bg-zinc-900 sm:flex-row sm:items-center sm:justify-between border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800"
       id={`cart-item-${item.id}`}
     >
-      {/* Product Image & Info */}
-      <div className="flex items-center gap-4">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-white p-2 dark:bg-zinc-800 flex items-center justify-center shadow-xs">
-          {primaryImage ? (
-            <Image
-              src={primaryImage}
-              alt={item.product.title}
-              fill
-              className="object-contain"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-zinc-300">
-              <ShoppingBag className="h-8 w-8 stroke-[1.2]" />
-            </div>
-          )}
-        </div>
+      <div className="flex items-center gap-3 self-start sm:self-center">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onToggleSelect(item.id)}
+          className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+          aria-label={`Select ${item.product.title}`}
+        />
 
-        <div className="space-y-1">
-          <Link
-            href={`/products/${item.product.id}`}
-            className="font-semibold text-sm text-zinc-900 line-clamp-1 hover:text-emerald-600 dark:text-white dark:hover:text-emerald-400"
-          >
-            {item.product.title}
-          </Link>
+        <div className="flex items-center gap-4">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-white p-2 dark:bg-zinc-800 flex items-center justify-center shadow-xs">
+            {primaryImage ? (
+              <Image
+                src={primaryImage}
+                alt={item.product.title}
+                fill
+                className="object-contain"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-zinc-300">
+                <ShoppingBag className="h-8 w-8 stroke-[1.2]" />
+              </div>
+            )}
+          </div>
 
-          {item.variant && (
-            <span className="inline-block rounded-full bg-zinc-200/70 px-2.5 py-0.5 text-[10px] font-bold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-              {item.variant.name || "Default Option"}
-            </span>
-          )}
+          <div className="space-y-1">
+            <Link
+              href={`/products/${item.product.id}`}
+              className="font-semibold text-sm text-zinc-900 line-clamp-1 hover:text-emerald-600 dark:text-white dark:hover:text-emerald-400"
+            >
+              {item.product.title}
+            </Link>
 
-          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            ${item.price.toFixed(2)} each
-          </p>
+            {item.variant && (
+              <span className="inline-block rounded-full bg-zinc-200/70 px-2.5 py-0.5 text-[10px] font-bold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                {item.variant.name || "Default Option"}
+              </span>
+            )}
+
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              ${item.price.toFixed(2)} each
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Quantity Stepper & Subtotal & Remove */}
       <div className="flex items-center justify-between gap-6 border-t border-zinc-200/60 pt-3 sm:border-t-0 sm:pt-0 dark:border-zinc-800">
-        {/* Rounded Stepper */}
         <div className="flex items-center rounded-full bg-white px-1 py-0.5 shadow-xs dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700">
           <button
             type="button"
@@ -119,14 +134,12 @@ function CartItemRow({ item }: { item: CartItem }) {
           </button>
         </div>
 
-        {/* Subtotal */}
         <div className="text-right min-w-[70px]">
           <span className="text-sm font-extrabold text-zinc-900 dark:text-white">
             ${item.subtotal.toFixed(2)}
           </span>
         </div>
 
-        {/* Remove Button */}
         <button
           type="button"
           disabled={isRemoving}
@@ -163,6 +176,26 @@ function CartPageContent() {
   const { mutate: clearCart, isPending: isClearing } = useClearCart();
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (cart?.items) {
+      setSelectedItemIds((prev) => {
+        const nextIds = cart.items.map((item) => item.id);
+        const hasExistingSelection = prev.length > 0;
+        if (!hasExistingSelection) {
+          return nextIds;
+        }
+
+        const validPrev = prev.filter((id) => nextIds.includes(id));
+        if (validPrev.length === 0) {
+          return nextIds;
+        }
+
+        return validPrev;
+      });
+    }
+  }, [cart]);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,10 +234,28 @@ function CartPageContent() {
 
   const items = cart?.items || [];
   const isEmpty = items.length === 0;
+  const selectedItems = items.filter((item) => selectedItemIds.includes(item.id));
+  const selectedTotal = selectedItems.reduce((sum, item) => sum + item.subtotal, 0);
+  const selectedItemsCount = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedItemIds((prev) =>
+      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    setSelectedItemIds((prev) => {
+      if (prev.length === items.length) {
+        return [];
+      }
+      return items.map((item) => item.id);
+    });
+  };
 
   // Free shipping threshold ($50)
   const freeShippingThreshold = 50;
-  const currentTotal = cart?.totalAmount || 0;
+  const currentTotal = selectedTotal;
   const amountLeftForFreeShipping = Math.max(0, freeShippingThreshold - currentTotal);
   const freeShippingProgress = Math.min(100, (currentTotal / freeShippingThreshold) * 100);
 
@@ -278,9 +329,27 @@ function CartPageContent() {
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {/* Left Column: Cart Items */}
             <div className="space-y-4 lg:col-span-2">
+              <div className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-xs font-bold text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={items.length > 0 && selectedItemIds.length === items.length}
+                    onChange={handleSelectAll}
+                    className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  Select all
+                </label>
+                <span>{selectedItemsCount} item(s) selected</span>
+              </div>
+
               <div className="space-y-3">
                 {items.map((item) => (
-                  <CartItemRow key={item.id} item={item} />
+                  <CartItemRow
+                    key={item.id}
+                    item={item}
+                    isSelected={selectedItemIds.includes(item.id)}
+                    onToggleSelect={handleToggleSelect}
+                  />
                 ))}
               </div>
 
@@ -347,7 +416,7 @@ function CartPageContent() {
                   <div className="flex justify-between text-zinc-600 dark:text-zinc-400 font-medium">
                     <span>Subtotal</span>
                     <span className="font-bold text-zinc-900 dark:text-white">
-                      ${cart?.totalAmount.toFixed(2)}
+                      ${selectedTotal.toFixed(2)}
                     </span>
                   </div>
 
@@ -361,7 +430,7 @@ function CartPageContent() {
                   {couponApplied && (
                     <div className="flex justify-between text-emerald-600 font-bold">
                       <span>Discount (20%)</span>
-                      <span>-${((cart?.totalAmount || 0) * 0.2).toFixed(2)}</span>
+                      <span>-${(selectedTotal * 0.2).toFixed(2)}</span>
                     </div>
                   )}
                 </div>
@@ -372,20 +441,30 @@ function CartPageContent() {
                   <span className="text-2xl text-emerald-600 dark:text-emerald-400">
                     $
                     {(
-                      (cart?.totalAmount || 0) * (couponApplied ? 0.8 : 1)
+                      selectedTotal * (couponApplied ? 0.8 : 1)
                     ).toFixed(2)}
                   </span>
                 </div>
 
                 {/* Checkout CTA */}
-                <Link
-                  href="/checkout"
-                  className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700"
-                  id="proceed-checkout-btn"
-                >
-                  <span>Proceed to Checkout</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                {selectedItemsCount > 0 ? (
+                  <Link
+                    href={`/checkout?selectedCartItemIds=${encodeURIComponent(selectedItemIds.join(","))}`}
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700"
+                    id="proceed-checkout-btn"
+                  >
+                    <span>Proceed to Checkout</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-zinc-300 px-6 py-4 text-sm font-bold text-zinc-500"
+                  >
+                    <span>Select at least one item</span>
+                  </button>
+                )}
 
                 {/* Guarantees */}
                 <div className="space-y-2 rounded-2xl bg-white p-4 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 shadow-xs">
