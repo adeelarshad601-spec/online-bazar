@@ -550,9 +550,9 @@ function CheckoutFormContent() {
                     id="fullName"
                     type="text"
                     disabled={isSubmitting}
-                    placeholder="e.g. Jane Doe"
+                    placeholder="Enter your full name"
                     {...register("fullName")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.fullName ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -570,9 +570,9 @@ function CheckoutFormContent() {
                     id="phone"
                     type="tel"
                     disabled={isSubmitting}
-                    placeholder="e.g. +92 300 1234567"
+                    placeholder="Enter your phone number"
                     {...register("phone")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.phone ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -590,9 +590,9 @@ function CheckoutFormContent() {
                     id="country"
                     type="text"
                     disabled={isSubmitting}
-                    placeholder="e.g. Pakistan or United States"
+                    placeholder="Your country"
                     {...register("country")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.country ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -610,9 +610,9 @@ function CheckoutFormContent() {
                     id="address"
                     type="text"
                     disabled={isSubmitting}
-                    placeholder="123 Main Street"
+                    placeholder="House number and street name"
                     {...register("address")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.address ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -630,9 +630,9 @@ function CheckoutFormContent() {
                     id="unit"
                     type="text"
                     disabled={isSubmitting}
-                    placeholder="Apt 4B, Suite 100"
+                    placeholder="Apartment, floor, or unit"
                     {...register("unit")}
-                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-700 px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:border-emerald-600 focus:outline-none"
+                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-700 px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:border-emerald-600 focus:outline-none"
                   />
                 </div>
 
@@ -645,9 +645,9 @@ function CheckoutFormContent() {
                     id="city"
                     type="text"
                     disabled={isSubmitting}
-                    placeholder="e.g. Lahore or New York"
+                    placeholder="City"
                     {...register("city")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.city ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -665,9 +665,9 @@ function CheckoutFormContent() {
                     id="state"
                     type="text"
                     disabled={isSubmitting}
-                    placeholder="e.g. Punjab or NY"
+                    placeholder="State, province, or region"
                     {...register("state")}
-                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-700 px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:border-emerald-600 focus:outline-none"
+                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-700 px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:border-emerald-600 focus:outline-none"
                   />
                 </div>
 
@@ -680,9 +680,9 @@ function CheckoutFormContent() {
                     id="postalCode"
                     type="text"
                     disabled={isSubmitting}
-                    placeholder="54000"
+                    placeholder="Postal or ZIP code"
                     {...register("postalCode")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.postalCode ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -826,10 +826,10 @@ function CheckoutFormContent() {
                         <input
                           type="text"
                           maxLength={19}
-                          placeholder="4532 •••• •••• 8892"
+                          placeholder="1234 5678 9012 3456"
                           value={cardNumber}
                           onChange={handleCardNumberChange}
-                          className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2.5 pl-10 pr-4 text-xs font-mono font-bold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                          className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2.5 pl-10 pr-4 text-xs font-mono font-bold text-zinc-900 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
                         />
                       </div>
                     </div>
@@ -842,10 +842,10 @@ function CheckoutFormContent() {
                         <input
                           type="text"
                           maxLength={5}
-                          placeholder="12/28"
+                          placeholder="MM/YY"
                           value={cardExpiry}
                           onChange={handleExpiryChange}
-                          className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-xs font-mono font-bold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                          className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-xs font-mono font-bold text-zinc-900 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
                         />
                       </div>
 
@@ -856,10 +856,10 @@ function CheckoutFormContent() {
                         <input
                           type="password"
                           maxLength={4}
-                          placeholder="•••"
+                          placeholder="CVV"
                           value={cardCvc}
                           onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, ""))}
-                          className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-xs font-mono font-bold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                          className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-xs font-mono font-bold text-zinc-900 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
                         />
                       </div>
                     </div>
@@ -873,7 +873,7 @@ function CheckoutFormContent() {
                         placeholder="Name on card"
                         value={cardName}
                         onChange={(e) => setCardName(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-xs font-medium text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                        className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-xs font-medium text-zinc-900 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-emerald-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
                       />
                     </div>
                   </div>
