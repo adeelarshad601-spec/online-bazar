@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { registerSchema, loginSchema } from "../validators/auth.validator.js";
 import { registerUser, loginUser, getCurrentUser, adminLogin } from "../services/auth.service.js";
 import { AuthRequest } from "../middleware/auth.middleware.js";
+import { verifyRefreshToken, generateAccessToken } from "../utils/jwt.js";
 export const register = async (req: Request, res: Response) => {
   try {
     const validationResult = registerSchema.safeParse(req.body);
@@ -56,11 +57,18 @@ export const login = async (req: Request, res: Response) => {
 
     const result = await loginUser(validationResult.data);
 
-    res.cookie("accessToken", result.token, {
+    res.cookie("accessToken", result.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({
@@ -104,11 +112,18 @@ export const adminLoginController = async (req: Request, res: Response) => {
 
     const result = await adminLogin(validationResult.data);
 
-    res.cookie("accessToken", result.token, {
+    res.cookie("accessToken", result.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({
@@ -175,8 +190,62 @@ export const getMe = async (req: AuthRequest, res: Response) => {
 };
 
 //logout controller
+export const refresh = async (req: Request, res: Response) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token required",
+      });
+    }
+
+    const payload = verifyRefreshToken(refreshToken);
+    const user = await getCurrentUser(payload.userId);
+
+    const accessToken = generateAccessToken({
+      userId: user.id,
+      role: user.role,
+    });
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Session refreshed successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired refresh token",
+    });
+  }
+};
+
 export const logout = async (req: Request, res: Response) => {
   res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+
+  res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

@@ -1,7 +1,7 @@
 import prisma from "../config/database.js";
 import { hashPassword, verifyPassword } from "../utils/password.js";
 import { RegisterInput, LoginInput } from "../validators/auth.validator.js";
-import { generateToken } from "../utils/jwt.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 
 export const registerUser = async (data: RegisterInput) => {
     const existingUser = await prisma.user.findUnique({
@@ -21,7 +21,7 @@ export const registerUser = async (data: RegisterInput) => {
             name: data.name,
             email: data.email,
             password: hashedPassword,
-            role: "CUSTOMER",
+            role: data.role,
             sellerStatus: data.role === "SELLER" ? "PENDING" : undefined,
         },
         select: {
@@ -61,13 +61,19 @@ export const loginUser = async (data: LoginInput) => {
          throw new Error("Invalid email or password");
      }
 
-     const token = generateToken({
+     const accessToken = generateAccessToken({
+    userId: user.id,
+    role: user.role,
+  });
+
+     const refreshToken = generateRefreshToken({
     userId: user.id,
     role: user.role,
   });
 
      return {
-         token,
+         accessToken,
+         refreshToken,
          user: {
          id: user.id,
          name: user.name,
@@ -125,13 +131,19 @@ export const adminLogin = async (data: LoginInput) => {
     throw new Error("Invalid email or password");
   }
 
-  const token = generateToken({
+  const accessToken = generateAccessToken({
+    userId: user.id,
+    role: user.role,
+  });
+
+  const refreshToken = generateRefreshToken({
     userId: user.id,
     role: user.role,
   });
 
   return {
-    token,
+    accessToken,
+    refreshToken,
     user: {
       id: user.id,
       name: user.name,

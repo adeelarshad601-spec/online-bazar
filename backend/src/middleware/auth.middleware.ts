@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../utils/jwt.js";
+import { verifyAccessToken } from "../utils/jwt.js";
 import prisma from "../config/database.js";
 
 export interface AuthRequest extends Request<{ id: string }> {
@@ -28,7 +28,7 @@ export const authenticate = async (
       });
     }
 
-    const payload = verifyToken(token);
+    const payload = verifyAccessToken(token);
 
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
