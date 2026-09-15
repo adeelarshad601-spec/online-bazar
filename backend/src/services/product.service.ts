@@ -361,7 +361,7 @@ export const updateProduct = async (
     });
   }
 
-  return await prisma.product.update({
+  const updatedProduct = await prisma.product.update({
     where: {
       id: productId,
     },
@@ -381,6 +381,39 @@ export const updateProduct = async (
       variants: true,
     },
   });
+
+  if (role === "SELLER") {
+    const admins = await prisma.user.findMany({
+      where: { role: "ADMIN" },
+      select: { id: true },
+    });
+
+    await Promise.all(
+      admins.map(async (admin) => {
+        const message = `${updatedProduct.title} from ${updatedProduct.shop.name} is waiting for moderation.`;
+        const existing = await prisma.notification.findFirst({
+          where: {
+            userId: admin.id,
+            type: "PRODUCT",
+            title: "New product submitted for approval",
+            message,
+          },
+        });
+
+        if (!existing) {
+          await createNotification({
+            userId: admin.id,
+            type: "PRODUCT",
+            title: "New product submitted for approval",
+            message,
+            actionUrl: `/admin/products?status=PENDING`,
+          });
+        }
+      })
+    );
+  }
+
+  return updatedProduct;
 };
 
 // Delete product
