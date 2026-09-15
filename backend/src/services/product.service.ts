@@ -451,10 +451,36 @@ export const deleteProduct = async (
     }
   }
 
-  await prisma.product.delete({
-    where: {
-      id: productId,
-    },
+  await prisma.$transaction(async (tx) => {
+    await tx.orderItem.deleteMany({
+      where: {
+        productId,
+      },
+    });
+
+    await tx.review.deleteMany({
+      where: {
+        productId,
+      },
+    });
+
+    await tx.cartItem.deleteMany({
+      where: {
+        productId,
+      },
+    });
+
+    await tx.wishlistItem.deleteMany({
+      where: {
+        productId,
+      },
+    });
+
+    await tx.product.delete({
+      where: {
+        id: productId,
+      },
+    });
   });
 };
 
