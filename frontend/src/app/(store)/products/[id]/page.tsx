@@ -52,6 +52,23 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
 
+  useEffect(() => {
+    if (!product?.variants || product.variants.length === 0) {
+      setSelectedVariant(null);
+      return;
+    }
+
+    const firstAvailableVariant = product.variants.find((variant) => variant.stock > 0) ?? product.variants[0];
+
+    setSelectedVariant((currentVariant) => {
+      if (currentVariant && product.variants?.some((variant) => variant.id === currentVariant.id)) {
+        return currentVariant;
+      }
+
+      return firstAvailableVariant;
+    });
+  }, [product]);
+
   if (isLoading) {
     return <ProductDetailSkeleton />;
   }

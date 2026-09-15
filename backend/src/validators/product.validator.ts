@@ -47,12 +47,31 @@ export const createProductSchema = z.object({
   categoryId: z.string().uuid("Invalid category ID"),
 
   images: z
-    .array(z.string().startsWith("data:image/", "Product images must be valid image files"))
+    .array(
+      z
+        .string()
+        .refine(
+          (value) =>
+            value.startsWith("data:image/") || /^https?:\/\//i.test(value),
+          "Product images must be valid image URLs"
+        )
+    )
     .max(8, "You can upload up to 8 product images")
     .optional(),
 });
 
-export const updateProductSchema = createProductSchema.partial();
+export const productVariantSchema = z.object({
+  id: z.string().uuid("Invalid variant ID").optional(),
+  name: z.string().trim().min(1, "Variant name is required").max(150, "Variant name is too long").optional(),
+  sku: z.string().trim().min(2, "Variant SKU is required").max(100, "Variant SKU is too long").optional(),
+  price: z.coerce.number().positive("Variant price must be greater than 0").nullable().optional(),
+  stock: z.coerce.number().int().min(0, "Variant stock cannot be negative").optional(),
+  options: z.record(z.string(), z.any()).optional(),
+});
+
+export const updateProductSchema = createProductSchema.partial().extend({
+  variants: z.array(productVariantSchema).optional(),
+});
 
 export const updateProductStatusSchema = z.object({
   status: z.enum([

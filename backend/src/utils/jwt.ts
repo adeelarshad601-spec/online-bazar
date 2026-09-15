@@ -23,8 +23,8 @@ export const generateToken = (
     },
     JWT_SECRET,
     {
-      expiresIn,
-    }
+      expiresIn: expiresIn as any,
+    } as any
   );
 };
 

@@ -224,7 +224,7 @@ export const updateProduct = async (
   role: string,
   data: UpdateProductInput
 ) => {
-  const { images: _images, ...productData } = data;
+  const { images: incomingImages, variants: incomingVariants, ...productData } = data;
   const product = await prisma.product.findUnique({
     where: {
       id: productId,
@@ -232,6 +232,8 @@ export const updateProduct = async (
 
     include: {
       shop: true,
+      variants: true,
+      images: true,
     },
   });
 
@@ -271,6 +273,94 @@ export const updateProduct = async (
     }
   }
 
+  const existingVariants = product.variants ?? [];
+  const existingVariantMap = new Map(existingVariants.map((variant) => [variant.id, variant]));
+
+  if (incomingImages !== undefined) {
+    await prisma.productImage.deleteMany({
+      where: { productId },
+    });
+
+    if (incomingImages.length > 0) {
+      await prisma.productImage.createMany({
+        data: incomingImages.map((url, index) => ({
+          productId,
+          url,
+          sortOrder: index,
+          isPrimary: index === 0,
+        })),
+      });
+    }
+  }
+
+  if (incomingVariants) {
+    const incomingVariantIds = new Set<string>();
+    const usedSkus = new Set(existingVariants.map((variant) => variant.sku));
+    const normalizedIncomingVariants = incomingVariants.map((variant, index) => {
+      const preferredSku = (variant.sku ?? "").trim() || `${product.sku}-${index + 1}`;
+      const existingVariant = variant.id ? existingVariantMap.get(variant.id) : undefined;
+      const baseSku = existingVariant?.sku ?? preferredSku;
+      let finalSku = baseSku;
+      let suffix = 1;
+
+      while (finalSku !== existingVariant?.sku && usedSkus.has(finalSku)) {
+        suffix += 1;
+        finalSku = `${product.sku}-${index + 1}-${suffix}`;
+      }
+
+      usedSkus.add(finalSku);
+
+      return {
+        ...variant,
+        sku: finalSku,
+      };
+    });
+
+    await prisma.$transaction(async (tx) => {
+      for (const [index, variant] of normalizedIncomingVariants.entries()) {
+        const variantPayload = {
+          name: variant.name ?? product.title,
+          sku: variant.sku,
+          options: (variant.options ?? {}) as any,
+          price: variant.price ?? product.price,
+          stock: variant.stock ?? product.stock,
+        };
+
+        if (variant.id && existingVariantMap.has(variant.id)) {
+          incomingVariantIds.add(variant.id);
+
+          await tx.productVariant.update({
+            where: { id: variant.id },
+            data: variantPayload,
+          });
+
+          continue;
+        }
+
+        const createdVariant = await tx.productVariant.create({
+          data: {
+            productId,
+            ...variantPayload,
+          },
+        });
+
+        incomingVariantIds.add(createdVariant.id);
+      }
+
+      const variantsToDelete = existingVariants.filter((variant) => !incomingVariantIds.has(variant.id));
+
+      if (variantsToDelete.length > 0) {
+        await tx.productVariant.deleteMany({
+          where: {
+            id: {
+              in: variantsToDelete.map((variant) => variant.id),
+            },
+          },
+        });
+      }
+    });
+  }
+
   return await prisma.product.update({
     where: {
       id: productId,
@@ -288,6 +378,7 @@ export const updateProduct = async (
     include: {
       shop: true,
       category: true,
+      variants: true,
     },
   });
 };
@@ -387,6 +478,7 @@ export const getSellerProducts = async (userId: string) => {
       shop: true,
       category: true,
       images: { orderBy: { sortOrder: "asc" } },
+      variants: true,
     },
     orderBy: { createdAt: "desc" },
   });
@@ -401,6 +493,7 @@ export const getSellerProductById = async (productId: string, userId: string) =>
       shop: true,
       category: true,
       images: { orderBy: { sortOrder: "asc" } },
+      variants: true,
     },
   });
 
