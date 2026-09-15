@@ -11,6 +11,8 @@ export const createProduct = async (
   userId: string,
   role: string
 ) => {
+  const { variants: incomingVariants, images: incomingImages, ...productData } = data;
+
   if (role !== "ADMIN") {
     await verifyActiveSeller(userId);
 
@@ -49,19 +51,11 @@ export const createProduct = async (
 
   const product = await prisma.product.create({
     data: {
-      title: data.title,
-      slug: data.slug,
-      description: data.description,
-      sku: data.sku,
-      price: data.price,
-      compareAtPrice: data.compareAtPrice,
-      stock: data.stock,
-      shopId: data.shopId,
-      categoryId: data.categoryId,
+      ...productData,
 
-      images: data.images?.length
+      images: incomingImages?.length
         ? {
-            create: data.images.map((url, index) => ({
+            create: incomingImages.map((url, index) => ({
               url,
               isPrimary: index === 0,
               sortOrder: index,
@@ -78,6 +72,19 @@ export const createProduct = async (
       category: true,
     },
   });
+
+  if (incomingVariants?.length) {
+    await prisma.productVariant.createMany({
+      data: incomingVariants.map((variant, index) => ({
+        productId: product.id,
+        name: variant.name ?? product.title,
+        sku: variant.sku ?? `${product.sku}-${index + 1}`,
+        options: (variant.options ?? {}) as any,
+        price: variant.price ?? product.price,
+        stock: variant.stock ?? product.stock,
+      })),
+    });
+  }
 
   if (role !== "ADMIN") {
     const admins = await prisma.user.findMany({

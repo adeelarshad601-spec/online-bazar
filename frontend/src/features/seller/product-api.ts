@@ -13,6 +13,14 @@ export interface CreateProductPayload {
   shopId: string;
   categoryId: string;
   images?: string[];
+  variants?: Array<{
+    id?: string;
+    name?: string;
+    sku?: string;
+    price?: number | null;
+    stock?: number;
+    options?: Record<string, any>;
+  }>;
 }
 
 export interface UpdateProductPayload {
