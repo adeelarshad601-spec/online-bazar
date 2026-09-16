@@ -312,22 +312,31 @@ export default function LoginForm({ onClose, onSwitchToRegister, isClosing = fal
           <span>or continue with</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => toast.info("Google sign in will be available soon.")}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white py-3 text-sm font-semibold text-zinc-700 transition-colors hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
-          >
-            <span className="text-base font-black text-[#4285F4]">G</span>
-            Google
-          </button>
+        <div className="space-y-2.5">
           <button
             type="button"
             onClick={() => toast.info("Apple sign in will be available soon.")}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white py-3 text-sm font-semibold text-zinc-700 transition-colors hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-black bg-black px-4 text-[11px] font-bold uppercase text-white transition-colors hover:bg-zinc-800"
           >
-            <span className="text-lg leading-none text-zinc-900 dark:text-white">●</span>
-            Apple
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-8 w-8 fill-white">
+              <path d="M17.05 12.54c-.02-2.03 1.66-3 1.74-3.05a3.74 3.74 0 0 0-2.94-1.59c-1.24-.13-2.44.74-3.07.74-.65 0-1.62-.73-2.66-.71a3.93 3.93 0 0 0-3.3 2.01c-1.42 2.47-.36 6.1 1 8.1.68.98 1.46 2.08 2.5 2.04 1.01-.04 1.4-.65 2.63-.65 1.22 0 1.58.65 2.64.63 1.1-.02 1.77-.98 2.43-1.97a8.1 8.1 0 0 0 1.1-2.28 3.53 3.53 0 0 1-2.07-3.27ZM15.03 6.58a3.56 3.56 0 0 0 .81-2.56 3.62 3.62 0 0 0-2.34 1.21 3.4 3.4 0 0 0-.83 2.46 3 3 0 0 0 2.36-1.11Z" />
+            </svg>
+            Continue with Apple
+          </button>
+          <button
+            type="button"
+            onClick={() => toast.info("Google sign in will be available soon.")}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-blue-600 bg-blue-600 px-4 text-[11px] font-bold uppercase text-white transition-colors hover:bg-blue-700"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-sm bg-white">
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
+                <path fill="#EA4335" d="M21.35 12.27c0-.72-.06-1.25-.2-1.8H12v3.4h5.36a4.58 4.58 0 0 1-1.99 3v2.5h3.22c1.88-1.73 2.76-4.28 2.76-7.1Z" />
+                <path fill="#4285F4" d="M12 21.5c2.7 0 4.96-.89 6.61-2.42l-3.22-2.5c-.9.6-2.04.96-3.39.96-2.61 0-4.83-1.76-5.62-4.13H3.05v2.58A9.99 9.99 0 0 0 12 21.5Z" />
+                <path fill="#FBBC05" d="M6.38 13.41A6.01 6.01 0 0 1 6.06 12c0-.49.11-.97.32-1.41V8.01H3.05A9.5 9.5 0 0 0 2 12c0 1.44.35 2.8 1.05 3.99l3.33-2.58Z" />
+                <path fill="#34A853" d="M12 6.46c1.47 0 2.79.51 3.83 1.5l2.87-2.87C16.95 3.5 14.7 2.5 12 2.5a9.99 9.99 0 0 0-8.95 5.51l3.33 2.58C7.17 8.22 9.39 6.46 12 6.46Z" />
+              </svg>
+            </span>
+            Continue with Google
           </button>
         </div>
 

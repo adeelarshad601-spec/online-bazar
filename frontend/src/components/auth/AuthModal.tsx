@@ -139,6 +139,7 @@ export default function AuthModal({
             <RegisterForm
               onClose={handleClose}
               onSwitchToLogin={() => setMode("login")}
+              isClosing={isClosing}
             />
           )}
         </div>

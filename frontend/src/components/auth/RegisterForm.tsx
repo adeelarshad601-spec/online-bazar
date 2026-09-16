@@ -8,15 +8,16 @@ import { useRegister } from "@/features/auth/queries";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/ui/logo";
-import { Eye, EyeOff, Loader2, Lock, Mail, User, ArrowRight, X } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, User, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 interface RegisterFormProps {
   onClose?: () => void;
   onSwitchToLogin?: () => void;
+  isClosing?: boolean;
 }
 
-export default function RegisterForm({ onClose, onSwitchToLogin }: RegisterFormProps) {
+export default function RegisterForm({ onClose, onSwitchToLogin, isClosing = false }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<"CUSTOMER" | "SELLER" | null>(null);
@@ -91,30 +92,21 @@ export default function RegisterForm({ onClose, onSwitchToLogin }: RegisterFormP
   };
 
   return (
-    <div className="relative w-full max-w-md animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-300">
+    <div className="relative w-full max-w-md">
       {/* Background Decorative Blur */}
       <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-teal-500/20 blur-3xl pointer-events-none" />
 
       {/* Main Form Card */}
-      <div className="relative w-full space-y-6 rounded-3xl border border-zinc-200/80 bg-white/95 p-8 shadow-2xl shadow-zinc-950/5 backdrop-blur-2xl dark:border-zinc-800/80 dark:bg-zinc-900/95">
-        {/* Top Right Close Cross Button */}
-        <button
-          type="button"
-          onClick={() => {
-            if (onClose) {
-              onClose();
-            } else {
-              router.push("/");
-            }
-          }}
-          className="absolute top-4 right-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 hover:scale-105 active:scale-95 transition-all duration-200 shadow-md shadow-red-500/30"
-          aria-label="Close"
-          title="Close form"
-        >
-          <X className="h-4 w-4 stroke-[2.5]" />
-        </button>
-
+      <div
+        className="relative w-full space-y-6 rounded-3xl border border-zinc-200/80 bg-white/95 p-8 shadow-2xl shadow-zinc-950/5 backdrop-blur-2xl dark:border-zinc-800/80 dark:bg-zinc-900/95"
+        style={{
+          transformOrigin: "calc(100% - 22px) 22px",
+          animation: isClosing
+            ? "authFormDrop 2600ms cubic-bezier(.32,.08,.55,1) forwards"
+            : "authFormIn 350ms cubic-bezier(.22,1,.36,1) both",
+        }}
+      >
         <div className="space-y-4 text-center">
           <div className="flex justify-center">
             <Logo size="lg" showSubtitle />
