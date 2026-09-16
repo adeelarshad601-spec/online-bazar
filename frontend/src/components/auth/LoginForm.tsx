@@ -15,16 +15,16 @@ import {
   Lock,
   Mail,
   ArrowRight,
-  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
 interface LoginFormProps {
   onClose?: () => void;
   onSwitchToRegister?: () => void;
+  isClosing?: boolean;
 }
 
-export default function LoginForm({ onClose, onSwitchToRegister }: LoginFormProps) {
+export default function LoginForm({ onClose, onSwitchToRegister, isClosing = false }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [fieldsUnlocked, setFieldsUnlocked] = useState(false);
 
@@ -140,31 +140,22 @@ export default function LoginForm({ onClose, onSwitchToRegister }: LoginFormProp
   const passwordField = register("password");
 
   return (
-    <div className="relative w-full max-w-md animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-300">
+    <div className="relative w-full max-w-md">
       {/* Background Decorative Blur */}
       <div className="pointer-events-none absolute -top-6 -left-6 h-32 w-32 rounded-full bg-emerald-500/20 blur-3xl" />
 
       <div className="pointer-events-none absolute -right-6 -bottom-6 h-32 w-32 rounded-full bg-teal-500/20 blur-3xl" />
 
       {/* Main Form Card */}
-      <div className="relative w-full space-y-6 rounded-3xl border border-zinc-200/80 bg-white/95 p-8 shadow-2xl shadow-zinc-950/5 backdrop-blur-2xl dark:border-zinc-800/80 dark:bg-zinc-900/95">
-        {/* Top Right Close Cross Button */}
-        <button
-          type="button"
-          onClick={() => {
-            if (onClose) {
-              onClose();
-            } else {
-              router.push("/");
-            }
-          }}
-          className="absolute top-4 right-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 hover:scale-105 active:scale-95 transition-all duration-200 shadow-md shadow-red-500/30"
-          aria-label="Close"
-          title="Close form"
-        >
-          <X className="h-4 w-4 stroke-[2.5]" />
-        </button>
-
+      <div
+        className="relative w-full space-y-6 rounded-3xl border border-zinc-200/80 bg-white/95 p-8 shadow-2xl shadow-zinc-950/5 backdrop-blur-2xl dark:border-zinc-800/80 dark:bg-zinc-900/95"
+        style={{
+          transformOrigin: "calc(100% - 22px) 22px",
+          animation: isClosing
+            ? "authFormDrop 2600ms cubic-bezier(.32,.08,.55,1) forwards"
+            : "authFormIn 350ms cubic-bezier(.22,1,.36,1) both",
+        }}
+      >
         {/* Header */}
         <div className="space-y-4 text-center">
           <div className="flex justify-center">
@@ -172,10 +163,6 @@ export default function LoginForm({ onClose, onSwitchToRegister }: LoginFormProp
           </div>
 
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
-              Welcome Back
-            </h1>
-
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
               Log in to manage your marketplace account
             </p>
@@ -320,6 +307,29 @@ export default function LoginForm({ onClose, onSwitchToRegister }: LoginFormProp
             )}
           </button>
         </form>
+
+        <div className="relative flex items-center gap-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 before:h-px before:flex-1 before:bg-zinc-200 after:h-px after:flex-1 after:bg-zinc-200 dark:before:bg-zinc-800 dark:after:bg-zinc-800">
+          <span>or continue with</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => toast.info("Google sign in will be available soon.")}
+            className="flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white py-3 text-sm font-semibold text-zinc-700 transition-colors hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+          >
+            <span className="text-base font-black text-[#4285F4]">G</span>
+            Google
+          </button>
+          <button
+            type="button"
+            onClick={() => toast.info("Apple sign in will be available soon.")}
+            className="flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white py-3 text-sm font-semibold text-zinc-700 transition-colors hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+          >
+            <span className="text-lg leading-none text-zinc-900 dark:text-white">●</span>
+            Apple
+          </button>
+        </div>
 
         {/* Footer */}
         <div className="border-t border-zinc-100 pt-2 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
