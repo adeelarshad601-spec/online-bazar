@@ -520,18 +520,13 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => setAuthModalState({ isOpen: true, mode: "login" })}
-                  className="rounded-full px-4 py-2 text-xs font-bold text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900 cursor-pointer transition-colors"
+                  className="rounded-full border border-emerald-600/30 bg-emerald-50 px-5 py-2.5 text-xs font-bold text-emerald-700 shadow-sm transition-all hover:border-emerald-600 hover:bg-emerald-600 hover:text-white hover:shadow-md dark:border-emerald-500/40 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-600 dark:hover:text-white"
                   id="header-login-btn"
                 >
-                  Sign In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAuthModalState({ isOpen: true, mode: "register" })}
-                  className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700 cursor-pointer"
-                  id="header-register-btn"
-                >
-                  Register
+                  <span className="inline-flex items-center gap-2">
+                    <UserIcon className="h-3.5 w-3.5" />
+                    Sign In
+                  </span>
                 </button>
               </div>
             )}
