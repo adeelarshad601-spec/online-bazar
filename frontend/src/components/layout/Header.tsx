@@ -276,14 +276,14 @@ export default function Header() {
               type="button"
               onClick={() => setDarkMode((prev) => !prev)}
               className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900 cursor-pointer"
-              aria-label="Toggle Dark Mode"
-              title={darkMode ? "Dark Mode Active (Click for Light Mode)" : "Light Mode Active (Click for Dark Mode)"}
+              aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+              title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
               id="header-theme-toggle-btn"
             >
               {darkMode ? (
-                <MoonStar className="h-5 w-5 text-emerald-400" />
-              ) : (
                 <SunMedium className="h-5 w-5 text-amber-500" />
+              ) : (
+                <MoonStar className="h-5 w-5 text-emerald-400" />
               )}
             </button>
 
