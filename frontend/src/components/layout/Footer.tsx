@@ -254,11 +254,17 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-zinc-200 pt-6 text-[11px] text-zinc-500 sm:flex-row dark:border-zinc-800">
-          <p>© {new Date().getFullYear()} Online-Bazar Marketplace. All rights reserved.</p>
+          <p >© {new Date().getFullYear()} Online-Bazar Marketplace. All rights reserved.</p>
           <div className="flex items-center gap-1">
-            <span>Crafted with</span>
-            <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />
-            <span>for independent commerce</span>
+            <span>Developed by</span>
+            <Link
+              href="https://mradeel.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-emerald-600 transition-colors hover:text-emerald-500 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
+            >
+              Adeel Arshad
+            </Link>
           </div>
         </div>
       </div>
