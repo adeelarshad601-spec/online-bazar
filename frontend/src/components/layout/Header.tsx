@@ -127,9 +127,9 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-t-4 border-emerald-700 bg-white/95 backdrop-blur-md shadow-xs dark:border-emerald-600 dark:bg-zinc-950/95">
       {/* 1. Main Header Row */}
       <div className="w-full border-b border-zinc-200/80 px-4 dark:border-zinc-800 sm:px-6 lg:px-8">
-        <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center justify-between gap-4 py-2.5">
+        <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center justify-between gap-2 py-2.5 sm:gap-4">
           {/* Logo & Mobile Menu Toggle */}
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -137,9 +137,11 @@ export default function Header() {
               aria-label="Toggle Navigation Menu"
               id="mobile-menu-toggle-btn"
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
             </button>
-            <Logo size="md" showSubtitle />
+            <div className="min-w-0">
+              <Logo size="md" showSubtitle />
+            </div>
           </div>
 
           {/* Center Search Bar with Custom Category Dropdown */}
@@ -227,15 +229,15 @@ export default function Header() {
           </form>
 
           {/* Right Action Icons & User Account */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             {/* Wishlist Icon with Counter Badge */}
             <Link
               href="/wishlist"
-              className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-emerald-600 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-emerald-400"
+              className="relative hidden h-8 w-8 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-emerald-600 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-emerald-400 sm:flex sm:h-10 sm:w-10"
               aria-label="View Wishlist"
               id="header-wishlist-link"
             >
-              <Heart className="h-5 w-5" />
+              <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white shadow-xs">
                 {wishlistData?.items?.length || 0}
               </span>
@@ -244,11 +246,11 @@ export default function Header() {
             {/* Cart Icon with Counter Badge */}
             <Link
               href="/cart"
-              className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-emerald-600 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-emerald-400"
+              className="relative hidden h-8 w-8 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-emerald-600 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-emerald-400 sm:flex sm:h-10 sm:w-10"
               aria-label="View Shopping Cart"
               id="header-cart-link"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white shadow-xs">
                 {cartData?.totalItems || 0}
               </span>
@@ -258,11 +260,11 @@ export default function Header() {
             {user && (
               <Link
                 href="/account/notifications"
-                className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-emerald-600 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-emerald-400"
+                className="relative hidden h-8 w-8 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-emerald-600 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-emerald-400 sm:flex sm:h-10 sm:w-10"
                 aria-label="View Notifications"
                 id="header-notifications-link"
               >
-                <Bell className="h-5 w-5" />
+                <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
                 {unreadCount > 0 && (
                   <span className="absolute -right-0.5 -top-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-emerald-600 px-1 text-[10px] font-bold text-white shadow-xs">
                     {unreadCount > 99 ? "99+" : unreadCount}
@@ -275,20 +277,20 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setDarkMode((prev) => !prev)}
-              className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900 cursor-pointer"
+              className="relative hidden h-8 w-8 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900 cursor-pointer sm:flex sm:h-10 sm:w-10"
               aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
               title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
               id="header-theme-toggle-btn"
             >
               {darkMode ? (
-                <SunMedium className="h-5 w-5 text-amber-500" />
+                <SunMedium className="h-4 w-4 text-amber-500 sm:h-5 sm:w-5" />
               ) : (
-                <MoonStar className="h-5 w-5 text-emerald-400" />
+                <MoonStar className="h-4 w-4 text-emerald-400 sm:h-5 sm:w-5" />
               )}
             </button>
 
             {/* Vertical Separator */}
-            <div className="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800" />
+            <div className="hidden h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800 sm:block" />
 
 
             {/* User Account / Profile Pill */}
@@ -299,14 +301,14 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 p-1 pr-3 text-xs font-semibold text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                  className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 p-1 pr-2 text-[10px] font-semibold text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800 sm:gap-2 sm:pr-3 sm:text-xs"
                   id="user-menu-btn"
                 >
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white shadow-xs">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white shadow-xs sm:text-xs">
                     {user.name ? user.name.charAt(0).toUpperCase() : "U"}
                   </div>
-                  <span className="max-w-[100px] truncate">{user.name}</span>
-                  <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
+                  <span className="max-w-[70px] truncate sm:max-w-[100px]">{user.name}</span>
+                  <ChevronDown className="h-3 w-3 text-zinc-500 sm:h-3.5 sm:w-3.5" />
                 </button>
 
                 {/* Account Dropdown Menu */}
@@ -520,12 +522,12 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => setAuthModalState({ isOpen: true, mode: "login" })}
-                  className="rounded-full border border-emerald-600/30 bg-emerald-50 px-5 py-2.5 text-xs font-bold text-emerald-700 shadow-sm transition-all hover:border-emerald-600 hover:bg-emerald-600 hover:text-white hover:shadow-md dark:border-emerald-500/40 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-600 dark:hover:text-white"
+                  className="rounded-full border border-emerald-600/30 bg-emerald-50 px-3 py-2 text-[10px] font-bold text-emerald-700 shadow-sm transition-all hover:border-emerald-600 hover:bg-emerald-600 hover:text-white hover:shadow-md dark:border-emerald-500/40 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-600 dark:hover:text-white sm:px-5 sm:py-2.5 sm:text-xs"
                   id="header-login-btn"
                 >
-                  <span className="inline-flex items-center gap-2">
-                    <UserIcon className="h-3.5 w-3.5" />
-                    Sign In
+                  <span className="inline-flex items-center gap-1.5 sm:gap-2">
+                    <UserIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    <span>Sign In</span>
                   </span>
                 </button>
               </div>
@@ -536,108 +538,112 @@ export default function Header() {
 
       {/* 2. Sub-Navbar Row with Full Navigation Links (Home, Shop, New Arrivals, Deals, Sellers, Support, Become a Seller) */}
       <nav className="border-b border-emerald-700/30 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 sm:gap-5 text-xs font-bold">
-            {/* All Categories Button with Dropdown */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setCategoriesDropdownOpen(!categoriesDropdownOpen)}
-                className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-700"
-                id="categories-dropdown-toggle"
-              >
-                <Layers className="h-4 w-4" />
-                <span>All Categories</span>
-                <ChevronDown className="h-3.5 w-3.5" />
-              </button>
-
-              {categoriesDropdownOpen && (
-                <div
-                  className="absolute left-0 top-full mt-2 z-50 max-h-80 w-64 overflow-y-auto rounded-2xl border border-zinc-200 bg-white py-2 shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
-                  onMouseLeave={() => setCategoriesDropdownOpen(false)}
-                  id="categories-menu-list"
+        <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
+          <div className="overflow-x-auto">
+            <div className="flex min-w-max items-center justify-between gap-2 sm:gap-3 text-[10px] font-bold sm:text-xs">
+              {/* All Categories Button with Dropdown */}
+              <div className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setCategoriesDropdownOpen(!categoriesDropdownOpen)}
+                  className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-2.5 py-1.5 text-[10px] font-bold text-white shadow-xs transition-colors hover:bg-emerald-700 sm:px-3.5 sm:text-xs"
+                  id="categories-dropdown-toggle"
                 >
-                  {isCategoriesLoading ? (
-                    <div className="px-4 py-3 text-xs text-zinc-400 animate-pulse">
-                      Loading categories...
-                    </div>
-                  ) : categories.length === 0 ? (
-                    <div className="px-4 py-3 text-xs text-zinc-400">
-                      No categories found
-                    </div>
-                  ) : (
-                    categories.map((cat) => (
-                      <Link
-                        key={cat.id}
-                        href={`/categories/${cat.id}`}
-                        onClick={() => setCategoriesDropdownOpen(false)}
-                        className="block px-4 py-2 text-xs font-medium text-zinc-700 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400"
-                      >
-                        {cat.name}
-                      </Link>
-                    ))
-                  )}
-                </div>
-              )}
+                  <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span>All Categories</span>
+                  <ChevronDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                </button>
+
+                {categoriesDropdownOpen && (
+                  <div
+                    className="absolute left-0 top-full mt-2 z-50 max-h-80 w-64 overflow-y-auto rounded-2xl border border-zinc-200 bg-white py-2 shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
+                    onMouseLeave={() => setCategoriesDropdownOpen(false)}
+                    id="categories-menu-list"
+                  >
+                    {isCategoriesLoading ? (
+                      <div className="px-4 py-3 text-xs text-zinc-400 animate-pulse">
+                        Loading categories...
+                      </div>
+                    ) : categories.length === 0 ? (
+                      <div className="px-4 py-3 text-xs text-zinc-400">
+                        No categories found
+                      </div>
+                    ) : (
+                      categories.map((cat) => (
+                        <Link
+                          key={cat.id}
+                          href={`/categories/${cat.id}`}
+                          onClick={() => setCategoriesDropdownOpen(false)}
+                          className="block px-4 py-2 text-xs font-medium text-zinc-700 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400"
+                        >
+                          {cat.name}
+                        </Link>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Core Navigation Links */}
+              <div className="flex min-w-max items-center gap-2 sm:gap-3">
+                <Link
+                  href="/"
+                  className="text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+                >
+                  Home
+                </Link>
+
+                <Link
+                  href="/products"
+                  className="text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+                >
+                  Products
+                </Link>
+
+                <Link
+                  href="/products?sort=newest"
+                  className="hidden md:flex items-center gap-1 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  <span>New Arrivals</span>
+                </Link>
+
+                <Link
+                  href="/products?featured=true"
+                  className="hidden lg:block text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+                >
+                  Featured Deals
+                </Link>
+
+                <Link
+                  href="/shops"
+                  className="text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+                >
+                  Browse Sellers
+                </Link>
+
+                <Link
+                  href="/support"
+                  className="flex items-center gap-1 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+                >
+                  <HelpCircle className="h-3.5 w-3.5 text-teal-600" />
+                  <span>Help & Support</span>
+                </Link>
+
+                <Link
+                  href="/seller/apply"
+                  className="hidden sm:inline-flex items-center gap-1 text-emerald-700 font-extrabold hover:underline dark:text-emerald-400"
+                >
+                  <Store className="h-3.5 w-3.5" />
+                  <span>Become a Seller</span>
+                </Link>
+              </div>
+
+              {/* Right Support Hotline */}
+              <div className="hidden xl:block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                24/7 Support: <span className="font-bold text-emerald-600 dark:text-emerald-400">+1 800-ONLINE-BAZAR</span>
+              </div>
             </div>
-
-            {/* Core Navigation Links */}
-            <Link
-              href="/"
-              className="text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
-            >
-              Home
-            </Link>
-
-            <Link
-              href="/products"
-              className="text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
-            >
-              All Products
-            </Link>
-
-            <Link
-              href="/products?sort=newest"
-              className="hidden md:flex items-center gap-1 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-              <span>New Arrivals</span>
-            </Link>
-
-            <Link
-              href="/products?featured=true"
-              className="hidden lg:block text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
-            >
-              Featured Deals
-            </Link>
-
-            <Link
-              href="/shops"
-              className="text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
-            >
-              Browse Sellers
-            </Link>
-
-            <Link
-              href="/support"
-              className="flex items-center gap-1 text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
-            >
-              <HelpCircle className="h-3.5 w-3.5 text-teal-600" />
-              <span>Help & Support</span>
-            </Link>
-
-            <Link
-              href="/seller/apply"
-              className="hidden sm:inline-flex items-center gap-1 text-emerald-700 font-extrabold hover:underline dark:text-emerald-400"
-            >
-              <Store className="h-3.5 w-3.5" />
-              <span>Become a Seller</span>
-            </Link>
-          </div>
-
-          {/* Right Support Hotline */}
-          <div className="hidden xl:block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            24/7 Support: <span className="font-bold text-emerald-600 dark:text-emerald-400">+1 800-ONLINE-BAZAR</span>
           </div>
         </div>
       </nav>
