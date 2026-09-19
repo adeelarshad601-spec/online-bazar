@@ -104,7 +104,11 @@ export const getCustomerOrders = async (
             shop: true,
             items: {
               include: {
-                product: true,
+                product: {
+                  include: {
+                    images: { orderBy: { sortOrder: "asc" } },
+                  },
+                },
                 variant: true,
               },
             },
@@ -138,7 +142,11 @@ export const getCustomerOrder = async (userId: string, orderId: string) => {
           shop: true,
           items: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  images: { orderBy: { sortOrder: "asc" } },
+                },
+              },
               variant: true,
             },
           },
@@ -164,7 +172,11 @@ export const cancelCustomerOrder = async (userId: string, orderId: string) => {
         include: {
           items: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  images: { orderBy: { sortOrder: "asc" } },
+                },
+              },
               variant: true,
             },
           },
@@ -235,7 +247,11 @@ export const cancelCustomerOrder = async (userId: string, orderId: string) => {
             shop: true,
             items: {
               include: {
-                product: true,
+                product: {
+                  include: {
+                    images: { orderBy: { sortOrder: "asc" } },
+                  },
+                },
                 variant: true,
               },
             },
@@ -315,7 +331,11 @@ export const getSellerVendorOrders = async (
       order: true,
       items: {
         include: {
-          product: true,
+          product: {
+            include: {
+              images: { orderBy: { sortOrder: "asc" } },
+            },
+          },
           variant: true,
         },
       },
@@ -390,7 +410,11 @@ export const updateVendorOrderStatus = async (
       order: true,
       items: {
         include: {
-          product: true,
+          product: {
+            include: {
+              images: { orderBy: { sortOrder: "asc" } },
+            },
+          },
           variant: true,
         },
       },
@@ -509,7 +533,11 @@ export const getAdminOrders = async (query: AdminOrdersQuery) => {
             shop: true,
             items: {
               include: {
-                product: true,
+                product: {
+                  include: {
+                    images: { orderBy: { sortOrder: "asc" } },
+                  },
+                },
                 variant: true,
               },
             },
@@ -576,7 +604,11 @@ export const updateAdminOrderStatus = async (
           shop: true,
           items: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  images: { orderBy: { sortOrder: "asc" } },
+                },
+              },
               variant: true,
             },
           },
@@ -633,7 +665,11 @@ export const processOrderRefund = async (
         include: {
           items: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  images: { orderBy: { sortOrder: "asc" } },
+                },
+              },
               variant: true,
             },
           },
@@ -712,7 +748,11 @@ export const processOrderRefund = async (
             shop: true,
             items: {
               include: {
-                product: true,
+                product: {
+                  include: {
+                    images: { orderBy: { sortOrder: "asc" } },
+                  },
+                },
                 variant: true,
               },
             },

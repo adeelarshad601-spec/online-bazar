@@ -22,7 +22,21 @@ export const getOrderTracking = async (req: AuthRequest, res: Response) => {
     const order = await prisma.order.findUnique({
       where: { id: validationResult.data.id },
       include: {
-        vendorOrders: { include: { items: { include: { product: true, variant: true } }, shop: true } },
+        vendorOrders: {
+          include: {
+            items: {
+              include: {
+                product: {
+                  include: {
+                    images: { orderBy: { sortOrder: "asc" } },
+                  },
+                },
+                variant: true,
+              },
+            },
+            shop: true,
+          },
+        },
         payment: true,
       },
     });
