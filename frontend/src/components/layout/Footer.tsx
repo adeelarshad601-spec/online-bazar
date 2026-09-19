@@ -254,7 +254,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-zinc-200 pt-6 text-[11px] text-zinc-500 sm:flex-row dark:border-zinc-800">
-          <p >© {new Date().getFullYear()} Online-Bazar Marketplace. All rights reserved.</p>
+          <p><span className="mr-0.5 text-sm font-semibold">©</span> {new Date().getFullYear()} Online-Bazar Marketplace. All rights reserved.</p>
           <div className="flex items-center gap-1">
             <span>Developed by</span>
             <Link
