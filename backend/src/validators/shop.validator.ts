@@ -54,6 +54,11 @@ export const createShopSchema = z.object({
     .optional(),
 
   description: z.string().trim().max(500, "Description is too long").optional(),
+  pickupAddress: z.string().trim().max(255).optional().nullable(),
+  pickupCity: z.string().trim().max(100).optional().nullable(),
+  pickupState: z.string().trim().max(100).optional().nullable(),
+  pickupCountry: z.string().trim().max(100).optional().nullable(),
+  pickupPostalCode: z.string().trim().max(20).optional().nullable(),
 });
 
 export const updateShopSchema = createShopSchema.partial();

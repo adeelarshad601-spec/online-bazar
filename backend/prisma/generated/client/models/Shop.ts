@@ -31,6 +31,11 @@ export type ShopMinAggregateOutputType = {
   logo: string | null
   banner: string | null
   description: string | null
+  pickupAddress: string | null
+  pickupCity: string | null
+  pickupState: string | null
+  pickupCountry: string | null
+  pickupPostalCode: string | null
   sellerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -43,6 +48,11 @@ export type ShopMaxAggregateOutputType = {
   logo: string | null
   banner: string | null
   description: string | null
+  pickupAddress: string | null
+  pickupCity: string | null
+  pickupState: string | null
+  pickupCountry: string | null
+  pickupPostalCode: string | null
   sellerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -55,6 +65,11 @@ export type ShopCountAggregateOutputType = {
   logo: number
   banner: number
   description: number
+  pickupAddress: number
+  pickupCity: number
+  pickupState: number
+  pickupCountry: number
+  pickupPostalCode: number
   sellerId: number
   createdAt: number
   updatedAt: number
@@ -69,6 +84,11 @@ export type ShopMinAggregateInputType = {
   logo?: true
   banner?: true
   description?: true
+  pickupAddress?: true
+  pickupCity?: true
+  pickupState?: true
+  pickupCountry?: true
+  pickupPostalCode?: true
   sellerId?: true
   createdAt?: true
   updatedAt?: true
@@ -81,6 +101,11 @@ export type ShopMaxAggregateInputType = {
   logo?: true
   banner?: true
   description?: true
+  pickupAddress?: true
+  pickupCity?: true
+  pickupState?: true
+  pickupCountry?: true
+  pickupPostalCode?: true
   sellerId?: true
   createdAt?: true
   updatedAt?: true
@@ -93,6 +118,11 @@ export type ShopCountAggregateInputType = {
   logo?: true
   banner?: true
   description?: true
+  pickupAddress?: true
+  pickupCity?: true
+  pickupState?: true
+  pickupCountry?: true
+  pickupPostalCode?: true
   sellerId?: true
   createdAt?: true
   updatedAt?: true
@@ -178,6 +208,11 @@ export type ShopGroupByOutputType = {
   logo: string | null
   banner: string | null
   description: string | null
+  pickupAddress: string | null
+  pickupCity: string | null
+  pickupState: string | null
+  pickupCountry: string | null
+  pickupPostalCode: string | null
   sellerId: string
   createdAt: Date
   updatedAt: Date
@@ -211,6 +246,11 @@ export type ShopWhereInput = {
   logo?: Prisma.StringNullableFilter<"Shop"> | string | null
   banner?: Prisma.StringNullableFilter<"Shop"> | string | null
   description?: Prisma.StringNullableFilter<"Shop"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"Shop"> | string | null
+  pickupCity?: Prisma.StringNullableFilter<"Shop"> | string | null
+  pickupState?: Prisma.StringNullableFilter<"Shop"> | string | null
+  pickupCountry?: Prisma.StringNullableFilter<"Shop"> | string | null
+  pickupPostalCode?: Prisma.StringNullableFilter<"Shop"> | string | null
   sellerId?: Prisma.StringFilter<"Shop"> | string
   createdAt?: Prisma.DateTimeFilter<"Shop"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Shop"> | Date | string
@@ -227,6 +267,11 @@ export type ShopOrderByWithRelationInput = {
   logo?: Prisma.SortOrderInput | Prisma.SortOrder
   banner?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupCity?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupState?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupCountry?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPostalCode?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -247,6 +292,11 @@ export type ShopWhereUniqueInput = Prisma.AtLeast<{
   logo?: Prisma.StringNullableFilter<"Shop"> | string | null
   banner?: Prisma.StringNullableFilter<"Shop"> | string | null
   description?: Prisma.StringNullableFilter<"Shop"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"Shop"> | string | null
+  pickupCity?: Prisma.StringNullableFilter<"Shop"> | string | null
+  pickupState?: Prisma.StringNullableFilter<"Shop"> | string | null
+  pickupCountry?: Prisma.StringNullableFilter<"Shop"> | string | null
+  pickupPostalCode?: Prisma.StringNullableFilter<"Shop"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Shop"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Shop"> | Date | string
   seller?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -262,6 +312,11 @@ export type ShopOrderByWithAggregationInput = {
   logo?: Prisma.SortOrderInput | Prisma.SortOrder
   banner?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupCity?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupState?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupCountry?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPostalCode?: Prisma.SortOrderInput | Prisma.SortOrder
   sellerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -280,6 +335,11 @@ export type ShopScalarWhereWithAggregatesInput = {
   logo?: Prisma.StringNullableWithAggregatesFilter<"Shop"> | string | null
   banner?: Prisma.StringNullableWithAggregatesFilter<"Shop"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Shop"> | string | null
+  pickupAddress?: Prisma.StringNullableWithAggregatesFilter<"Shop"> | string | null
+  pickupCity?: Prisma.StringNullableWithAggregatesFilter<"Shop"> | string | null
+  pickupState?: Prisma.StringNullableWithAggregatesFilter<"Shop"> | string | null
+  pickupCountry?: Prisma.StringNullableWithAggregatesFilter<"Shop"> | string | null
+  pickupPostalCode?: Prisma.StringNullableWithAggregatesFilter<"Shop"> | string | null
   sellerId?: Prisma.StringWithAggregatesFilter<"Shop"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Shop"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Shop"> | Date | string
@@ -292,6 +352,11 @@ export type ShopCreateInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   seller: Prisma.UserCreateNestedOneWithoutShopInput
@@ -307,6 +372,11 @@ export type ShopUncheckedCreateInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   sellerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -322,6 +392,11 @@ export type ShopUpdateInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   seller?: Prisma.UserUpdateOneRequiredWithoutShopNestedInput
@@ -337,6 +412,11 @@ export type ShopUncheckedUpdateInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -352,6 +432,11 @@ export type ShopCreateManyInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   sellerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -364,6 +449,11 @@ export type ShopUpdateManyMutationInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -375,6 +465,11 @@ export type ShopUncheckedUpdateManyInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -392,6 +487,11 @@ export type ShopCountOrderByAggregateInput = {
   logo?: Prisma.SortOrder
   banner?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  pickupCity?: Prisma.SortOrder
+  pickupState?: Prisma.SortOrder
+  pickupCountry?: Prisma.SortOrder
+  pickupPostalCode?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -404,6 +504,11 @@ export type ShopMaxOrderByAggregateInput = {
   logo?: Prisma.SortOrder
   banner?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  pickupCity?: Prisma.SortOrder
+  pickupState?: Prisma.SortOrder
+  pickupCountry?: Prisma.SortOrder
+  pickupPostalCode?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -416,6 +521,11 @@ export type ShopMinOrderByAggregateInput = {
   logo?: Prisma.SortOrder
   banner?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  pickupCity?: Prisma.SortOrder
+  pickupState?: Prisma.SortOrder
+  pickupCountry?: Prisma.SortOrder
+  pickupPostalCode?: Prisma.SortOrder
   sellerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -507,6 +617,11 @@ export type ShopCreateWithoutSellerInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductCreateNestedManyWithoutShopInput
@@ -521,6 +636,11 @@ export type ShopUncheckedCreateWithoutSellerInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutShopInput
@@ -551,6 +671,11 @@ export type ShopUpdateWithoutSellerInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUpdateManyWithoutShopNestedInput
@@ -565,6 +690,11 @@ export type ShopUncheckedUpdateWithoutSellerInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutShopNestedInput
@@ -579,6 +709,11 @@ export type ShopCreateWithoutProductsInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   seller: Prisma.UserCreateNestedOneWithoutShopInput
@@ -593,6 +728,11 @@ export type ShopUncheckedCreateWithoutProductsInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   sellerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -623,6 +763,11 @@ export type ShopUpdateWithoutProductsInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   seller?: Prisma.UserUpdateOneRequiredWithoutShopNestedInput
@@ -637,6 +782,11 @@ export type ShopUncheckedUpdateWithoutProductsInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -651,6 +801,11 @@ export type ShopCreateWithoutVendorOrdersInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   seller: Prisma.UserCreateNestedOneWithoutShopInput
@@ -665,6 +820,11 @@ export type ShopUncheckedCreateWithoutVendorOrdersInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   sellerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -695,6 +855,11 @@ export type ShopUpdateWithoutVendorOrdersInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   seller?: Prisma.UserUpdateOneRequiredWithoutShopNestedInput
@@ -709,6 +874,11 @@ export type ShopUncheckedUpdateWithoutVendorOrdersInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -723,6 +893,11 @@ export type ShopCreateWithoutPayoutsInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   seller: Prisma.UserCreateNestedOneWithoutShopInput
@@ -737,6 +912,11 @@ export type ShopUncheckedCreateWithoutPayoutsInput = {
   logo?: string | null
   banner?: string | null
   description?: string | null
+  pickupAddress?: string | null
+  pickupCity?: string | null
+  pickupState?: string | null
+  pickupCountry?: string | null
+  pickupPostalCode?: string | null
   sellerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -767,6 +947,11 @@ export type ShopUpdateWithoutPayoutsInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   seller?: Prisma.UserUpdateOneRequiredWithoutShopNestedInput
@@ -781,6 +966,11 @@ export type ShopUncheckedUpdateWithoutPayoutsInput = {
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupState?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCountry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPostalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sellerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -844,6 +1034,11 @@ export type ShopSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   logo?: boolean
   banner?: boolean
   description?: boolean
+  pickupAddress?: boolean
+  pickupCity?: boolean
+  pickupState?: boolean
+  pickupCountry?: boolean
+  pickupPostalCode?: boolean
   sellerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -861,6 +1056,11 @@ export type ShopSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   logo?: boolean
   banner?: boolean
   description?: boolean
+  pickupAddress?: boolean
+  pickupCity?: boolean
+  pickupState?: boolean
+  pickupCountry?: boolean
+  pickupPostalCode?: boolean
   sellerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -874,6 +1074,11 @@ export type ShopSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   logo?: boolean
   banner?: boolean
   description?: boolean
+  pickupAddress?: boolean
+  pickupCity?: boolean
+  pickupState?: boolean
+  pickupCountry?: boolean
+  pickupPostalCode?: boolean
   sellerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -887,12 +1092,17 @@ export type ShopSelectScalar = {
   logo?: boolean
   banner?: boolean
   description?: boolean
+  pickupAddress?: boolean
+  pickupCity?: boolean
+  pickupState?: boolean
+  pickupCountry?: boolean
+  pickupPostalCode?: boolean
   sellerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ShopOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "logo" | "banner" | "description" | "sellerId" | "createdAt" | "updatedAt", ExtArgs["result"]["shop"]>
+export type ShopOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "logo" | "banner" | "description" | "pickupAddress" | "pickupCity" | "pickupState" | "pickupCountry" | "pickupPostalCode" | "sellerId" | "createdAt" | "updatedAt", ExtArgs["result"]["shop"]>
 export type ShopInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   seller?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   products?: boolean | Prisma.Shop$productsArgs<ExtArgs>
@@ -922,6 +1132,11 @@ export type $ShopPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     logo: string | null
     banner: string | null
     description: string | null
+    pickupAddress: string | null
+    pickupCity: string | null
+    pickupState: string | null
+    pickupCountry: string | null
+    pickupPostalCode: string | null
     sellerId: string
     createdAt: Date
     updatedAt: Date
@@ -1358,6 +1573,11 @@ export interface ShopFieldRefs {
   readonly logo: Prisma.FieldRef<"Shop", 'String'>
   readonly banner: Prisma.FieldRef<"Shop", 'String'>
   readonly description: Prisma.FieldRef<"Shop", 'String'>
+  readonly pickupAddress: Prisma.FieldRef<"Shop", 'String'>
+  readonly pickupCity: Prisma.FieldRef<"Shop", 'String'>
+  readonly pickupState: Prisma.FieldRef<"Shop", 'String'>
+  readonly pickupCountry: Prisma.FieldRef<"Shop", 'String'>
+  readonly pickupPostalCode: Prisma.FieldRef<"Shop", 'String'>
   readonly sellerId: Prisma.FieldRef<"Shop", 'String'>
   readonly createdAt: Prisma.FieldRef<"Shop", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Shop", 'DateTime'>

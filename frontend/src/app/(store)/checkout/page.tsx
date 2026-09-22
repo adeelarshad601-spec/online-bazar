@@ -1007,7 +1007,7 @@ function CheckoutFormContent() {
                 </div>
 
                 <div className="flex justify-between items-center text-zinc-600 dark:text-zinc-400">
-                  <span>Shipping:</span>
+                  <span>Total Shipping:</span>
                   {isShippingCalculating ? (
                     <span className="flex items-center gap-1 text-[11px] font-medium text-zinc-400">
                       <Loader2 className="h-3 w-3 animate-spin" /> Calculating...
@@ -1018,7 +1018,7 @@ function CheckoutFormContent() {
                     </span>
                   ) : shippingCharge === 0 ? (
                     <span className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
-                      <span>Free</span>
+                      <span>Free Shipping</span>
                     </span>
                   ) : (
                     <span className="font-bold text-zinc-900 dark:text-white">
@@ -1026,6 +1026,18 @@ function CheckoutFormContent() {
                     </span>
                   )}
                 </div>
+
+                {shippingQuote?.data?.vendorShipping && Object.keys(shippingQuote.data.vendorShipping).length > 1 && isDeliverable && (
+                  <div className="rounded-xl bg-zinc-50 p-2.5 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700/60 space-y-1">
+                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Per-Vendor Shipping Breakdown</p>
+                    {Object.entries(shippingQuote.data.vendorShipping).map(([vShopId, vAmount], idx) => (
+                      <div key={vShopId} className="flex justify-between text-[11px] text-zinc-600 dark:text-zinc-300">
+                        <span>Vendor Store #{idx + 1}:</span>
+                        <span className="font-bold">{vAmount === 0 ? "Free" : `$${Number(vAmount).toFixed(2)}`}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {appliedCoupon && (
                   <div className="flex justify-between text-emerald-600 font-bold">

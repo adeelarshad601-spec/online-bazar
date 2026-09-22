@@ -11,6 +11,14 @@ export interface ShippingAddressQuery {
 export interface VendorSubtotalItem {
   shopId: string;
   subtotal: Decimal;
+  totalWeight?: Decimal | number;
+  origin?: {
+    address?: string | null;
+    city?: string | null;
+    state?: string | null;
+    country?: string | null;
+    postalCode?: string | null;
+  } | null;
 }
 
 // Seed default shipping zones if none exist
@@ -20,25 +28,33 @@ export const ensureDefaultShippingZones = async () => {
 
   const defaultZones = [
     {
-      name: "Local Zone",
-      description: "Local city delivery",
+      name: "Same-City Express Delivery",
+      description: "Local intra-city delivery rate",
+      originCountries: ["*"],
+      originStates: ["*"],
+      originCities: ["*"],
       countries: ["*"],
       states: ["*"],
       cities: ["*"],
       postalCodes: ["*"],
-      shippingCharge: new Decimal(0),
-      isFreeShipping: true,
-      freeShippingMinAmount: new Decimal(0),
+      shippingCharge: new Decimal(3.0),
+      ratePerKg: new Decimal(0.5),
+      isFreeShipping: false,
+      freeShippingMinAmount: new Decimal(75.0),
       isActive: true,
     },
     {
-      name: "Standard Regional Zone",
-      description: "Regional shipping rate",
+      name: "Standard Regional & Inter-City Zone",
+      description: "Standard multi-city delivery rate",
+      originCountries: ["*"],
+      originStates: ["*"],
+      originCities: ["*"],
       countries: ["*"],
       states: ["*"],
       cities: ["*"],
       postalCodes: ["*"],
       shippingCharge: new Decimal(5.0),
+      ratePerKg: new Decimal(1.0),
       isFreeShipping: false,
       freeShippingMinAmount: new Decimal(100.0),
       isActive: true,
@@ -53,14 +69,17 @@ export const ensureDefaultShippingZones = async () => {
 };
 
 const matchesList = (val: string | null | undefined, list: any): boolean => {
-  if (!Array.isArray(list) || list.length === 0) return true;
+  if (!list || !Array.isArray(list) || list.length === 0) return true;
   if (list.includes("*")) return true;
   if (!val) return false;
   const normalizedVal = val.trim().toLowerCase();
   return list.some((item: any) => typeof item === "string" && item.trim().toLowerCase() === normalizedVal);
 };
 
-export const findMatchingShippingZone = async (address: ShippingAddressQuery) => {
+export const findMatchingShippingZoneForVendor = async (
+  origin: { country?: string | null; state?: string | null; city?: string | null } | undefined | null,
+  destination: ShippingAddressQuery
+) => {
   await ensureDefaultShippingZones();
 
   const activeZones = await prisma.shippingZone.findMany({
@@ -72,27 +91,61 @@ export const findMatchingShippingZone = async (address: ShippingAddressQuery) =>
     return null;
   }
 
-  // Score each zone by specificity to find the best match
   let bestMatch: (typeof activeZones)[0] | null = null;
   let highestScore = -1;
 
+  const originCountry = origin?.country || "Pakistan";
+  const originState = origin?.state || "*";
+  const originCity = origin?.city || "*";
+
   for (const zone of activeZones) {
-    const countries = zone.countries as string[];
-    const states = zone.states as string[];
-    const cities = zone.cities as string[];
-    const postalCodes = zone.postalCodes as string[];
+    const origCountries = (zone.originCountries as string[]) || ["*"];
+    const origStates = (zone.originStates as string[]) || ["*"];
+    const origCities = (zone.originCities as string[]) || ["*"];
 
-    const countryMatch = matchesList(address.country, countries);
-    const stateMatch = matchesList(address.state, states);
-    const cityMatch = matchesList(address.city, cities);
-    const postalMatch = matchesList(address.postalCode, postalCodes);
+    const destCountries = (zone.countries as string[]) || ["*"];
+    const destStates = (zone.states as string[]) || ["*"];
+    const destCities = (zone.cities as string[]) || ["*"];
+    const destPostalCodes = (zone.postalCodes as string[]) || ["*"];
 
-    if (countryMatch && stateMatch && cityMatch && postalMatch) {
+    // Match origin
+    const matchOrigCountry = matchesList(originCountry, origCountries);
+    const matchOrigState = matchesList(originState, origStates);
+    const matchOrigCity = matchesList(originCity, origCities);
+
+    // Match destination
+    const matchDestCountry = matchesList(destination.country, destCountries);
+    const matchDestState = matchesList(destination.state, destStates);
+    const matchDestCity = matchesList(destination.city, destCities);
+    const matchDestPostal = matchesList(destination.postalCode, destPostalCodes);
+
+    if (
+      matchOrigCountry &&
+      matchOrigState &&
+      matchOrigCity &&
+      matchDestCountry &&
+      matchDestState &&
+      matchDestCity &&
+      matchDestPostal
+    ) {
       let score = 0;
-      if (Array.isArray(cities) && !cities.includes("*")) score += 8;
-      if (Array.isArray(states) && !states.includes("*")) score += 4;
-      if (Array.isArray(postalCodes) && !postalCodes.includes("*")) score += 2;
-      if (Array.isArray(countries) && !countries.includes("*")) score += 1;
+
+      // Specificity scoring
+      if (!origCities.includes("*")) score += 16;
+      if (!destCities.includes("*")) score += 8;
+      if (!origStates.includes("*")) score += 4;
+      if (!destStates.includes("*")) score += 4;
+      if (!destPostalCodes.includes("*")) score += 2;
+      if (!destCountries.includes("*")) score += 1;
+
+      // Same city origin == destination bonus if both specified
+      if (
+        originCity &&
+        destination.city &&
+        originCity.trim().toLowerCase() === destination.city.trim().toLowerCase()
+      ) {
+        score += 5;
+      }
 
       if (score > highestScore) {
         highestScore = score;
@@ -108,25 +161,38 @@ export const calculateShippingQuote = async (
   address: ShippingAddressQuery,
   vendorSubtotals: VendorSubtotalItem[]
 ) => {
-  const zone = await findMatchingShippingZone(address);
-
-  if (!zone) {
-    return {
-      isDeliverable: false,
-      matchedZone: null,
-      totalShippingAmount: new Decimal(0),
-      vendorShippingMap: {} as Record<string, Decimal>,
-      message: "Sorry, we currently don't deliver to this location.",
-    };
-  }
-
   const vendorShippingMap: Record<string, Decimal> = {};
+  const vendorZoneMap: Record<string, any> = {};
   let totalShippingAmount = new Decimal(0);
+  let isAllDeliverable = true;
 
   for (const vendor of vendorSubtotals) {
+    const zone = await findMatchingShippingZoneForVendor(vendor.origin, address);
+
+    if (!zone) {
+      isAllDeliverable = false;
+      vendorShippingMap[vendor.shopId] = new Decimal(0);
+      continue;
+    }
+
+    vendorZoneMap[vendor.shopId] = {
+      id: zone.id,
+      name: zone.name,
+      shippingCharge: zone.shippingCharge,
+      ratePerKg: zone.ratePerKg || new Decimal(0),
+      isFreeShipping: zone.isFreeShipping,
+      freeShippingMinAmount: zone.freeShippingMinAmount,
+    };
+
     let vendorShipping = new Decimal(zone.shippingCharge);
 
-    // Free shipping check per vendor subtotal
+    // Add weight-based rate if applicable
+    const weightDec = vendor.totalWeight ? new Decimal(vendor.totalWeight) : new Decimal(0);
+    if (zone.ratePerKg && weightDec.gt(0)) {
+      vendorShipping = vendorShipping.add(new Decimal(zone.ratePerKg).mul(weightDec));
+    }
+
+    // Evaluate free shipping for this specific vendor scope
     if (zone.isFreeShipping) {
       vendorShipping = new Decimal(0);
     } else if (zone.freeShippingMinAmount !== null && zone.freeShippingMinAmount !== undefined) {
@@ -139,17 +205,25 @@ export const calculateShippingQuote = async (
     totalShippingAmount = totalShippingAmount.add(vendorShipping);
   }
 
+  if (!isAllDeliverable) {
+    return {
+      isDeliverable: false,
+      matchedZone: null,
+      totalShippingAmount: new Decimal(0),
+      vendorShippingMap: {} as Record<string, Decimal>,
+      vendorZoneMap: {},
+      message: "Sorry, we currently don't deliver to this location.",
+    };
+  }
+
+  const primaryZone = Object.values(vendorZoneMap)[0] || null;
+
   return {
     isDeliverable: true,
-    matchedZone: {
-      id: zone.id,
-      name: zone.name,
-      shippingCharge: zone.shippingCharge,
-      isFreeShipping: zone.isFreeShipping,
-      freeShippingMinAmount: zone.freeShippingMinAmount,
-    },
+    matchedZone: primaryZone,
     totalShippingAmount,
     vendorShippingMap,
+    vendorZoneMap,
     message: "Shipping calculated successfully",
   };
 };
@@ -171,11 +245,15 @@ export const getShippingZoneById = async (id: string) => {
 export const createShippingZone = async (data: {
   name: string;
   description?: string | null;
+  originCountries?: string[];
+  originStates?: string[];
+  originCities?: string[];
   countries?: string[];
   states?: string[];
   cities?: string[];
   postalCodes?: string[];
   shippingCharge: number | Decimal;
+  ratePerKg?: number | Decimal | null;
   isFreeShipping?: boolean;
   freeShippingMinAmount?: number | Decimal | null;
   isActive?: boolean;
@@ -184,11 +262,16 @@ export const createShippingZone = async (data: {
     data: {
       name: data.name,
       description: data.description || null,
+      originCountries: data.originCountries || ["*"],
+      originStates: data.originStates || ["*"],
+      originCities: data.originCities || ["*"],
       countries: data.countries || ["*"],
       states: data.states || ["*"],
       cities: data.cities || ["*"],
       postalCodes: data.postalCodes || ["*"],
       shippingCharge: new Decimal(data.shippingCharge),
+      ratePerKg:
+        data.ratePerKg !== null && data.ratePerKg !== undefined ? new Decimal(data.ratePerKg) : new Decimal(0),
       isFreeShipping: data.isFreeShipping ?? false,
       freeShippingMinAmount:
         data.freeShippingMinAmount !== null && data.freeShippingMinAmount !== undefined
@@ -204,11 +287,15 @@ export const updateShippingZone = async (
   data: {
     name?: string;
     description?: string | null;
+    originCountries?: string[];
+    originStates?: string[];
+    originCities?: string[];
     countries?: string[];
     states?: string[];
     cities?: string[];
     postalCodes?: string[];
     shippingCharge?: number | Decimal;
+    ratePerKg?: number | Decimal | null;
     isFreeShipping?: boolean;
     freeShippingMinAmount?: number | Decimal | null;
     isActive?: boolean;
@@ -220,11 +307,17 @@ export const updateShippingZone = async (
   const updateData: any = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.description !== undefined) updateData.description = data.description;
+  if (data.originCountries !== undefined) updateData.originCountries = data.originCountries;
+  if (data.originStates !== undefined) updateData.originStates = data.originStates;
+  if (data.originCities !== undefined) updateData.originCities = data.originCities;
   if (data.countries !== undefined) updateData.countries = data.countries;
   if (data.states !== undefined) updateData.states = data.states;
   if (data.cities !== undefined) updateData.cities = data.cities;
   if (data.postalCodes !== undefined) updateData.postalCodes = data.postalCodes;
   if (data.shippingCharge !== undefined) updateData.shippingCharge = new Decimal(data.shippingCharge);
+  if (data.ratePerKg !== undefined) {
+    updateData.ratePerKg = data.ratePerKg !== null ? new Decimal(data.ratePerKg) : new Decimal(0);
+  }
   if (data.isFreeShipping !== undefined) updateData.isFreeShipping = data.isFreeShipping;
   if (data.freeShippingMinAmount !== undefined) {
     updateData.freeShippingMinAmount =

@@ -40,6 +40,10 @@ export interface Product {
   price: number;
   compareAtPrice?: number | null;
   stock: number;
+  weight?: number | null;
+  length?: number | null;
+  width?: number | null;
+  height?: number | null;
   isActive?: boolean;
   status?: string;
   moderationFeedback?: string | null;

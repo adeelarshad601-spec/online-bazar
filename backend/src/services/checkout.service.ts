@@ -98,6 +98,19 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     rawItems.map(async (item) => {
       const product = await prisma.product.findUnique({
         where: { id: item.productId },
+        include: {
+          shop: {
+            select: {
+              id: true,
+              name: true,
+              pickupAddress: true,
+              pickupCity: true,
+              pickupState: true,
+              pickupCountry: true,
+              pickupPostalCode: true,
+            },
+          },
+        },
       });
 
       if (!product) {
@@ -178,19 +191,41 @@ export const processCheckout = async (userId: string, input: CheckoutInput) => {
     }
   }
 
-  // Calculate Shipping Authoritatively on Backend
-  const vendorSubtotalsMap: Record<string, Decimal> = {};
+  // Calculate Shipping Authoritatively on Backend per Vendor
+  const vendorGroupMap: Record<
+    string,
+    {
+      subtotal: Decimal;
+      totalWeight: Decimal;
+      shop: any;
+    }
+  > = {};
+
   for (const item of checkedItems) {
     const shopId = item.product.shopId;
-    if (!vendorSubtotalsMap[shopId]) {
-      vendorSubtotalsMap[shopId] = new Decimal(0);
+    const itemWeight = (item.product.weight || new Decimal(0)).mul(item.quantity);
+    if (!vendorGroupMap[shopId]) {
+      vendorGroupMap[shopId] = {
+        subtotal: new Decimal(0),
+        totalWeight: new Decimal(0),
+        shop: (item.product as any).shop,
+      };
     }
-    vendorSubtotalsMap[shopId] = vendorSubtotalsMap[shopId].add(item.subtotal);
+    vendorGroupMap[shopId].subtotal = vendorGroupMap[shopId].subtotal.add(item.subtotal);
+    vendorGroupMap[shopId].totalWeight = vendorGroupMap[shopId].totalWeight.add(itemWeight);
   }
 
-  const vendorSubtotalsList = Object.entries(vendorSubtotalsMap).map(([shopId, subtotal]) => ({
+  const vendorSubtotalsList = Object.entries(vendorGroupMap).map(([shopId, data]) => ({
     shopId,
-    subtotal,
+    subtotal: data.subtotal,
+    totalWeight: data.totalWeight,
+    origin: {
+      address: data.shop?.pickupAddress || null,
+      city: data.shop?.pickupCity || null,
+      state: data.shop?.pickupState || null,
+      country: data.shop?.pickupCountry || "Pakistan",
+      postalCode: data.shop?.pickupPostalCode || null,
+    },
   }));
 
   const shippingResult = await calculateShippingQuote(

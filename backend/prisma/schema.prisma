@@ -146,6 +146,12 @@ model Shop {
   banner        String?      @db.Text
   description   String?
 
+  pickupAddress     String?
+  pickupCity        String?
+  pickupState       String?
+  pickupCountry     String?      @default("Pakistan")
+  pickupPostalCode  String?
+
   sellerId      String       @unique
   seller        User         @relation(fields: [sellerId], references: [id], onDelete: Cascade)
 
@@ -246,6 +252,11 @@ model Product {
   compareAtPrice  Decimal?      @db.Decimal(12, 2)
 
   stock           Int           @default(0)
+
+  weight          Decimal?      @db.Decimal(10, 2)
+  length          Decimal?      @db.Decimal(10, 2)
+  width           Decimal?      @db.Decimal(10, 2)
+  height          Decimal?      @db.Decimal(10, 2)
 
   status          ProductStatus @default(PENDING)
   moderationFeedback String?
@@ -688,11 +699,15 @@ model ShippingZone {
   id                    String   @id @default(uuid())
   name                  String   @unique
   description           String?
-  countries             Json     // Array of strings, e.g. ["*"], ["Pakistan"], ["United States"]
-  states                Json     // Array of strings, e.g. ["*"]
-  cities                Json     // Array of strings, e.g. ["*"]
-  postalCodes           Json     // Array of strings, e.g. ["*"]
+  originCountries       Json?    // Array of strings, e.g. ["*"]
+  originStates          Json?    // Array of strings, e.g. ["*"]
+  originCities          Json?    // Array of strings, e.g. ["*"]
+  countries             Json     // Array of strings (Destination), e.g. ["*"]
+  states                Json     // Array of strings (Destination), e.g. ["*"]
+  cities                Json     // Array of strings (Destination), e.g. ["*"]
+  postalCodes           Json     // Array of strings (Destination), e.g. ["*"]
   shippingCharge        Decimal  @db.Decimal(12, 2)
+  ratePerKg             Decimal? @default(0) @db.Decimal(10, 2)
   isFreeShipping        Boolean  @default(false)
   freeShippingMinAmount Decimal? @db.Decimal(12, 2)
   isActive              Boolean  @default(true)

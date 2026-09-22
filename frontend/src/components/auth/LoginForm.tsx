@@ -15,6 +15,7 @@ import {
   Lock,
   Mail,
   ArrowRight,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,9 +25,12 @@ interface LoginFormProps {
   isClosing?: boolean;
 }
 
-export default function LoginForm({ onClose, onSwitchToRegister, isClosing = false }: LoginFormProps) {
+export default function LoginForm({ onClose, onSwitchToRegister, isClosing: isClosingProp = false }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [fieldsUnlocked, setFieldsUnlocked] = useState(false);
+  const [internalClosing, setInternalClosing] = useState(false);
+
+  const isClosing = isClosingProp || internalClosing;
 
   const emailRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
@@ -132,6 +136,22 @@ export default function LoginForm({ onClose, onSwitchToRegister, isClosing = fal
     });
   };
 
+  const handleClose = () => {
+    if (isClosing) return;
+    setInternalClosing(true);
+    if (onClose) {
+      onClose();
+    } else {
+      window.setTimeout(() => {
+        if (typeof window !== "undefined" && window.history.length > 1) {
+          router.back();
+        } else {
+          router.push("/");
+        }
+      }, 2700);
+    }
+  };
+
   const onInvalid = () => {
     toast.error("Please enter a valid email and password.");
   };
@@ -140,24 +160,59 @@ export default function LoginForm({ onClose, onSwitchToRegister, isClosing = fal
   const passwordField = register("password");
 
   return (
-    <div className="relative w-full max-w-md">
-      {/* Background Decorative Blur */}
-      <div className="pointer-events-none absolute -top-6 -left-6 h-32 w-32 rounded-full bg-emerald-500/20 blur-3xl" />
+    <>
+      <style jsx global>{`
+        @keyframes authFormIn {
+          from { opacity: 0; transform: translateY(18px) scale(.97); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
-      <div className="pointer-events-none absolute -right-6 -bottom-6 h-32 w-32 rounded-full bg-teal-500/20 blur-3xl" />
+        @keyframes authFormDrop {
+          0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+          42% { opacity: 1; transform: rotate(-28deg); }
+          52% { opacity: 1; transform: rotate(-28deg); }
+          100% { opacity: 0; transform: translate3d(0, 125vh, 0) rotate(-28deg); }
+        }
 
-      {/* Main Form Card */}
-      <div
-        className="relative w-full space-y-6 rounded-3xl border border-zinc-200/80 bg-white/95 p-8 shadow-2xl shadow-zinc-950/5 backdrop-blur-2xl dark:border-zinc-800/80 dark:bg-zinc-900/95"
-        style={{
-          transformOrigin: "calc(100% - 22px) 22px",
-          animation: isClosing
-            ? "authFormDrop 2600ms cubic-bezier(.32,.08,.55,1) forwards"
-            : "authFormIn 350ms cubic-bezier(.22,1,.36,1) both",
-        }}
-      >
-        {/* Header */}
-        <div className="space-y-4 text-center">
+        @keyframes authCloseDrop {
+          0% { opacity: 1; transform: translate3d(0, 0, 0); }
+          100% { opacity: 0; transform: translate3d(0, 110vh, 0); }
+        }
+      `}</style>
+      <div className="relative w-full max-w-md">
+        {/* Background Decorative Blur */}
+        <div className="pointer-events-none absolute -top-6 -left-6 h-32 w-32 rounded-full bg-emerald-500/20 blur-3xl" />
+
+        <div className="pointer-events-none absolute -right-6 -bottom-6 h-32 w-32 rounded-full bg-teal-500/20 blur-3xl" />
+
+        {/* Main Form Card */}
+        <div
+          className="relative w-full space-y-6 rounded-3xl border border-zinc-200/80 bg-white/95 p-8 shadow-2xl shadow-zinc-950/5 backdrop-blur-2xl dark:border-zinc-800/80 dark:bg-zinc-900/95"
+          style={{
+            transformOrigin: "calc(100% - 22px) 22px",
+            animation: isClosing
+              ? "authFormDrop 2600ms cubic-bezier(.32,.08,.55,1) forwards"
+              : "authFormIn 350ms cubic-bezier(.22,1,.36,1) both",
+          }}
+        >
+          {/* Red Close Button */}
+          <button
+            type="button"
+            onClick={handleClose}
+            className="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 transition-transform hover:scale-105 hover:bg-red-600 active:scale-95 cursor-pointer"
+            aria-label="Close"
+            title="Close form"
+            style={{
+              animation: isClosing
+                ? "authCloseDrop 1248ms linear 1352ms forwards"
+                : undefined,
+            }}
+          >
+            <X className="h-4 w-4 stroke-[2.5]" />
+          </button>
+
+          {/* Header */}
+          <div className="space-y-4 text-center">
           <div className="flex justify-center">
             <Logo size="lg" showSubtitle />
           </div>
@@ -362,5 +417,6 @@ export default function LoginForm({ onClose, onSwitchToRegister, isClosing = fal
         </div>
       </div>
     </div>
+  </>
   );
 }

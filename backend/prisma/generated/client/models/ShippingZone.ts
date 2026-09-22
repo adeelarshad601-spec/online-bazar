@@ -28,11 +28,13 @@ export type AggregateShippingZone = {
 
 export type ShippingZoneAvgAggregateOutputType = {
   shippingCharge: runtime.Decimal | null
+  ratePerKg: runtime.Decimal | null
   freeShippingMinAmount: runtime.Decimal | null
 }
 
 export type ShippingZoneSumAggregateOutputType = {
   shippingCharge: runtime.Decimal | null
+  ratePerKg: runtime.Decimal | null
   freeShippingMinAmount: runtime.Decimal | null
 }
 
@@ -41,6 +43,7 @@ export type ShippingZoneMinAggregateOutputType = {
   name: string | null
   description: string | null
   shippingCharge: runtime.Decimal | null
+  ratePerKg: runtime.Decimal | null
   isFreeShipping: boolean | null
   freeShippingMinAmount: runtime.Decimal | null
   isActive: boolean | null
@@ -53,6 +56,7 @@ export type ShippingZoneMaxAggregateOutputType = {
   name: string | null
   description: string | null
   shippingCharge: runtime.Decimal | null
+  ratePerKg: runtime.Decimal | null
   isFreeShipping: boolean | null
   freeShippingMinAmount: runtime.Decimal | null
   isActive: boolean | null
@@ -64,11 +68,15 @@ export type ShippingZoneCountAggregateOutputType = {
   id: number
   name: number
   description: number
+  originCountries: number
+  originStates: number
+  originCities: number
   countries: number
   states: number
   cities: number
   postalCodes: number
   shippingCharge: number
+  ratePerKg: number
   isFreeShipping: number
   freeShippingMinAmount: number
   isActive: number
@@ -80,11 +88,13 @@ export type ShippingZoneCountAggregateOutputType = {
 
 export type ShippingZoneAvgAggregateInputType = {
   shippingCharge?: true
+  ratePerKg?: true
   freeShippingMinAmount?: true
 }
 
 export type ShippingZoneSumAggregateInputType = {
   shippingCharge?: true
+  ratePerKg?: true
   freeShippingMinAmount?: true
 }
 
@@ -93,6 +103,7 @@ export type ShippingZoneMinAggregateInputType = {
   name?: true
   description?: true
   shippingCharge?: true
+  ratePerKg?: true
   isFreeShipping?: true
   freeShippingMinAmount?: true
   isActive?: true
@@ -105,6 +116,7 @@ export type ShippingZoneMaxAggregateInputType = {
   name?: true
   description?: true
   shippingCharge?: true
+  ratePerKg?: true
   isFreeShipping?: true
   freeShippingMinAmount?: true
   isActive?: true
@@ -116,11 +128,15 @@ export type ShippingZoneCountAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  originCountries?: true
+  originStates?: true
+  originCities?: true
   countries?: true
   states?: true
   cities?: true
   postalCodes?: true
   shippingCharge?: true
+  ratePerKg?: true
   isFreeShipping?: true
   freeShippingMinAmount?: true
   isActive?: true
@@ -219,11 +235,15 @@ export type ShippingZoneGroupByOutputType = {
   id: string
   name: string
   description: string | null
+  originCountries: runtime.JsonValue | null
+  originStates: runtime.JsonValue | null
+  originCities: runtime.JsonValue | null
   countries: runtime.JsonValue
   states: runtime.JsonValue
   cities: runtime.JsonValue
   postalCodes: runtime.JsonValue
   shippingCharge: runtime.Decimal
+  ratePerKg: runtime.Decimal | null
   isFreeShipping: boolean
   freeShippingMinAmount: runtime.Decimal | null
   isActive: boolean
@@ -258,11 +278,15 @@ export type ShippingZoneWhereInput = {
   id?: Prisma.StringFilter<"ShippingZone"> | string
   name?: Prisma.StringFilter<"ShippingZone"> | string
   description?: Prisma.StringNullableFilter<"ShippingZone"> | string | null
+  originCountries?: Prisma.JsonNullableFilter<"ShippingZone">
+  originStates?: Prisma.JsonNullableFilter<"ShippingZone">
+  originCities?: Prisma.JsonNullableFilter<"ShippingZone">
   countries?: Prisma.JsonFilter<"ShippingZone">
   states?: Prisma.JsonFilter<"ShippingZone">
   cities?: Prisma.JsonFilter<"ShippingZone">
   postalCodes?: Prisma.JsonFilter<"ShippingZone">
   shippingCharge?: Prisma.DecimalFilter<"ShippingZone"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ratePerKg?: Prisma.DecimalNullableFilter<"ShippingZone"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isFreeShipping?: Prisma.BoolFilter<"ShippingZone"> | boolean
   freeShippingMinAmount?: Prisma.DecimalNullableFilter<"ShippingZone"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFilter<"ShippingZone"> | boolean
@@ -274,11 +298,15 @@ export type ShippingZoneOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  originCountries?: Prisma.SortOrderInput | Prisma.SortOrder
+  originStates?: Prisma.SortOrderInput | Prisma.SortOrder
+  originCities?: Prisma.SortOrderInput | Prisma.SortOrder
   countries?: Prisma.SortOrder
   states?: Prisma.SortOrder
   cities?: Prisma.SortOrder
   postalCodes?: Prisma.SortOrder
   shippingCharge?: Prisma.SortOrder
+  ratePerKg?: Prisma.SortOrderInput | Prisma.SortOrder
   isFreeShipping?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -293,11 +321,15 @@ export type ShippingZoneWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ShippingZoneWhereInput[]
   NOT?: Prisma.ShippingZoneWhereInput | Prisma.ShippingZoneWhereInput[]
   description?: Prisma.StringNullableFilter<"ShippingZone"> | string | null
+  originCountries?: Prisma.JsonNullableFilter<"ShippingZone">
+  originStates?: Prisma.JsonNullableFilter<"ShippingZone">
+  originCities?: Prisma.JsonNullableFilter<"ShippingZone">
   countries?: Prisma.JsonFilter<"ShippingZone">
   states?: Prisma.JsonFilter<"ShippingZone">
   cities?: Prisma.JsonFilter<"ShippingZone">
   postalCodes?: Prisma.JsonFilter<"ShippingZone">
   shippingCharge?: Prisma.DecimalFilter<"ShippingZone"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ratePerKg?: Prisma.DecimalNullableFilter<"ShippingZone"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isFreeShipping?: Prisma.BoolFilter<"ShippingZone"> | boolean
   freeShippingMinAmount?: Prisma.DecimalNullableFilter<"ShippingZone"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFilter<"ShippingZone"> | boolean
@@ -309,11 +341,15 @@ export type ShippingZoneOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  originCountries?: Prisma.SortOrderInput | Prisma.SortOrder
+  originStates?: Prisma.SortOrderInput | Prisma.SortOrder
+  originCities?: Prisma.SortOrderInput | Prisma.SortOrder
   countries?: Prisma.SortOrder
   states?: Prisma.SortOrder
   cities?: Prisma.SortOrder
   postalCodes?: Prisma.SortOrder
   shippingCharge?: Prisma.SortOrder
+  ratePerKg?: Prisma.SortOrderInput | Prisma.SortOrder
   isFreeShipping?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -333,11 +369,15 @@ export type ShippingZoneScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ShippingZone"> | string
   name?: Prisma.StringWithAggregatesFilter<"ShippingZone"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"ShippingZone"> | string | null
+  originCountries?: Prisma.JsonNullableWithAggregatesFilter<"ShippingZone">
+  originStates?: Prisma.JsonNullableWithAggregatesFilter<"ShippingZone">
+  originCities?: Prisma.JsonNullableWithAggregatesFilter<"ShippingZone">
   countries?: Prisma.JsonWithAggregatesFilter<"ShippingZone">
   states?: Prisma.JsonWithAggregatesFilter<"ShippingZone">
   cities?: Prisma.JsonWithAggregatesFilter<"ShippingZone">
   postalCodes?: Prisma.JsonWithAggregatesFilter<"ShippingZone">
   shippingCharge?: Prisma.DecimalWithAggregatesFilter<"ShippingZone"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ratePerKg?: Prisma.DecimalNullableWithAggregatesFilter<"ShippingZone"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isFreeShipping?: Prisma.BoolWithAggregatesFilter<"ShippingZone"> | boolean
   freeShippingMinAmount?: Prisma.DecimalNullableWithAggregatesFilter<"ShippingZone"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"ShippingZone"> | boolean
@@ -349,11 +389,15 @@ export type ShippingZoneCreateInput = {
   id?: string
   name: string
   description?: string | null
+  originCountries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originStates?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originCities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   countries: Prisma.JsonNullValueInput | runtime.InputJsonValue
   states: Prisma.JsonNullValueInput | runtime.InputJsonValue
   cities: Prisma.JsonNullValueInput | runtime.InputJsonValue
   postalCodes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingCharge: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ratePerKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isFreeShipping?: boolean
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
@@ -365,11 +409,15 @@ export type ShippingZoneUncheckedCreateInput = {
   id?: string
   name: string
   description?: string | null
+  originCountries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originStates?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originCities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   countries: Prisma.JsonNullValueInput | runtime.InputJsonValue
   states: Prisma.JsonNullValueInput | runtime.InputJsonValue
   cities: Prisma.JsonNullValueInput | runtime.InputJsonValue
   postalCodes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingCharge: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ratePerKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isFreeShipping?: boolean
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
@@ -381,11 +429,15 @@ export type ShippingZoneUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCountries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originStates?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originCities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   countries?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   states?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   cities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   postalCodes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingCharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ratePerKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isFreeShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -397,11 +449,15 @@ export type ShippingZoneUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCountries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originStates?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originCities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   countries?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   states?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   cities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   postalCodes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingCharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ratePerKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isFreeShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -413,11 +469,15 @@ export type ShippingZoneCreateManyInput = {
   id?: string
   name: string
   description?: string | null
+  originCountries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originStates?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originCities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   countries: Prisma.JsonNullValueInput | runtime.InputJsonValue
   states: Prisma.JsonNullValueInput | runtime.InputJsonValue
   cities: Prisma.JsonNullValueInput | runtime.InputJsonValue
   postalCodes: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingCharge: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ratePerKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isFreeShipping?: boolean
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
@@ -429,11 +489,15 @@ export type ShippingZoneUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCountries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originStates?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originCities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   countries?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   states?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   cities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   postalCodes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingCharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ratePerKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isFreeShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -445,11 +509,15 @@ export type ShippingZoneUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCountries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originStates?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  originCities?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   countries?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   states?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   cities?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   postalCodes?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   shippingCharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ratePerKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isFreeShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -461,11 +529,15 @@ export type ShippingZoneCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  originCountries?: Prisma.SortOrder
+  originStates?: Prisma.SortOrder
+  originCities?: Prisma.SortOrder
   countries?: Prisma.SortOrder
   states?: Prisma.SortOrder
   cities?: Prisma.SortOrder
   postalCodes?: Prisma.SortOrder
   shippingCharge?: Prisma.SortOrder
+  ratePerKg?: Prisma.SortOrder
   isFreeShipping?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -475,6 +547,7 @@ export type ShippingZoneCountOrderByAggregateInput = {
 
 export type ShippingZoneAvgOrderByAggregateInput = {
   shippingCharge?: Prisma.SortOrder
+  ratePerKg?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
 }
 
@@ -483,6 +556,7 @@ export type ShippingZoneMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   shippingCharge?: Prisma.SortOrder
+  ratePerKg?: Prisma.SortOrder
   isFreeShipping?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -495,6 +569,7 @@ export type ShippingZoneMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   shippingCharge?: Prisma.SortOrder
+  ratePerKg?: Prisma.SortOrder
   isFreeShipping?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -504,6 +579,7 @@ export type ShippingZoneMinOrderByAggregateInput = {
 
 export type ShippingZoneSumOrderByAggregateInput = {
   shippingCharge?: Prisma.SortOrder
+  ratePerKg?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
 }
 
@@ -513,11 +589,15 @@ export type ShippingZoneSelect<ExtArgs extends runtime.Types.Extensions.Internal
   id?: boolean
   name?: boolean
   description?: boolean
+  originCountries?: boolean
+  originStates?: boolean
+  originCities?: boolean
   countries?: boolean
   states?: boolean
   cities?: boolean
   postalCodes?: boolean
   shippingCharge?: boolean
+  ratePerKg?: boolean
   isFreeShipping?: boolean
   freeShippingMinAmount?: boolean
   isActive?: boolean
@@ -529,11 +609,15 @@ export type ShippingZoneSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   name?: boolean
   description?: boolean
+  originCountries?: boolean
+  originStates?: boolean
+  originCities?: boolean
   countries?: boolean
   states?: boolean
   cities?: boolean
   postalCodes?: boolean
   shippingCharge?: boolean
+  ratePerKg?: boolean
   isFreeShipping?: boolean
   freeShippingMinAmount?: boolean
   isActive?: boolean
@@ -545,11 +629,15 @@ export type ShippingZoneSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   name?: boolean
   description?: boolean
+  originCountries?: boolean
+  originStates?: boolean
+  originCities?: boolean
   countries?: boolean
   states?: boolean
   cities?: boolean
   postalCodes?: boolean
   shippingCharge?: boolean
+  ratePerKg?: boolean
   isFreeShipping?: boolean
   freeShippingMinAmount?: boolean
   isActive?: boolean
@@ -561,11 +649,15 @@ export type ShippingZoneSelectScalar = {
   id?: boolean
   name?: boolean
   description?: boolean
+  originCountries?: boolean
+  originStates?: boolean
+  originCities?: boolean
   countries?: boolean
   states?: boolean
   cities?: boolean
   postalCodes?: boolean
   shippingCharge?: boolean
+  ratePerKg?: boolean
   isFreeShipping?: boolean
   freeShippingMinAmount?: boolean
   isActive?: boolean
@@ -573,7 +665,7 @@ export type ShippingZoneSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ShippingZoneOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "countries" | "states" | "cities" | "postalCodes" | "shippingCharge" | "isFreeShipping" | "freeShippingMinAmount" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["shippingZone"]>
+export type ShippingZoneOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "originCountries" | "originStates" | "originCities" | "countries" | "states" | "cities" | "postalCodes" | "shippingCharge" | "ratePerKg" | "isFreeShipping" | "freeShippingMinAmount" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["shippingZone"]>
 
 export type $ShippingZonePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ShippingZone"
@@ -582,11 +674,15 @@ export type $ShippingZonePayload<ExtArgs extends runtime.Types.Extensions.Intern
     id: string
     name: string
     description: string | null
+    originCountries: runtime.JsonValue | null
+    originStates: runtime.JsonValue | null
+    originCities: runtime.JsonValue | null
     countries: runtime.JsonValue
     states: runtime.JsonValue
     cities: runtime.JsonValue
     postalCodes: runtime.JsonValue
     shippingCharge: runtime.Decimal
+    ratePerKg: runtime.Decimal | null
     isFreeShipping: boolean
     freeShippingMinAmount: runtime.Decimal | null
     isActive: boolean
@@ -1018,11 +1114,15 @@ export interface ShippingZoneFieldRefs {
   readonly id: Prisma.FieldRef<"ShippingZone", 'String'>
   readonly name: Prisma.FieldRef<"ShippingZone", 'String'>
   readonly description: Prisma.FieldRef<"ShippingZone", 'String'>
+  readonly originCountries: Prisma.FieldRef<"ShippingZone", 'Json'>
+  readonly originStates: Prisma.FieldRef<"ShippingZone", 'Json'>
+  readonly originCities: Prisma.FieldRef<"ShippingZone", 'Json'>
   readonly countries: Prisma.FieldRef<"ShippingZone", 'Json'>
   readonly states: Prisma.FieldRef<"ShippingZone", 'Json'>
   readonly cities: Prisma.FieldRef<"ShippingZone", 'Json'>
   readonly postalCodes: Prisma.FieldRef<"ShippingZone", 'Json'>
   readonly shippingCharge: Prisma.FieldRef<"ShippingZone", 'Decimal'>
+  readonly ratePerKg: Prisma.FieldRef<"ShippingZone", 'Decimal'>
   readonly isFreeShipping: Prisma.FieldRef<"ShippingZone", 'Boolean'>
   readonly freeShippingMinAmount: Prisma.FieldRef<"ShippingZone", 'Decimal'>
   readonly isActive: Prisma.FieldRef<"ShippingZone", 'Boolean'>

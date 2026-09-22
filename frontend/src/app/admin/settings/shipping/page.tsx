@@ -1,24 +1,19 @@
-"useClient";
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
   Truck,
   Plus,
   Edit2,
   Trash2,
   CheckCircle2,
-  XCircle,
   Globe,
-  DollarSign,
   AlertCircle,
   Loader2,
-  Search,
-  ArrowLeft,
-  ShieldCheck,
   Tag,
   Sliders,
+  MapPin,
+  Scale,
 } from "lucide-react";
 import {
   useShippingZones,
@@ -40,11 +35,13 @@ export default function AdminShippingSettingsPage() {
   // Form states
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [originCitiesText, setOriginCitiesText] = useState("*");
   const [countriesText, setCountriesText] = useState("*");
   const [statesText, setStatesText] = useState("*");
   const [citiesText, setCitiesText] = useState("*");
   const [postalCodesText, setPostalCodesText] = useState("*");
   const [shippingCharge, setShippingCharge] = useState<number | string>(0);
+  const [ratePerKg, setRatePerKg] = useState<number | string>(0);
   const [isFreeShipping, setIsFreeShipping] = useState(false);
   const [freeShippingMinAmount, setFreeShippingMinAmount] = useState<number | string>("");
   const [isActive, setIsActive] = useState(true);
@@ -55,11 +52,13 @@ export default function AdminShippingSettingsPage() {
     setEditingZone(null);
     setName("");
     setDescription("");
+    setOriginCitiesText("*");
     setCountriesText("*");
     setStatesText("*");
     setCitiesText("*");
     setPostalCodesText("*");
     setShippingCharge(0);
+    setRatePerKg(0);
     setIsFreeShipping(false);
     setFreeShippingMinAmount("");
     setIsActive(true);
@@ -70,11 +69,13 @@ export default function AdminShippingSettingsPage() {
     setEditingZone(zone);
     setName(zone.name);
     setDescription(zone.description || "");
+    setOriginCitiesText(Array.isArray(zone.originCities) ? zone.originCities.join(", ") : "*");
     setCountriesText(Array.isArray(zone.countries) ? zone.countries.join(", ") : "*");
     setStatesText(Array.isArray(zone.states) ? zone.states.join(", ") : "*");
     setCitiesText(Array.isArray(zone.cities) ? zone.cities.join(", ") : "*");
     setPostalCodesText(Array.isArray(zone.postalCodes) ? zone.postalCodes.join(", ") : "*");
     setShippingCharge(zone.shippingCharge);
+    setRatePerKg(zone.ratePerKg ?? 0);
     setIsFreeShipping(zone.isFreeShipping);
     setFreeShippingMinAmount(zone.freeShippingMinAmount ?? "");
     setIsActive(zone.isActive);
@@ -92,11 +93,15 @@ export default function AdminShippingSettingsPage() {
     const payload = {
       name,
       description: description.trim() || null,
+      originCountries: ["*"],
+      originStates: ["*"],
+      originCities: parseCommaList(originCitiesText),
       countries: parseCommaList(countriesText),
       states: parseCommaList(statesText),
       cities: parseCommaList(citiesText),
       postalCodes: parseCommaList(postalCodesText),
       shippingCharge: Number(shippingCharge) || 0,
+      ratePerKg: Number(ratePerKg) || 0,
       isFreeShipping,
       freeShippingMinAmount:
         freeShippingMinAmount !== "" && freeShippingMinAmount !== null
@@ -139,10 +144,10 @@ export default function AdminShippingSettingsPage() {
             <span>Admin Settings</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight">
-            Marketplace Shipping Systems
+            Multi-Vendor Shipping Systems
           </h1>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-2xl">
-            Configure multi-vendor shipping zones, base delivery charges, free shipping thresholds, and location assignment rules.
+            Configure shipping rules by seller origin cities, customer destination cities, base delivery charges, weight rates ($/kg), and free shipping thresholds.
           </p>
         </div>
 
@@ -193,16 +198,13 @@ export default function AdminShippingSettingsPage() {
         </div>
       </div>
 
-      {/* Main Shipping Zones Table / List */}
+      {/* Main Shipping Zones Table */}
       <div className="rounded-3xl border border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden shadow-xs">
         <div className="p-5 border-b border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between">
           <h2 className="text-base font-extrabold text-zinc-900 dark:text-white flex items-center gap-2">
             <Globe className="h-4 w-4 text-emerald-600" />
-            <span>Configured Shipping Zones</span>
+            <span>Configured Shipping Rules & Zones</span>
           </h2>
-          <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-            Calculated dynamically on customer checkout
-          </span>
         </div>
 
         {isLoading ? (
@@ -225,9 +227,6 @@ export default function AdminShippingSettingsPage() {
           <div className="p-12 text-center space-y-4">
             <Truck className="mx-auto h-12 w-12 text-zinc-400" />
             <h3 className="text-sm font-bold text-zinc-900 dark:text-white">No Shipping Zones Defined</h3>
-            <p className="text-xs text-zinc-500 max-w-sm mx-auto">
-              Add your first shipping zone to start charging configurable rates across local, national, or international destinations.
-            </p>
             <button
               onClick={handleOpenCreateModal}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-700"
@@ -242,17 +241,18 @@ export default function AdminShippingSettingsPage() {
               <thead className="bg-zinc-50/80 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 font-bold uppercase text-[10px] tracking-wider border-b border-zinc-200/80 dark:border-zinc-800">
                 <tr>
                   <th className="px-6 py-4">Zone Name & Description</th>
-                  <th className="px-6 py-4">Locations Assigned</th>
-                  <th className="px-6 py-4">Shipping Charge</th>
-                  <th className="px-6 py-4">Free Shipping Rule</th>
+                  <th className="px-6 py-4">Origin Cities</th>
+                  <th className="px-6 py-4">Destination Cities</th>
+                  <th className="px-6 py-4">Base & Weight Charge</th>
+                  <th className="px-6 py-4">Free Shipping</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200/60 dark:divide-zinc-800 font-medium">
                 {zones.map((zone) => {
-                  const countriesStr = Array.isArray(zone.countries) ? zone.countries.join(", ") : "*";
-                  const citiesStr = Array.isArray(zone.cities) ? zone.cities.join(", ") : "*";
+                  const origCitiesStr = Array.isArray(zone.originCities) ? zone.originCities.join(", ") : "*";
+                  const destCitiesStr = Array.isArray(zone.cities) ? zone.cities.join(", ") : "*";
 
                   return (
                     <tr key={zone.id} className="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/30 transition-colors">
@@ -265,25 +265,28 @@ export default function AdminShippingSettingsPage() {
                         )}
                       </td>
 
-                      <td className="px-6 py-4 space-y-1">
-                        <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
-                          <span className="font-bold text-[11px]">Countries:</span>
-                          <span className="truncate max-w-[150px] font-mono text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
-                            {countriesStr}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 text-[11px]">
-                          <span>Cities:</span>
-                          <span className="truncate max-w-[150px] font-mono text-[10px]">
-                            {citiesStr}
-                          </span>
-                        </div>
+                      <td className="px-6 py-4">
+                        <span className="font-mono text-[10px] bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-1 rounded-md border border-emerald-200/60 dark:border-emerald-800/60">
+                          {origCitiesStr}
+                        </span>
                       </td>
 
                       <td className="px-6 py-4">
-                        <span className="text-sm font-extrabold text-zinc-900 dark:text-white">
-                          ${Number(zone.shippingCharge).toFixed(2)}
+                        <span className="font-mono text-[10px] bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 px-2 py-1 rounded-md">
+                          {destCitiesStr}
                         </span>
+                      </td>
+
+                      <td className="px-6 py-4 space-y-0.5">
+                        <div className="text-xs font-extrabold text-zinc-900 dark:text-white">
+                          Base: ${Number(zone.shippingCharge).toFixed(2)}
+                        </div>
+                        {zone.ratePerKg && Number(zone.ratePerKg) > 0 ? (
+                          <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                            <Scale className="h-3 w-3" />
+                            <span>+${Number(zone.ratePerKg).toFixed(2)}/kg</span>
+                          </div>
+                        ) : null}
                       </td>
 
                       <td className="px-6 py-4">
@@ -293,7 +296,7 @@ export default function AdminShippingSettingsPage() {
                           </span>
                         ) : zone.freeShippingMinAmount !== null ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-extrabold text-blue-800 dark:bg-blue-950 dark:text-blue-300">
-                            Free for Orders ≥ ${Number(zone.freeShippingMinAmount).toFixed(2)}
+                            Free ≥ ${Number(zone.freeShippingMinAmount).toFixed(2)}
                           </span>
                         ) : (
                           <span className="text-zinc-400 text-[11px]">Standard Rate</span>
@@ -344,7 +347,7 @@ export default function AdminShippingSettingsPage() {
       {/* Modal dialog for creating / editing shipping zone */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="relative w-full max-w-xl rounded-3xl bg-white dark:bg-zinc-900 p-6 sm:p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-6 my-8">
+          <div className="relative w-full max-w-xl rounded-3xl bg-white dark:bg-zinc-900 p-6 sm:p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-6 my-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
               <h3 className="text-lg font-extrabold text-zinc-900 dark:text-white flex items-center gap-2">
                 <Truck className="h-5 w-5 text-emerald-600" />
@@ -367,7 +370,7 @@ export default function AdminShippingSettingsPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. National Shipping"
+                  placeholder="e.g. Same-City Express Delivery"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-xs font-bold text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:border-emerald-600 focus:outline-none"
@@ -387,14 +390,33 @@ export default function AdminShippingSettingsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="rounded-2xl bg-emerald-50/50 p-4 dark:bg-emerald-950/30 border border-emerald-200/50 dark:border-emerald-800/50 space-y-3">
+                <h4 className="text-xs font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4 text-emerald-600" />
+                  Seller Origin Filter (Pickup City)
+                </h4>
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Countries (comma-separated or *)
+                  <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
+                    Origin Cities (comma-separated or * for any)
                   </label>
                   <input
                     type="text"
-                    placeholder="* or Pakistan, United States"
+                    placeholder="* or Lahore, Karachi, Islamabad"
+                    value={originCitiesText}
+                    onChange={(e) => setOriginCitiesText(e.target.value)}
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:border-emerald-600 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                    Destination Countries (or *)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="* or Pakistan"
                     value={countriesText}
                     onChange={(e) => setCountriesText(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-xs font-medium text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:border-emerald-600 focus:outline-none"
@@ -403,11 +425,11 @@ export default function AdminShippingSettingsPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Cities (comma-separated or *)
+                    Destination Cities (or *)
                   </label>
                   <input
                     type="text"
-                    placeholder="* or New York, London, Lahore"
+                    placeholder="* or Lahore, Karachi, Faisalabad"
                     value={citiesText}
                     onChange={(e) => setCitiesText(e.target.value)}
                     className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-xs font-medium text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:border-emerald-600 focus:outline-none"
@@ -433,18 +455,33 @@ export default function AdminShippingSettingsPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Free Shipping Min Threshold ($)
+                    Weight Rate ($/kg)
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
-                    placeholder="e.g. 100 (leave empty for none)"
-                    value={freeShippingMinAmount}
-                    onChange={(e) => setFreeShippingMinAmount(e.target.value)}
-                    className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-xs font-medium text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:border-emerald-600 focus:outline-none"
+                    placeholder="0"
+                    value={ratePerKg}
+                    onChange={(e) => setRatePerKg(e.target.value)}
+                    className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-xs font-bold text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:border-emerald-600 focus:outline-none"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                  Free Shipping Min Threshold ($)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="e.g. 100 (leave empty for none)"
+                  value={freeShippingMinAmount}
+                  onChange={(e) => setFreeShippingMinAmount(e.target.value)}
+                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-xs font-medium text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:border-emerald-600 focus:outline-none"
+                />
               </div>
 
               <div className="flex items-center gap-6 pt-2">

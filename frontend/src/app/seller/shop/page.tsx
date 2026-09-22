@@ -39,6 +39,12 @@ const shopSchema = z.object({
     .max(500, "Description is too long")
     .or(z.literal(""))
     .optional(),
+
+  pickupAddress: z.string().trim().max(255).optional().or(z.literal("")),
+  pickupCity: z.string().trim().max(100).optional().or(z.literal("")),
+  pickupState: z.string().trim().max(100).optional().or(z.literal("")),
+  pickupCountry: z.string().trim().max(100).optional().or(z.literal("")),
+  pickupPostalCode: z.string().trim().max(20).optional().or(z.literal("")),
 });
 
 type ShopFormData = z.infer<typeof shopSchema>;
@@ -96,6 +102,11 @@ export default function SellerShopPage() {
       name: "",
       slug: "",
       description: "",
+      pickupAddress: "",
+      pickupCity: "Lahore",
+      pickupState: "Punjab",
+      pickupCountry: "Pakistan",
+      pickupPostalCode: "",
     },
   });
 
@@ -104,6 +115,11 @@ export default function SellerShopPage() {
       setValue("name", shop.name || "");
       setValue("slug", shop.slug || "");
       setValue("description", shop.description || "");
+      setValue("pickupAddress", (shop as any).pickupAddress || "");
+      setValue("pickupCity", (shop as any).pickupCity || "Lahore");
+      setValue("pickupState", (shop as any).pickupState || "Punjab");
+      setValue("pickupCountry", (shop as any).pickupCountry || "Pakistan");
+      setValue("pickupPostalCode", (shop as any).pickupPostalCode || "");
       if (shop.logo) setLogoPreview(shop.logo);
       if (shop.banner) setBannerPreview(shop.banner);
     }
@@ -166,6 +182,11 @@ export default function SellerShopPage() {
       logo: logoBase64 || logoPreview || undefined,
       banner: bannerBase64 || bannerPreview || undefined,
       description: data.description || undefined,
+      pickupAddress: data.pickupAddress || undefined,
+      pickupCity: data.pickupCity || undefined,
+      pickupState: data.pickupState || undefined,
+      pickupCountry: data.pickupCountry || undefined,
+      pickupPostalCode: data.pickupPostalCode || undefined,
     };
 
     if (shop) {
@@ -280,6 +301,75 @@ export default function SellerShopPage() {
               {errors.description && (
                 <p className="mt-1 text-[11px] text-red-500">{errors.description.message}</p>
               )}
+            </div>
+
+            {/* Shipping Pickup Origin Section */}
+            <div className="rounded-2xl bg-emerald-50/50 p-4 sm:p-5 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/60 space-y-4">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <h4 className="text-xs font-bold text-emerald-950 dark:text-emerald-300">
+                  Shipping Pickup Origin Location
+                </h4>
+              </div>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                Specify the warehouse or shop city from which your products ship. Customer shipping rates are calculated dynamically from this origin address.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                    Pickup City <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    disabled={isSubmitting}
+                    {...register("pickupCity")}
+                    placeholder="e.g. Lahore"
+                    className="w-full rounded-xl border border-zinc-300 px-4 py-2 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                    Pickup State / Province
+                  </label>
+                  <input
+                    type="text"
+                    disabled={isSubmitting}
+                    {...register("pickupState")}
+                    placeholder="e.g. Punjab"
+                    className="w-full rounded-xl border border-zinc-300 px-4 py-2 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                    Street Address
+                  </label>
+                  <input
+                    type="text"
+                    disabled={isSubmitting}
+                    {...register("pickupAddress")}
+                    placeholder="e.g. Warehouse #12, Main Boulevard"
+                    className="w-full rounded-xl border border-zinc-300 px-4 py-2 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                    Postal / Zip Code
+                  </label>
+                  <input
+                    type="text"
+                    disabled={isSubmitting}
+                    {...register("pickupPostalCode")}
+                    placeholder="e.g. 54000"
+                    className="w-full rounded-xl border border-zinc-300 px-4 py-2 text-xs text-zinc-900 focus:border-emerald-500 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

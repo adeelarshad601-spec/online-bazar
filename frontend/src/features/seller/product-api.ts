@@ -10,6 +10,10 @@ export interface CreateProductPayload {
   price: number;
   compareAtPrice?: number;
   stock: number;
+  weight?: number | null;
+  length?: number | null;
+  width?: number | null;
+  height?: number | null;
   shopId: string;
   categoryId: string;
   images?: string[];
@@ -31,6 +35,10 @@ export interface UpdateProductPayload {
   price?: number;
   compareAtPrice?: number;
   stock?: number;
+  weight?: number | null;
+  length?: number | null;
+  width?: number | null;
+  height?: number | null;
   categoryId?: string;
   images?: string[];
   variants?: Array<{

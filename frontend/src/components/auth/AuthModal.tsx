@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import LoginForm from "@/components/auth/LoginForm";
 import RegisterForm from "@/components/auth/RegisterForm";
-import { X } from "lucide-react";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -114,21 +113,6 @@ export default function AuthModal({
           className="relative z-10 w-full max-w-md my-auto max-h-[92vh] overflow-visible rounded-3xl scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            type="button"
-            onClick={handleClose}
-            className="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 transition-transform hover:scale-105 hover:bg-red-600 active:scale-95"
-            aria-label="Close"
-            title="Close form"
-            style={{
-              animation: isClosing
-                ? "authCloseDrop 1248ms linear 1352ms forwards"
-                : undefined,
-            }}
-          >
-            <X className="h-4 w-4 stroke-[2.5]" />
-          </button>
-
           {mode === "login" ? (
             <LoginForm
               onClose={handleClose}

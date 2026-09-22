@@ -16,6 +16,7 @@ export interface ShippingQuoteRequest {
     variantId?: string | null;
     quantity: number;
   } | null;
+  selectedCartItemIds?: string[] | null;
 }
 
 export interface ShippingQuoteResponse {
@@ -27,6 +28,7 @@ export interface ShippingQuoteResponse {
       id: string;
       name: string;
       shippingCharge: number;
+      ratePerKg?: number;
       isFreeShipping: boolean;
       freeShippingMinAmount: number | null;
     } | null;
@@ -39,11 +41,15 @@ export interface ShippingZoneItem {
   id: string;
   name: string;
   description?: string | null;
+  originCountries?: string[];
+  originStates?: string[];
+  originCities?: string[];
   countries: string[];
   states: string[];
   cities: string[];
   postalCodes: string[];
   shippingCharge: number;
+  ratePerKg?: number;
   isFreeShipping: boolean;
   freeShippingMinAmount: number | null;
   isActive: boolean;

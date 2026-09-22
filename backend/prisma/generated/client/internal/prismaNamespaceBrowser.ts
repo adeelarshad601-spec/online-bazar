@@ -135,6 +135,11 @@ export const ShopScalarFieldEnum = {
   logo: 'logo',
   banner: 'banner',
   description: 'description',
+  pickupAddress: 'pickupAddress',
+  pickupCity: 'pickupCity',
+  pickupState: 'pickupState',
+  pickupCountry: 'pickupCountry',
+  pickupPostalCode: 'pickupPostalCode',
   sellerId: 'sellerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -193,6 +198,10 @@ export const ProductScalarFieldEnum = {
   price: 'price',
   compareAtPrice: 'compareAtPrice',
   stock: 'stock',
+  weight: 'weight',
+  length: 'length',
+  width: 'width',
+  height: 'height',
   status: 'status',
   moderationFeedback: 'moderationFeedback',
   isActive: 'isActive',
@@ -429,11 +438,15 @@ export const ShippingZoneScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
+  originCountries: 'originCountries',
+  originStates: 'originStates',
+  originCities: 'originCities',
   countries: 'countries',
   states: 'states',
   cities: 'cities',
   postalCodes: 'postalCodes',
   shippingCharge: 'shippingCharge',
+  ratePerKg: 'ratePerKg',
   isFreeShipping: 'isFreeShipping',
   freeShippingMinAmount: 'freeShippingMinAmount',
   isActive: 'isActive',
@@ -457,6 +470,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

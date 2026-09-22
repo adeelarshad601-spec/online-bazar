@@ -52,14 +52,33 @@ export const getShippingQuoteHandler = async (req: Request, res: Response): Prom
       }
     }
 
-    const vendorSubtotalsMap: Record<string, Decimal> = {};
+    const vendorGroupMap: Record<
+      string,
+      {
+        subtotal: Decimal;
+        totalWeight: Decimal;
+        shop: any;
+      }
+    > = {};
 
     if (rawItems.length > 0) {
       await Promise.all(
         rawItems.map(async (item) => {
           const product = await prisma.product.findUnique({
             where: { id: item.productId },
-            select: { id: true, shopId: true, price: true },
+            include: {
+              shop: {
+                select: {
+                  id: true,
+                  name: true,
+                  pickupAddress: true,
+                  pickupCity: true,
+                  pickupState: true,
+                  pickupCountry: true,
+                  pickupPostalCode: true,
+                },
+              },
+            },
           });
 
           if (!product) return;
@@ -76,23 +95,42 @@ export const getShippingQuoteHandler = async (req: Request, res: Response): Prom
           }
 
           const itemSubtotal = unitPrice.mul(item.quantity);
+          const itemWeight = (product.weight || new Decimal(0)).mul(item.quantity);
           const shopId = product.shopId;
 
-          if (!vendorSubtotalsMap[shopId]) {
-            vendorSubtotalsMap[shopId] = new Decimal(0);
+          if (!vendorGroupMap[shopId]) {
+            vendorGroupMap[shopId] = {
+              subtotal: new Decimal(0),
+              totalWeight: new Decimal(0),
+              shop: product.shop,
+            };
           }
-          vendorSubtotalsMap[shopId] = vendorSubtotalsMap[shopId].add(itemSubtotal);
+          vendorGroupMap[shopId].subtotal = vendorGroupMap[shopId].subtotal.add(itemSubtotal);
+          vendorGroupMap[shopId].totalWeight = vendorGroupMap[shopId].totalWeight.add(itemWeight);
         })
       );
     }
 
-    const vendorSubtotals = Object.entries(vendorSubtotalsMap).map(([shopId, subtotal]) => ({
+    const vendorSubtotals = Object.entries(vendorGroupMap).map(([shopId, data]) => ({
       shopId,
-      subtotal,
+      subtotal: data.subtotal,
+      totalWeight: data.totalWeight,
+      origin: {
+        address: data.shop?.pickupAddress || null,
+        city: data.shop?.pickupCity || null,
+        state: data.shop?.pickupState || null,
+        country: data.shop?.pickupCountry || "Pakistan",
+        postalCode: data.shop?.pickupPostalCode || null,
+      },
     }));
 
     if (vendorSubtotals.length === 0) {
-      vendorSubtotals.push({ shopId: "default", subtotal: new Decimal(0) });
+      vendorSubtotals.push({
+        shopId: "default",
+        subtotal: new Decimal(0),
+        totalWeight: new Decimal(0),
+        origin: { city: "Lahore", country: "Pakistan" },
+      });
     }
 
     const result = await calculateShippingQuote(

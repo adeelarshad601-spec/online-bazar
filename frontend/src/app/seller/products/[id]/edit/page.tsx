@@ -59,6 +59,11 @@ const updateProductSchema = z.object({
 
   stock: z.number().int().min(0, "Stock cannot be negative"),
 
+  weight: z.number().min(0).optional().nullable(),
+  length: z.number().min(0).optional().nullable(),
+  width: z.number().min(0).optional().nullable(),
+  height: z.number().min(0).optional().nullable(),
+
   categoryId: z.string().uuid("Please select a valid category"),
 
   variantColor: z.string().trim().max(80, "Color must be at most 80 characters").optional(),
@@ -140,6 +145,10 @@ function EditProductContent({ productId }: { productId: string }) {
       setValue("price", Number(product.price || 0));
       setValue("compareAtPrice", product.compareAtPrice ? Number(product.compareAtPrice) : undefined);
       setValue("stock", product.stock || 0);
+      setValue("weight", (product as any).weight ? Number((product as any).weight) : undefined);
+      setValue("length", (product as any).length ? Number((product as any).length) : undefined);
+      setValue("width", (product as any).width ? Number((product as any).width) : undefined);
+      setValue("height", (product as any).height ? Number((product as any).height) : undefined);
       setValue("categoryId", product.categoryId || product.category?.id || "");
     }
   }, [product, setValue]);
@@ -207,6 +216,10 @@ function EditProductContent({ productId }: { productId: string }) {
           price: data.price,
           compareAtPrice: data.compareAtPrice ? Number(data.compareAtPrice) : undefined,
           stock: data.stock,
+          weight: data.weight !== undefined && data.weight !== null ? Number(data.weight) : undefined,
+          length: data.length !== undefined && data.length !== null ? Number(data.length) : undefined,
+          width: data.width !== undefined && data.width !== null ? Number(data.width) : undefined,
+          height: data.height !== undefined && data.height !== null ? Number(data.height) : undefined,
           categoryId: data.categoryId,
           images: imagePreviews,
           variants: variantRows.map((row) => ({
@@ -520,6 +533,75 @@ function EditProductContent({ productId }: { productId: string }) {
               {errors.compareAtPrice && (
                 <p className="mt-1 text-[11px] text-red-500">{errors.compareAtPrice.message}</p>
               )}
+            </div>
+          </div>
+
+          {/* Package Weight & Dimensions */}
+          <div className="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 space-y-3">
+            <h4 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <Package className="h-4 w-4 text-emerald-600" />
+              Package & Shipping Weight
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                  Weight (kg)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  disabled={isSubmitting}
+                  {...register("weight", { valueAsNumber: true })}
+                  placeholder="e.g. 0.5"
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-xs text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                  Length (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  disabled={isSubmitting}
+                  {...register("length", { valueAsNumber: true })}
+                  placeholder="Length"
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-xs text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                  Width (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  disabled={isSubmitting}
+                  {...register("width", { valueAsNumber: true })}
+                  placeholder="Width"
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-xs text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                  Height (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  disabled={isSubmitting}
+                  {...register("height", { valueAsNumber: true })}
+                  placeholder="Height"
+                  className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-xs text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                />
+              </div>
             </div>
           </div>
 

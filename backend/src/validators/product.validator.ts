@@ -51,6 +51,11 @@ export const createProductSchema = z.object({
     .int()
     .min(0, "Stock cannot be negative"),
 
+  weight: z.coerce.number().min(0, "Weight cannot be negative").optional().nullable(),
+  length: z.coerce.number().min(0, "Length cannot be negative").optional().nullable(),
+  width: z.coerce.number().min(0, "Width cannot be negative").optional().nullable(),
+  height: z.coerce.number().min(0, "Height cannot be negative").optional().nullable(),
+
   shopId: z.string().uuid("Invalid shop ID"),
 
   categoryId: z.string().uuid("Invalid category ID"),

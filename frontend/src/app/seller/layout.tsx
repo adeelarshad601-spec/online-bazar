@@ -14,6 +14,7 @@ import {
   CreditCard,
   AlertCircle,
   ChevronRight,
+  Truck,
 } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -44,6 +45,7 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
     pathname.startsWith("/seller/products") ||
     pathname.startsWith("/seller/orders") ||
     pathname.startsWith("/seller/payouts") ||
+    pathname.startsWith("/seller/shipping") ||
     pathname.startsWith("/seller/settings") ||
     pathname.startsWith("/seller/help");
 
@@ -188,6 +190,9 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
                 <Link href="/seller/shop" className={`block rounded-lg px-3 py-2 text-[11px] font-semibold ${isNavLinkActive("/seller/shop") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300"}`}>
                   Manage Shop Profile
                 </Link>
+                <Link href="/seller/shipping" className={`block rounded-lg px-3 py-2 text-[11px] font-semibold ${isNavLinkActive("/seller/shipping") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300"}`}>
+                  Shipping Pickup Origin
+                </Link>
                 {sellerStatus?.shop?.id && (
                   <Link href={`/shops/${sellerStatus.shop.id}`} target="_blank" className="block rounded-lg px-3 py-2 text-[11px] font-semibold text-zinc-500 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300">
                     View Storefront
@@ -195,6 +200,20 @@ function SellerLayoutContent({ children }: SellerLayoutContentProps) {
                 )}
               </div>
             )}
+          </div>
+          <div className="order-2 font-semibold">
+            <Link
+              href="/seller/shipping"
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${
+                pathname.startsWith("/seller/shipping")
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-900 dark:hover:text-white"
+              }`}
+            >
+              <Truck className={`h-4 w-4 ${pathname.startsWith("/seller/shipping") ? "text-emerald-600 dark:text-emerald-400" : ""}`} />
+              <span>Shipping Origin</span>
+              {pathname.startsWith("/seller/shipping") && <ChevronRight className="h-3.5 w-3.5 ml-auto text-emerald-600 dark:text-emerald-400" />}
+            </Link>
           </div>
           <div className="order-3">
             <button
