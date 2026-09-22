@@ -528,47 +528,11 @@ function CheckoutFormContent() {
                 )}
               </div>
 
-              {/* Delivery Zone Notice Banner */}
-              {debouncedCity && debouncedCountry ? (
-                <div className="min-h-[50px] transition-all duration-200">
-                  {isShippingCalculating ? (
-                    <div className="flex items-center gap-2 rounded-2xl bg-zinc-100 p-3.5 text-xs font-bold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60">
-                      <Loader2 className="h-4 w-4 animate-spin text-emerald-600 shrink-0" />
-                      <span>Calculating shipping for {debouncedCity}, {debouncedCountry}...</span>
-                    </div>
-                  ) : !isDeliverable ? (
-                    <div className="flex items-center gap-3 rounded-2xl bg-red-100/80 p-4 text-xs font-bold text-red-900 dark:bg-red-950/60 dark:text-red-300 border border-red-200 dark:border-red-900">
-                      <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
-                      <div>
-                        <p className="font-extrabold text-sm">Delivery Unavailable</p>
-                        <p className="font-medium text-[11px] text-red-700 dark:text-red-400">
-                          {shippingQuote?.message || "Sorry, we currently don't deliver to this location."}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between rounded-2xl bg-emerald-50 p-3.5 text-xs font-bold text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-900/50">
-                      <div className="flex items-center gap-2">
-                        <Truck className="h-4 w-4 text-emerald-600" />
-                        <span>Zone: <strong>{shippingQuoteData?.matchedZone?.name || "Standard Delivery"}</strong></span>
-                      </div>
-                      <span className="rounded-full bg-emerald-200/80 px-2.5 py-0.5 text-[11px] font-extrabold text-emerald-900 dark:bg-emerald-900 dark:text-emerald-200">
-                        {shippingCharge === 0 ? "FREE Shipping" : `Shipping: $${shippingCharge.toFixed(2)}`}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 rounded-2xl bg-zinc-50 p-3.5 text-xs font-medium text-zinc-500 dark:bg-zinc-800/40 dark:text-zinc-400 border border-dashed border-zinc-200 dark:border-zinc-800">
-                  <Truck className="h-4 w-4 text-zinc-400 shrink-0" />
-                  <span>Enter your City and Country below to calculate live shipping rates.</span>
-                </div>
-              )}
-
+              {/* Input Grid */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 {/* Full Name */}
                 <div className="sm:col-span-2">
-                  <label htmlFor="fullName" className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                  <label htmlFor="fullName" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -577,7 +541,7 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="Enter your full name"
                     {...register("fullName")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full h-11 rounded-2xl border px-4 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-all focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.fullName ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -588,16 +552,16 @@ function CheckoutFormContent() {
 
                 {/* Phone */}
                 <div>
-                  <label htmlFor="phone" className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                  <label htmlFor="phone" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Phone Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="phone"
                     type="tel"
                     disabled={isSubmitting}
-                    placeholder="Enter your phone number"
+                    placeholder="Enter phone number"
                     {...register("phone")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full h-11 rounded-2xl border px-4 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-all focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.phone ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -608,7 +572,7 @@ function CheckoutFormContent() {
 
                 {/* Country */}
                 <div>
-                  <label htmlFor="country" className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                  <label htmlFor="country" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Country <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -617,7 +581,7 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="Your country"
                     {...register("country")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full h-11 rounded-2xl border px-4 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-all focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.country ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -628,7 +592,7 @@ function CheckoutFormContent() {
 
                 {/* Street Address */}
                 <div className="sm:col-span-2">
-                  <label htmlFor="address" className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                  <label htmlFor="address" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Street Address <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -637,7 +601,7 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="House number and street name"
                     {...register("address")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full h-11 rounded-2xl border px-4 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-all focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.address ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -648,8 +612,8 @@ function CheckoutFormContent() {
 
                 {/* Unit / Suite (Optional) */}
                 <div>
-                  <label htmlFor="unit" className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    Apartment / Suite / Unit <span className="text-zinc-400 font-normal">(Optional)</span>
+                  <label htmlFor="unit" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
+                    Apartment / Suite <span className="text-zinc-400 font-normal lowercase">(optional)</span>
                   </label>
                   <input
                     id="unit"
@@ -657,22 +621,22 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="Apartment, floor, or unit"
                     {...register("unit")}
-                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-700 px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:border-emerald-600 focus:outline-none"
+                    className="w-full h-11 rounded-2xl border border-zinc-200 dark:border-zinc-700 px-4 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20"
                   />
                 </div>
 
                 {/* City */}
                 <div>
-                  <label htmlFor="city" className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                  <label htmlFor="city" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
                     City <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="city"
                     type="text"
                     disabled={isSubmitting}
-                    placeholder="City"
+                    placeholder="City (e.g. Lahore, Faisalabad, FSD)"
                     {...register("city")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full h-11 rounded-2xl border px-4 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-all focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.city ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -683,8 +647,8 @@ function CheckoutFormContent() {
 
                 {/* State / Region */}
                 <div>
-                  <label htmlFor="state" className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    State / Region / Province
+                  <label htmlFor="state" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
+                    State / Region
                   </label>
                   <input
                     id="state"
@@ -692,13 +656,13 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="State, province, or region"
                     {...register("state")}
-                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-700 px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:border-emerald-600 focus:outline-none"
+                    className="w-full h-11 rounded-2xl border border-zinc-200 dark:border-zinc-700 px-4 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20"
                   />
                 </div>
 
                 {/* Postal Code */}
                 <div>
-                  <label htmlFor="postalCode" className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                  <label htmlFor="postalCode" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Postal / ZIP Code <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -707,7 +671,7 @@ function CheckoutFormContent() {
                     disabled={isSubmitting}
                     placeholder="Postal or ZIP code"
                     {...register("postalCode")}
-                    className={`w-full rounded-2xl border px-4 py-3 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full h-11 rounded-2xl border px-4 text-xs font-medium bg-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-all focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-60 ${
                       errors.postalCode ? "border-red-500 dark:border-red-500" : "border-zinc-200 dark:border-zinc-700"
                     }`}
                   />
@@ -730,6 +694,45 @@ function CheckoutFormContent() {
                   </label>
                 </div>
               )}
+
+              {/* Delivery Zone Status Card (Placed at the bottom of Section 1 so inputs NEVER move when typing) */}
+              <div className="pt-2 border-t border-zinc-200/80 dark:border-zinc-800">
+                {debouncedCity && debouncedCountry ? (
+                  <div className="transition-all duration-200">
+                    {isShippingCalculating ? (
+                      <div className="flex items-center gap-2.5 rounded-2xl bg-zinc-100 p-3.5 text-xs font-bold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60">
+                        <Loader2 className="h-4 w-4 animate-spin text-emerald-600 shrink-0" />
+                        <span>Calculating shipping rates for <strong>{debouncedCity}, {debouncedCountry}</strong>...</span>
+                      </div>
+                    ) : !isDeliverable ? (
+                      <div className="flex items-center gap-3 rounded-2xl bg-red-50 p-4 text-xs font-bold text-red-900 dark:bg-red-950/60 dark:text-red-300 border border-red-200 dark:border-red-900">
+                        <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
+                        <div>
+                          <p className="font-extrabold text-sm">Delivery Unavailable</p>
+                          <p className="font-medium text-[11px] text-red-700 dark:text-red-400">
+                            {shippingQuote?.message || "Sorry, we currently don't deliver to this location."}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between rounded-2xl bg-emerald-50/80 p-3.5 text-xs font-bold text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-900/50">
+                        <div className="flex items-center gap-2">
+                          <Truck className="h-4 w-4 text-emerald-600" />
+                          <span>Matched Zone: <strong>{shippingQuoteData?.matchedZone?.name || "Standard Delivery"}</strong></span>
+                        </div>
+                        <span className="rounded-full bg-emerald-200/90 px-3 py-1 text-[11px] font-extrabold text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100 shadow-xs">
+                          {shippingCharge === 0 ? "FREE Shipping" : `Shipping Fee: $${shippingCharge.toFixed(2)}`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 rounded-2xl bg-zinc-100/60 p-3.5 text-xs font-medium text-zinc-500 dark:bg-zinc-800/40 dark:text-zinc-400 border border-dashed border-zinc-200 dark:border-zinc-800">
+                    <Truck className="h-4 w-4 text-zinc-400 shrink-0" />
+                    <span>Enter City and Country above to calculate live shipping rates.</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Section 2: Payment Method (COD vs Stripe / Card) */}
