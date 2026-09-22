@@ -529,12 +529,12 @@ function CheckoutFormContent() {
               </div>
 
               {/* Delivery Zone Notice Banner */}
-              {watchedCity && watchedCountry && (
-                <div className="space-y-2">
+              {debouncedCity && debouncedCountry ? (
+                <div className="min-h-[50px] transition-all duration-200">
                   {isShippingCalculating ? (
-                    <div className="flex items-center gap-2 rounded-2xl bg-zinc-100 p-3 text-xs font-bold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                      <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
-                      <span>Calculating shipping for {watchedCity}, {watchedCountry}...</span>
+                    <div className="flex items-center gap-2 rounded-2xl bg-zinc-100 p-3.5 text-xs font-bold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60">
+                      <Loader2 className="h-4 w-4 animate-spin text-emerald-600 shrink-0" />
+                      <span>Calculating shipping for {debouncedCity}, {debouncedCountry}...</span>
                     </div>
                   ) : !isDeliverable ? (
                     <div className="flex items-center gap-3 rounded-2xl bg-red-100/80 p-4 text-xs font-bold text-red-900 dark:bg-red-950/60 dark:text-red-300 border border-red-200 dark:border-red-900">
@@ -557,6 +557,11 @@ function CheckoutFormContent() {
                       </span>
                     </div>
                   )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 rounded-2xl bg-zinc-50 p-3.5 text-xs font-medium text-zinc-500 dark:bg-zinc-800/40 dark:text-zinc-400 border border-dashed border-zinc-200 dark:border-zinc-800">
+                  <Truck className="h-4 w-4 text-zinc-400 shrink-0" />
+                  <span>Enter your City and Country below to calculate live shipping rates.</span>
                 </div>
               )}
 
