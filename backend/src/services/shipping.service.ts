@@ -68,12 +68,59 @@ export const ensureDefaultShippingZones = async () => {
   }
 };
 
+const CITY_ALIASES: Record<string, string[]> = {
+  faisalabad: ["faisalabad", "fsd", "lyallpur", "fsd, pakistan"],
+  lahore: ["lahore", "lhr", "lhr, pakistan"],
+  karachi: ["karachi", "khi", "khi, pakistan"],
+  islamabad: ["islamabad", "isb", "isl", "isb, pakistan"],
+  rawalpindi: ["rawalpindi", "rwp", "pindi", "rwp, pakistan"],
+  multan: ["multan", "mux", "mux, pakistan"],
+  peshawar: ["peshawar", "pew", "pew, pakistan"],
+  quetta: ["quetta", "qta", "qta, pakistan"],
+  hyderabad: ["hyderabad", "hyd", "hyd, pakistan"],
+  sialkot: ["sialkot", "skt", "skt, pakistan"],
+  gujranwala: ["gujranwala", "grw", "grw, pakistan"],
+  gujrat: ["gujrat", "gjt", "gjt, pakistan"],
+  bahawalpur: ["bahawalpur", "bwp", "bwp, pakistan"],
+  sargodha: ["sargodha", "sgd", "sgd, pakistan"],
+  sukkur: ["sukkur", "skr", "skr, pakistan"],
+  larkana: ["larkana", "lrk", "lrk, pakistan"],
+};
+
+const areCitiesEquivalent = (inputCity: string, targetCity: string): boolean => {
+  if (!inputCity || !targetCity) return false;
+  const c1 = inputCity.trim().toLowerCase();
+  const c2 = targetCity.trim().toLowerCase();
+
+  if (c1 === c2) return true;
+  if (c1 === "*" || c2 === "*") return true;
+
+  if (c1.includes(c2) || c2.includes(c1)) return true;
+
+  for (const aliases of Object.values(CITY_ALIASES)) {
+    const hasC1 = aliases.some((a) => c1.includes(a) || a.includes(c1));
+    const hasC2 = aliases.some((a) => c2.includes(a) || a.includes(c2));
+    if (hasC1 && hasC2) return true;
+  }
+
+  return false;
+};
+
 const matchesList = (val: string | null | undefined, list: any): boolean => {
   if (!list || !Array.isArray(list) || list.length === 0) return true;
   if (list.includes("*")) return true;
   if (!val) return false;
-  const normalizedVal = val.trim().toLowerCase();
-  return list.some((item: any) => typeof item === "string" && item.trim().toLowerCase() === normalizedVal);
+
+  const userCity = val.trim();
+
+  return list.some((item: any) => {
+    if (typeof item !== "string") return false;
+    const targetItem = item.trim();
+    if (targetItem === "*") return true;
+
+    const subCities = targetItem.split(",").map((s) => s.trim());
+    return subCities.some((subCity) => areCitiesEquivalent(userCity, subCity));
+  });
 };
 
 export const findMatchingShippingZoneForVendor = async (

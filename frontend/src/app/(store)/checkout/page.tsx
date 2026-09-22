@@ -173,18 +173,37 @@ function CheckoutFormContent() {
     },
   });
 
+  const [hasInitializedAddress, setHasInitializedAddress] = useState(false);
+
   // Watch address fields to query live shipping calculation from backend
   const watchedCity = watch("city");
   const watchedCountry = watch("country");
   const watchedState = watch("state");
   const watchedPostalCode = watch("postalCode");
 
+  // Debounce address changes to prevent API spam and UI layout shifts while typing
+  const [debouncedCity, setDebouncedCity] = useState(watchedCity);
+  const [debouncedCountry, setDebouncedCountry] = useState(watchedCountry);
+  const [debouncedState, setDebouncedState] = useState(watchedState);
+  const [debouncedPostalCode, setDebouncedPostalCode] = useState(watchedPostalCode);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedCity(watchedCity);
+      setDebouncedCountry(watchedCountry);
+      setDebouncedState(watchedState);
+      setDebouncedPostalCode(watchedPostalCode);
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [watchedCity, watchedCountry, watchedState, watchedPostalCode]);
+
   const quotePayload = {
     shippingAddress: {
-      city: watchedCity,
-      country: watchedCountry,
-      state: watchedState || null,
-      postalCode: watchedPostalCode || null,
+      city: debouncedCity,
+      country: debouncedCountry,
+      state: debouncedState || null,
+      postalCode: debouncedPostalCode || null,
     },
     buyNowItem: isBuyNowParam && buyNowProductId ? {
       productId: buyNowProductId,
@@ -196,12 +215,13 @@ function CheckoutFormContent() {
 
   const { data: shippingQuote, isLoading: isShippingCalculating } = useShippingQuote(
     quotePayload,
-    Boolean(watchedCity && watchedCountry)
+    Boolean(debouncedCity && debouncedCountry)
   );
 
-  // Set default saved address if available
+  // Set default saved address once on load
   useEffect(() => {
-    if (savedAddresses.length > 0 && selectedAddressId === "custom") {
+    if (!hasInitializedAddress && savedAddresses.length > 0) {
+      setHasInitializedAddress(true);
       const defaultAddr = savedAddresses.find((a) => a.isDefault) || savedAddresses[0];
       if (defaultAddr) {
         setSelectedAddressId(defaultAddr.id);
@@ -215,7 +235,7 @@ function CheckoutFormContent() {
         setValue("country", defaultAddr.country);
       }
     }
-  }, [savedAddresses, setValue, selectedAddressId]);
+  }, [savedAddresses, setValue, hasInitializedAddress]);
 
   // Navigate to success page after successful checkout
   useEffect(() => {
