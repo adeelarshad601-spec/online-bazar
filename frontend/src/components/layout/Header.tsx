@@ -45,7 +45,6 @@ export default function Header() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState(false);
   const [searchCatOpen, setSearchCatOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -541,49 +540,6 @@ export default function Header() {
         <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
           <div className="overflow-x-auto">
             <div className="flex min-w-max items-center justify-between gap-2 sm:gap-3 text-[10px] font-bold sm:text-xs">
-              {/* All Categories Button with Dropdown */}
-              <div className="relative shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setCategoriesDropdownOpen(!categoriesDropdownOpen)}
-                  className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-2.5 py-1.5 text-[10px] font-bold text-white shadow-xs transition-colors hover:bg-emerald-700 sm:px-3.5 sm:text-xs"
-                  id="categories-dropdown-toggle"
-                >
-                  <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span>All Categories</span>
-                  <ChevronDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                </button>
-
-                {categoriesDropdownOpen && (
-                  <div
-                    className="absolute left-0 top-full mt-2 z-50 max-h-80 w-64 overflow-y-auto rounded-2xl border border-zinc-200 bg-white py-2 shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
-                    onMouseLeave={() => setCategoriesDropdownOpen(false)}
-                    id="categories-menu-list"
-                  >
-                    {isCategoriesLoading ? (
-                      <div className="px-4 py-3 text-xs text-zinc-400 animate-pulse">
-                        Loading categories...
-                      </div>
-                    ) : categories.length === 0 ? (
-                      <div className="px-4 py-3 text-xs text-zinc-400">
-                        No categories found
-                      </div>
-                    ) : (
-                      categories.map((cat) => (
-                        <Link
-                          key={cat.id}
-                          href={`/categories/${cat.id}`}
-                          onClick={() => setCategoriesDropdownOpen(false)}
-                          className="block px-4 py-2 text-xs font-medium text-zinc-700 hover:bg-emerald-50 hover:text-emerald-700 dark:text-zinc-300 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-400"
-                        >
-                          {cat.name}
-                        </Link>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
-
               {/* Core Navigation Links */}
               <div className="flex min-w-max items-center gap-2 sm:gap-3">
                 <Link
