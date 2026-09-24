@@ -256,6 +256,16 @@ export default function AdminCouponsPage() {
               </div>
             </div>
 
+            <label className="flex items-center gap-2 pt-2 text-xs font-bold text-zinc-700 dark:text-zinc-300">
+              <input
+                type="checkbox"
+                disabled={isSubmitting}
+                {...register("isActive")}
+                className="h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-800"
+              />
+              Active Coupon
+            </label>
+
             <div className="flex items-center gap-2 pt-2 justify-end">
               <button
                 type="button"
