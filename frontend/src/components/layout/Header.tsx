@@ -539,7 +539,7 @@ export default function Header() {
       <nav className="border-b border-emerald-700/30 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
           <div className="overflow-x-auto">
-            <div className="flex min-w-max items-center justify-between gap-2 sm:gap-3 text-[10px] font-bold sm:text-xs">
+            <div className="flex min-w-max items-center justify-between gap-2 sm:gap-3 text-xs font-bold sm:text-sm">
               {/* Core Navigation Links */}
               <div className="flex min-w-max items-center gap-2 sm:gap-3">
                 <Link
