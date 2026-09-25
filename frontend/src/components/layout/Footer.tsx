@@ -9,8 +9,6 @@ import {
   Phone,
   MapPin,
   Heart,
-  ArrowRight,
-  Store,
   Users,
   CreditCard,
   MessageCircle,
@@ -65,30 +63,6 @@ export default function Footer() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Seller Marketplace CTA */}
-      <div className="border-b border-emerald-900/20 bg-zinc-950 text-white dark:border-emerald-500/20 dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
-              <Store className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-bold">Grow your business with Online-Bazar</p>
-              <p className="mt-1 max-w-xl text-xs leading-relaxed text-zinc-400">
-                Reach more customers, manage your shop, and build your brand on a trusted marketplace.
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/seller/apply"
-            className="inline-flex w-fit items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 text-xs font-bold text-zinc-950 transition-colors hover:bg-emerald-400"
-          >
-            Start selling
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
         </div>
       </div>
 
