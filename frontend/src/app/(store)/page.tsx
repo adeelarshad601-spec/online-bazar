@@ -22,37 +22,37 @@ export default function StorefrontHomePage() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {/* Main Hero Banner (Spans 2 columns on desktop) */}
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-100 via-teal-50 to-emerald-200/50 p-5 sm:p-8 lg:p-12 lg:col-span-2 flex flex-col justify-between dark:from-emerald-950/60 dark:via-zinc-900 dark:to-emerald-900/40 border border-emerald-200/50 dark:border-emerald-800/30">
-            <div className="max-w-xl space-y-4 z-10">
+            <div className="hero-copy-enter max-w-xl space-y-4 z-10">
               {/* Badge */}
-              <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-[10px] font-bold text-emerald-800 sm:text-xs dark:text-emerald-300">
+              <div className="hero-copy-item inline-flex max-w-full items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-[10px] font-bold text-emerald-800 sm:text-xs dark:text-emerald-300">
                 <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[9px] font-extrabold uppercase text-white sm:text-[10px]">
-                  TOP RATED
+                  ONLINE BAZAAR
                 </span>
-                <span className="truncate">World's #1 Multi-Vendor Marketplace Ecosystem</span>
+                <span className="truncate">Fresh finds from trusted sellers</span>
                 <ChevronRight className="hidden h-3.5 w-3.5 shrink-0 sm:inline" />
               </div>
 
               {/* Slogan */}
-              <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-3xl md:text-4xl lg:text-5xl leading-tight">
-                Empowering Global Sellers. <br />
-                <span className="text-emerald-700 dark:text-emerald-400">Delivering Quality to Your Door.</span>
+              <h1 className="hero-copy-item text-2xl font-extrabold text-zinc-900 dark:text-white sm:text-3xl md:text-4xl lg:text-5xl leading-tight">
+                Discover something <br />
+                <span className="text-emerald-700 dark:text-emerald-400">worth bringing home.</span>
               </h1>
 
-              {/* Value Proposition & Seller Benefits */}
-              <p className="text-[11px] sm:text-sm font-medium text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                Connect with 100,000+ verified buyers globally. Sell products with <strong>0% listing fees</strong>, automated instant payouts, and state-of-the-art seller analytics tools.
+              {/* Storefront value proposition */}
+              <p className="hero-copy-item text-[11px] sm:text-sm font-medium text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                Explore everyday essentials, standout style, and useful tech from independent sellers. Find what you love and shop with confidence.
               </p>
 
-              {/* Seller Benefit Pills */}
+              {/* Shopping benefits */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="rounded-full bg-emerald-600/10 border border-emerald-600/20 px-2.5 py-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 sm:text-[11px]">
-                  ✓ 0% Listing Fees
+                <span className="hero-copy-item rounded-full bg-emerald-600/10 border border-emerald-600/20 px-2.5 py-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 sm:text-[11px]">
+                  ✓ Trusted sellers
                 </span>
-                <span className="rounded-full bg-emerald-600/10 border border-emerald-600/20 px-2.5 py-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 sm:text-[11px]">
-                  ✓ Instant Daily Payouts
+                <span className="hero-copy-item rounded-full bg-emerald-600/10 border border-emerald-600/20 px-2.5 py-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 sm:text-[11px]">
+                  ✓ Secure checkout
                 </span>
-                <span className="rounded-full bg-emerald-600/10 border border-emerald-600/20 px-2.5 py-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 sm:text-[11px]">
-                  ✓ Buyer Protection
+                <span className="hero-copy-item rounded-full bg-emerald-600/10 border border-emerald-600/20 px-2.5 py-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 sm:text-[11px]">
+                  ✓ Track your delivery
                 </span>
               </div>
             </div>
@@ -64,7 +64,7 @@ export default function StorefrontHomePage() {
                   href="/products"
                   className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-zinc-900 px-5 py-3 text-[11px] font-bold text-white shadow-lg transition-all hover:bg-zinc-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 sm:w-auto sm:text-xs"
                 >
-                  <span>Shop Marketplace</span>
+                  <span>Explore Products</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
 
@@ -83,8 +83,8 @@ export default function StorefrontHomePage() {
                   <Store className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div className="text-[10px] sm:text-xs">
-                  <p className="font-bold text-zinc-900 dark:text-white">100K+ Global Buyers</p>
-                  <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold sm:text-[10px]">100% Guaranteed Payouts</p>
+                  <p className="font-bold text-zinc-900 dark:text-white">One marketplace</p>
+                  <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold sm:text-[10px]">More finds to discover</p>
                 </div>
               </div>
             </div>
@@ -96,7 +96,7 @@ export default function StorefrontHomePage() {
             <div className="relative overflow-hidden rounded-3xl bg-amber-100/70 p-5 sm:p-6 flex items-center justify-between dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-900/30">
               <div className="space-y-2">
                 <h3 className="text-lg font-bold text-zinc-900 dark:text-white sm:text-xl">
-                  Best products
+                  Popular right now
                 </h3>
                 <Link
                   href="/products?sort=popular"
@@ -117,7 +117,7 @@ export default function StorefrontHomePage() {
             <div className="relative overflow-hidden rounded-3xl bg-sky-100/70 p-5 sm:p-6 flex items-center justify-between dark:bg-sky-950/40 border border-sky-200/50 dark:border-sky-900/30">
               <div className="space-y-2">
                 <h3 className="text-lg font-bold text-zinc-900 dark:text-white sm:text-xl">
-                  20% discounts
+                  Special offers
                 </h3>
                 <Link
                   href="/products?featured=true"
