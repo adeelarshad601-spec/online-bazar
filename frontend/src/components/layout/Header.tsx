@@ -587,6 +587,13 @@ export default function Header() {
                 </Link>
 
                 <Link
+                  href="/support#faqs"
+                  className="text-zinc-700 transition-colors hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+                >
+                  FAQs
+                </Link>
+
+                <Link
                   href="/seller/apply"
                   className="hidden sm:inline-flex items-center gap-1 text-emerald-700 font-extrabold hover:underline dark:text-emerald-400"
                 >

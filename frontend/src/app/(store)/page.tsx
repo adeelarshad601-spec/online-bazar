@@ -231,6 +231,7 @@ export default function StorefrontHomePage() {
           </div>
         </div>
       </section>
+
     </div>
   );
 }

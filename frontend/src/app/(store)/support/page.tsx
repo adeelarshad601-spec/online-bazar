@@ -159,7 +159,7 @@ export default function HelpSupportPage() {
       </div>
 
       {/* FAQs Section */}
-      <div className="space-y-6">
+      <div id="faqs" className="space-y-6 scroll-mt-32">
         <h2 className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-2xl">
           Frequently Asked Questions
         </h2>
