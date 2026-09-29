@@ -6,13 +6,10 @@ import {
   RotateCcw,
   Headphones,
   Mail,
-  Phone,
-  MapPin,
   Heart,
   Users,
   CreditCard,
   MessageCircle,
-  Camera,
   Play,
 } from "lucide-react";
 
@@ -77,14 +74,6 @@ export default function Footer() {
             </p>
             <div className="space-y-2 text-xs font-medium text-zinc-500 dark:text-zinc-500">
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-emerald-600" />
-                <span>Central Commerce District</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-emerald-600" />
-                <span>+1 800-ONLINE-BAZAR</span>
-              </div>
-              <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-emerald-600" />
                 <span>support@onlinebazar.com</span>
               </div>
@@ -93,12 +82,32 @@ export default function Footer() {
               <Link href="https://facebook.com" aria-label="Online-Bazar on Facebook" className="rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-950/40">
                 <MessageCircle className="h-4 w-4" />
               </Link>
-              <Link href="https://instagram.com" aria-label="Online-Bazar on Instagram" className="rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-950/40">
-                <Camera className="h-4 w-4" />
-              </Link>
               <Link href="https://youtube.com" aria-label="Online-Bazar on YouTube" className="rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-950/40">
                 <Play className="h-4 w-4" />
               </Link>
+            </div>
+            <div className="space-y-2 pt-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">We accept</p>
+              <div className="flex flex-wrap items-center gap-1.5" role="list" aria-label="Accepted payment methods">
+                <span role="listitem" aria-label="Visa" className="flex h-7 min-w-12 items-center justify-center rounded border border-zinc-200 bg-white px-2 text-[11px] font-black italic text-blue-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-blue-300">
+                  VISA
+                </span>
+                <span role="listitem" aria-label="Mastercard" className="flex h-7 min-w-16 items-center justify-center rounded border border-zinc-200 bg-white px-2 dark:border-zinc-700 dark:bg-zinc-900">
+                  <span aria-hidden="true" className="flex -space-x-1">
+                    <span className="h-3.5 w-3.5 rounded-full bg-red-600" />
+                    <span className="h-3.5 w-3.5 rounded-full bg-amber-400/90" />
+                  </span>
+                </span>
+                <span role="listitem" aria-label="American Express" className="flex h-7 min-w-12 items-center justify-center rounded border border-zinc-200 bg-blue-700 px-2 text-[9px] font-extrabold text-white">
+                  AMEX
+                </span>
+                <span role="listitem" aria-label="Discover" className="flex h-7 min-w-16 items-center justify-center rounded border border-zinc-200 bg-white px-2 text-[9px] font-extrabold text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+                  Discover
+                </span>
+                <span role="listitem" aria-label="Cash on Delivery" className="flex h-7 items-center justify-center rounded border border-zinc-200 bg-white px-2 text-[9px] font-bold text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-emerald-400">
+                  Cash on Delivery
+                </span>
+              </div>
             </div>
           </div>
 
