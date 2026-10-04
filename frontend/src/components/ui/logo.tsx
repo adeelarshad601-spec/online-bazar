@@ -24,7 +24,7 @@ export default function Logo({ size = "md", showSubtitle = false }: LogoProps) {
       {/* Original Logo SVG with clean white backdrop pill for high visibility on dark backgrounds */}
       <div className={`relative flex shrink-0 items-center justify-center rounded-xl bg- p-1 shadow-xs   transition-transform duration-200 group-hover:scale-105 ${iconSizes[size]}`}>
         <Image
-          src="/OnlineBazar-logo.svg"
+          src="/logo.jpeg"
           alt="Online Bazar logo"
           fill
           sizes="60px"
