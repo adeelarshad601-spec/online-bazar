@@ -1,14 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import CategoryPillBar from "@/components/product/CategoryPillBar";
 import ProductCard from "@/components/product/ProductCard";
 import ProductSkeleton from "@/components/product/ProductSkeleton";
 import SpecificationsSection from "@/components/home/SpecificationsSection";
 import { useProducts } from "@/features/products/queries";
-import { ArrowRight, ChevronRight, Store } from "lucide-react";
+import { ArrowRight, Search, ShieldCheck, ShoppingBag, Store, Truck } from "lucide-react";
 
 export default function StorefrontHomePage() {
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: products, isLoading } = useProducts();
 
   const latestProducts = products ? products.slice(0, 4) : [];
@@ -17,121 +22,113 @@ export default function StorefrontHomePage() {
 
   return (
     <div className="space-y-12 pb-16">
-      {/* 1. Bento Grid Hero Section (GoCart Inspired Layout, Online-Bazar Emerald Theme) */}
-      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {/* Main Hero Banner (Spans 2 columns on desktop) */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-100 via-teal-50 to-emerald-200/50 p-5 sm:p-8 lg:p-12 lg:col-span-2 flex flex-col justify-between dark:from-emerald-950/60 dark:via-zinc-900 dark:to-emerald-900/40 border border-emerald-200/50 dark:border-emerald-800/30">
-            <div className="hero-copy-enter max-w-xl space-y-4 z-10">
-              {/* Badge */}
-              <div className="hero-copy-item inline-flex max-w-full items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-[10px] font-bold text-emerald-800 sm:text-xs dark:text-emerald-300">
-                <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[9px] font-extrabold uppercase text-white sm:text-[10px]">
-                  ONLINE BAZAAR
-                </span>
-                <span className="truncate">Fresh finds from trusted sellers</span>
-                <ChevronRight className="hidden h-3.5 w-3.5 shrink-0 sm:inline" />
-              </div>
-
-              {/* Slogan */}
-              <h1 className="hero-copy-item text-2xl font-extrabold text-zinc-900 dark:text-white sm:text-3xl md:text-4xl lg:text-5xl leading-tight">
-                Discover something <br />
-                <span className="text-emerald-700 dark:text-emerald-400">worth bringing home.</span>
-              </h1>
-
-              {/* Storefront value proposition */}
-              <p className="hero-copy-item text-[11px] sm:text-sm font-medium text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                Explore everyday essentials, standout style, and useful tech from independent sellers. Find what you love and shop with confidence.
-              </p>
-
-              {/* Shopping benefits */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="hero-copy-item rounded-full bg-emerald-600/10 border border-emerald-600/20 px-2.5 py-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 sm:text-[11px]">
-                  ✓ Trusted sellers
-                </span>
-                <span className="hero-copy-item rounded-full bg-emerald-600/10 border border-emerald-600/20 px-2.5 py-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 sm:text-[11px]">
-                  ✓ Secure checkout
-                </span>
-                <span className="hero-copy-item rounded-full bg-emerald-600/10 border border-emerald-600/20 px-2.5 py-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 sm:text-[11px]">
-                  ✓ Track your delivery
-                </span>
-              </div>
+      {/* 1. Marketplace Hero */}
+      <section className="relative isolate overflow-hidden bg-[#f8f7f1] dark:bg-zinc-950">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-[#e6f0e8] dark:bg-emerald-950/30"
+          style={{ clipPath: "polygon(0 32%, 15% 56%, 30% 19%, 44% 54%, 59% 0, 75% 49%, 91% 20%, 100% 42%, 100% 100%, 0 100%)" }}
+        />
+        <div className="relative mx-auto grid min-h-140 max-w-7xl items-center gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:min-h-125 lg:grid-cols-[1.08fr_0.92fr] lg:gap-5 lg:px-8 lg:py-10">
+          <div className="hero-copy-enter relative z-10 max-w-2xl space-y-5">
+            <div className="hero-copy-item inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300 sm:text-xs">
+              <ShoppingBag className="h-4 w-4" />
+              <span>Good finds from trusted sellers</span>
             </div>
 
-            {/* Actions: Shop Marketplace & Become a Seller */}
-            <div className="mt-8 flex flex-col gap-4 z-10 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
-                <Link
-                  href="/products"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-zinc-900 px-5 py-3 text-[11px] font-bold text-white shadow-lg transition-all hover:bg-zinc-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 sm:w-auto sm:text-xs"
-                >
-                  <span>Explore Products</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+            <h1 className="hero-copy-item max-w-xl font-serif text-[2.65rem] font-semibold leading-[1.08] text-[#173b30] dark:text-white sm:text-5xl lg:text-[3.65rem]">
+              Find your next <span className="text-emerald-700 dark:text-emerald-400">favorite thing.</span>
+            </h1>
 
-                <Link
-                  href="/seller/apply"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-[11px] font-bold text-emerald-700 shadow-md border border-emerald-200/80 transition-all hover:bg-emerald-50 hover:shadow-lg dark:bg-zinc-800 dark:text-emerald-400 dark:border-emerald-800 sm:w-auto sm:text-xs"
-                  id="hero-become-seller-btn"
-                >
-                  <Store className="h-4 w-4" />
-                  <span>Become a Seller</span>
-                </Link>
-              </div>
+            <p className="hero-copy-item max-w-lg text-sm leading-6 text-zinc-600 dark:text-zinc-300 sm:text-base">
+              Shop everyday essentials, fresh style, and useful tech from independent sellers across Online Bazar.
+            </p>
 
-              <div className="flex items-center gap-2.5 rounded-2xl bg-white/90 p-2.5 shadow-sm backdrop-blur-md dark:bg-zinc-900/90 border border-emerald-100 dark:border-zinc-800 sm:p-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 sm:h-10 sm:w-10">
-                  <Store className="h-4 w-4 sm:h-5 sm:w-5" />
-                </div>
-                <div className="text-[10px] sm:text-xs">
-                  <p className="font-bold text-zinc-900 dark:text-white">One marketplace</p>
-                  <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold sm:text-[10px]">More finds to discover</p>
-                </div>
-              </div>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                const params = new URLSearchParams();
+                if (searchTerm.trim()) params.set("search", searchTerm.trim());
+                router.push(`/products${params.size ? `?${params.toString()}` : ""}`);
+              }}
+              className="hero-copy-item flex w-full max-w-xl items-center rounded-full border border-[#e5e1d7] bg-white p-1.5 shadow-[0_8px_28px_rgba(28,55,42,0.10)] dark:border-zinc-700 dark:bg-zinc-900"
+            >
+              <Search className="ml-3 h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400" />
+              <input
+                aria-label="Search products"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="What are you looking for?"
+                className="h-10 min-w-0 flex-1 bg-transparent px-3 text-sm text-zinc-800 outline-none placeholder:text-zinc-400 dark:text-white"
+              />
+              <button
+                type="submit"
+                className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-emerald-700 px-4 text-xs font-bold text-white transition-colors hover:bg-emerald-800 sm:px-5 sm:text-sm"
+              >
+                Search
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </form>
+
+            <div className="hero-copy-item flex flex-wrap gap-x-6 gap-y-3 pt-1 text-xs font-semibold text-[#37564a] dark:text-emerald-100">
+              <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />Secure checkout</span>
+              <span className="inline-flex items-center gap-2"><Truck className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />Delivery to your door</span>
             </div>
           </div>
 
-          {/* Right Side 2 Stacked Cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            {/* Top Promo Card (Warm Peach) */}
-            <div className="relative overflow-hidden rounded-3xl bg-amber-100/70 p-5 sm:p-6 flex items-center justify-between dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-900/30">
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white sm:text-xl">
-                  Popular right now
-                </h3>
+          <div className="relative mx-auto h-80 w-full max-w-117.5 sm:h-100 lg:h-110">
+            <div aria-hidden="true" className="absolute left-[18%] top-[12%] h-[76%] w-[65%] rotate-[-8deg] rounded-[2rem] bg-[#d9e8dc] shadow-lg dark:bg-emerald-950" />
+            <div aria-hidden="true" className="absolute left-[22%] top-[8%] h-[78%] w-[65%] rotate-[7deg] rounded-[2rem] bg-[#d6e9e9] shadow-lg dark:bg-teal-950" />
+
+            {products?.slice(0, 3).map((product, index) => {
+              const positions = [
+                "left-[20%] top-[4%] z-20 h-[82%] w-[66%]",
+                "left-[4%] top-[15%] z-10 h-[72%] w-[62%] -rotate-[7deg]",
+                "right-[0%] top-[13%] z-0 h-[70%] w-[58%] rotate-[8deg]",
+              ];
+              const imageUrl = product.images?.[0]?.url;
+
+              return (
                 <Link
-                  href="/products?sort=popular"
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-700 hover:text-emerald-700 dark:text-zinc-300 dark:hover:text-emerald-400"
+                  key={product.id}
+                  href={`/products/${product.id}`}
+                  className={`absolute overflow-hidden rounded-[1.65rem] border-[5px] border-white bg-white shadow-[0_18px_45px_rgba(28,55,42,0.20)] transition-transform duration-500 hover:-translate-y-2 dark:border-zinc-800 dark:bg-zinc-900 ${positions[index]}`}
                 >
-                  <span>View more</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  {imageUrl ? (
+                    <Image
+                      src={imageUrl}
+                      alt={product.title}
+                      fill
+                      priority={index === 0}
+                      sizes="(max-width: 768px) 55vw, 30vw"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-[#eaf2ec] text-emerald-700 dark:bg-zinc-800 dark:text-emerald-300">
+                      <ShoppingBag className="h-14 w-14 stroke-[1.2]" />
+                    </div>
+                  )}
+                  {index === 0 && (
+                    <div className="absolute inset-x-2 bottom-2 flex items-center justify-between gap-2 rounded-xl bg-white/95 px-3 py-2 shadow-sm backdrop-blur dark:bg-zinc-950/90">
+                      <span className="min-w-0 truncate text-xs font-bold text-zinc-800 dark:text-white">{product.title}</span>
+                      <span className="shrink-0 text-xs font-extrabold text-emerald-700 dark:text-emerald-400">${Number(product.price).toFixed(0)}</span>
+                    </div>
+                  )}
                 </Link>
-              </div>
+              );
+            })}
 
-              {/* Decorative Audio/Tech Icon Graphic */}
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-amber-200/60 text-amber-800 shadow-inner dark:bg-amber-900/50 dark:text-amber-300 text-2xl font-black sm:h-20 sm:w-20 sm:text-3xl">
-                🎧
+            {!products?.length && (
+              <div className="absolute left-[20%] top-[4%] z-20 flex h-[82%] w-[66%] items-center justify-center overflow-hidden rounded-[1.65rem] border-[5px] border-white bg-[#e6f0e8] shadow-[0_18px_45px_rgba(28,55,42,0.20)] dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="flex h-44 w-44 items-center justify-center rounded-full bg-white/70 text-emerald-700 dark:bg-zinc-800 dark:text-emerald-300">
+                  <ShoppingBag className="h-20 w-20 stroke-[1.1]" />
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Bottom Promo Card (Soft Blue) */}
-            <div className="relative overflow-hidden rounded-3xl bg-sky-100/70 p-5 sm:p-6 flex items-center justify-between dark:bg-sky-950/40 border border-sky-200/50 dark:border-sky-900/30">
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white sm:text-xl">
-                  Special offers
-                </h3>
-                <Link
-                  href="/products?featured=true"
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-700 hover:text-emerald-700 dark:text-zinc-300 dark:hover:text-emerald-400"
-                >
-                  <span>View more</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-
-              {/* Decorative Watch/Tech Icon Graphic */}
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-sky-200/60 text-sky-800 shadow-inner dark:bg-sky-900/50 dark:text-sky-300 text-2xl font-black sm:h-20 sm:w-20 sm:text-3xl">
-                ⌚
-              </div>
+            <div className="absolute bottom-[1%] left-[3%] z-30 flex items-center gap-2 rounded-2xl border border-white/80 bg-white px-3 py-2.5 shadow-lg dark:border-zinc-700 dark:bg-zinc-900 sm:px-4">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-700 text-white"><Store className="h-4 w-4" /></span>
+              <span className="text-xs font-bold text-zinc-800 dark:text-white">One bazaar, more to love</span>
             </div>
           </div>
         </div>
