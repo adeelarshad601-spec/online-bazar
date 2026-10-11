@@ -2,23 +2,37 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CategoryPillBar from "@/components/product/CategoryPillBar";
 import ProductCard from "@/components/product/ProductCard";
 import ProductSkeleton from "@/components/product/ProductSkeleton";
 import SpecificationsSection from "@/components/home/SpecificationsSection";
 import { useProducts } from "@/features/products/queries";
-import { ArrowRight, Search, ShieldCheck, ShoppingBag, Store, Truck } from "lucide-react";
+import { ArrowRight, ShieldCheck, ShoppingBag, Store, Truck } from "lucide-react";
 
 export default function StorefrontHomePage() {
-  const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
   const { data: products, isLoading } = useProducts();
+  const [activeProductIndex, setActiveProductIndex] = useState(0);
+
+  useEffect(() => {
+    if (!products || products.length < 2) return;
+
+    const intervalId = window.setInterval(() => {
+      setActiveProductIndex((currentIndex) => (currentIndex + 1) % products.length);
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
+  }, [products]);
 
   const latestProducts = products ? products.slice(0, 4) : [];
   const bestSellingProducts = products ? products.slice(0, 8) : [];
   const totalCount = products?.length || 12;
+  const heroProducts = products?.length
+    ? Array.from({ length: Math.min(products.length, 3) }, (_, offset) => ({
+        product: products[(activeProductIndex + offset) % products.length],
+        position: offset,
+      }))
+    : [];
 
   return (
     <div className="space-y-12 pb-16">
@@ -33,42 +47,26 @@ export default function StorefrontHomePage() {
           <div className="hero-copy-enter relative z-10 max-w-2xl space-y-5">
             <div className="hero-copy-item inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300 sm:text-xs">
               <ShoppingBag className="h-4 w-4" />
-              <span>Good finds from trusted sellers</span>
+              <span>A trusted marketplace for everyday shopping</span>
             </div>
 
             <h1 className="hero-copy-item max-w-xl font-serif text-[2.65rem] font-semibold leading-[1.08] text-[#173b30] dark:text-white sm:text-5xl lg:text-[3.65rem]">
-              Find your next <span className="text-emerald-700 dark:text-emerald-400">favorite thing.</span>
+              Discover quality. <span className="text-emerald-700 dark:text-emerald-400">Grow your business.</span>
             </h1>
 
             <p className="hero-copy-item max-w-lg text-sm leading-6 text-zinc-600 dark:text-zinc-300 sm:text-base">
-              Shop everyday essentials, fresh style, and useful tech from independent sellers across Online Bazar.
+              Shop from trusted independent sellers, or bring your products to Online Bazar and connect with more customers.
             </p>
 
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                const params = new URLSearchParams();
-                if (searchTerm.trim()) params.set("search", searchTerm.trim());
-                router.push(`/products${params.size ? `?${params.toString()}` : ""}`);
-              }}
-              className="hero-copy-item flex w-full max-w-xl items-center rounded-full border border-[#e5e1d7] bg-white p-1.5 shadow-[0_8px_28px_rgba(28,55,42,0.10)] dark:border-zinc-700 dark:bg-zinc-900"
+            <Link
+              href="/seller/apply"
+              id="hero-become-seller-btn"
+              className="hero-copy-item inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 text-sm font-bold text-white shadow-[0_8px_24px_rgba(4,120,87,0.2)] transition-colors hover:bg-emerald-800"
             >
-              <Search className="ml-3 h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400" />
-              <input
-                aria-label="Search products"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="What are you looking for?"
-                className="h-10 min-w-0 flex-1 bg-transparent px-3 text-sm text-zinc-800 outline-none placeholder:text-zinc-400 dark:text-white"
-              />
-              <button
-                type="submit"
-                className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-emerald-700 px-4 text-xs font-bold text-white transition-colors hover:bg-emerald-800 sm:px-5 sm:text-sm"
-              >
-                Search
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </form>
+              <Store className="h-4 w-4" />
+              Become a Seller
+              <ArrowRight className="h-4 w-4" />
+            </Link>
 
             <div className="hero-copy-item flex flex-wrap gap-x-6 gap-y-3 pt-1 text-xs font-semibold text-[#37564a] dark:text-emerald-100">
               <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />Secure checkout</span>
@@ -80,7 +78,7 @@ export default function StorefrontHomePage() {
             <div aria-hidden="true" className="absolute left-[18%] top-[12%] h-[76%] w-[65%] rotate-[-8deg] rounded-[2rem] bg-[#d9e8dc] shadow-lg dark:bg-emerald-950" />
             <div aria-hidden="true" className="absolute left-[22%] top-[8%] h-[78%] w-[65%] rotate-[7deg] rounded-[2rem] bg-[#d6e9e9] shadow-lg dark:bg-teal-950" />
 
-            {products?.slice(0, 3).map((product, index) => {
+            {heroProducts.map(({ product, position: index }) => {
               const positions = [
                 "left-[20%] top-[4%] z-20 h-[82%] w-[66%]",
                 "left-[4%] top-[15%] z-10 h-[72%] w-[62%] -rotate-[7deg]",
@@ -206,7 +204,7 @@ export default function StorefrontHomePage() {
 
       {/* 6. Become a Seller Callout Banner (Restored as requested) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-10 text-white shadow-xl sm:px-12 sm:py-12">
+        <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-emerald-600 to-teal-600 px-6 py-10 text-white shadow-xl sm:px-12 sm:py-12">
           <div className="relative z-10 max-w-2xl space-y-4">
             <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md">
               Grow Your Business
