@@ -160,8 +160,26 @@
   animation-delay: 500ms;
 }
 
+@keyframes seller-arrow-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-seller-arrow {
+  animation: seller-arrow-nudge 1.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-copy-enter > .hero-copy-item {
+    animation: none;
+  }
+
+  .animate-seller-arrow {
     animation: none;
   }
 }

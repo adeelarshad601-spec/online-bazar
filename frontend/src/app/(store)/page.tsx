@@ -65,7 +65,7 @@ export default function StorefrontHomePage() {
             >
               <Store className="h-4 w-4" />
               Become a Seller
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 animate-seller-arrow motion-reduce:animate-none" />
             </Link>
 
             <div className="hero-copy-item flex flex-wrap gap-x-6 gap-y-3 pt-1 text-xs font-semibold text-[#37564a] dark:text-emerald-100">
