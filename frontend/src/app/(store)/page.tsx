@@ -124,10 +124,6 @@ export default function StorefrontHomePage() {
               </div>
             )}
 
-            <div className="absolute bottom-[1%] left-[3%] z-30 flex items-center gap-2 rounded-2xl border border-white/80 bg-white px-3 py-2.5 shadow-lg dark:border-zinc-700 dark:bg-zinc-900 sm:px-4">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-700 text-white"><Store className="h-4 w-4" /></span>
-              <span className="text-xs font-bold text-zinc-800 dark:text-white">One bazaar, more to love</span>
-            </div>
           </div>
         </div>
       </section>
